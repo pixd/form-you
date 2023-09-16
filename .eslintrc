@@ -1,0 +1,36 @@
+{
+  "parser": "@typescript-eslint/parser",
+  "extends": [
+    "yet-another"
+  ],
+  "env": {
+    "browser": true
+  },
+  "parserOptions": {
+    "requireConfigFile": false,
+    "project": "./tsconfig.json"
+  },
+  "rules": {},
+  "overrides": [
+    {
+      "files": [
+        "test/**"
+      ],
+      "plugins": [
+        "jest"
+      ],
+      "env": {
+        "jest/globals": true
+      },
+      "parserOptions": {
+        "requireConfigFile": false,
+        "project": "./test/tsconfig.json"
+      },
+      "rules": {
+        "jest/no-disabled-tests": "error",
+        "jest/no-focused-tests": "error",
+        "jest/no-identical-title": "error"
+      }
+    }
+  ]
+}

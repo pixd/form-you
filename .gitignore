@@ -1,0 +1,13 @@
+# Dependency directory
+node_modules
+
+# Build files
+dts/
+lib/
+es/
+
+# Misc
+.DS_Store
+
+# IDE
+.idea

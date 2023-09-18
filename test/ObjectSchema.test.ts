@@ -15,8 +15,8 @@ function testSchemaValidation(schema: ObjectSchema, value: any, error?: string) 
 
 const isNotOptionalMessage = prepareErrorMessage(errorMessages.IS_NOT_OPTIONAL_MESSAGE);
 const isNotNullableMessage = prepareErrorMessage(errorMessages.IS_NOT_NULLABLE_MESSAGE);
-const mustBeUndefinedMessage = prepareErrorMessage(errorMessages.MUST_BE_UNDEFINED_MESSAGE);
-const mustBeNullMessage = prepareErrorMessage(errorMessages.MUST_BE_NULL_MESSAGE);
+// const mustBeUndefinedMessage = prepareErrorMessage(errorMessages.MUST_BE_UNDEFINED_MESSAGE);
+// const mustBeNullMessage = prepareErrorMessage(errorMessages.MUST_BE_NULL_MESSAGE);
 const mustBeAnObjectMessage = prepareErrorMessage(errorMessages.MUST_BE_AN_OBJECT_MESSAGE);
 
 describe('ObjectSchema', () => {
@@ -47,12 +47,12 @@ describe('ObjectSchema', () => {
     testSchemaValidation(schema.notNullable(), null, isNotNullableMessage);
     testSchemaValidation(schema.notNullable(), {});
 
-    testSchemaValidation(schema.undefined(), undefined);
-    testSchemaValidation(schema.undefined(), null, isNotNullableMessage);
-    testSchemaValidation(schema.undefined(), {}, mustBeUndefinedMessage);
-    testSchemaValidation(schema.null(), undefined, mustBeNullMessage);
-    testSchemaValidation(schema.null(), null, isNotNullableMessage);
-    testSchemaValidation(schema.null(), {}, mustBeNullMessage);
+    // testSchemaValidation(schema.undefined(), undefined);
+    // testSchemaValidation(schema.undefined(), null, isNotNullableMessage);
+    // testSchemaValidation(schema.undefined(), {}, mustBeUndefinedMessage);
+    // testSchemaValidation(schema.null(), undefined, mustBeNullMessage);
+    // testSchemaValidation(schema.null(), null, isNotNullableMessage);
+    // testSchemaValidation(schema.null(), {}, mustBeNullMessage);
   });
 
   it('should validate with .notOptional()', () => {
@@ -73,12 +73,12 @@ describe('ObjectSchema', () => {
     testSchemaValidation(schema.notNullable(), null, isNotNullableMessage);
     testSchemaValidation(schema.notNullable(), {});
 
-    testSchemaValidation(schema.undefined(), undefined, isNotOptionalMessage);
-    testSchemaValidation(schema.undefined(), null, isNotNullableMessage);
-    testSchemaValidation(schema.undefined(), {}, mustBeUndefinedMessage);
-    testSchemaValidation(schema.null(), undefined, isNotOptionalMessage);
-    testSchemaValidation(schema.null(), null, isNotNullableMessage);
-    testSchemaValidation(schema.null(), {}, mustBeNullMessage);
+    // testSchemaValidation(schema.undefined(), undefined, isNotOptionalMessage);
+    // testSchemaValidation(schema.undefined(), null, isNotNullableMessage);
+    // testSchemaValidation(schema.undefined(), {}, mustBeUndefinedMessage);
+    // testSchemaValidation(schema.null(), undefined, isNotOptionalMessage);
+    // testSchemaValidation(schema.null(), null, isNotNullableMessage);
+    // testSchemaValidation(schema.null(), {}, mustBeNullMessage);
   });
 
   it('should validate with .nullable()', () => {
@@ -99,12 +99,12 @@ describe('ObjectSchema', () => {
     testSchemaValidation(schema.notNullable(), null, isNotNullableMessage);
     testSchemaValidation(schema.notNullable(), {});
 
-    testSchemaValidation(schema.undefined(), undefined, isNotOptionalMessage);
-    testSchemaValidation(schema.undefined(), null, mustBeUndefinedMessage);
-    testSchemaValidation(schema.undefined(), {}, mustBeUndefinedMessage);
-    testSchemaValidation(schema.null(), undefined, isNotOptionalMessage);
-    testSchemaValidation(schema.null(), null);
-    testSchemaValidation(schema.null(), {}, mustBeNullMessage);
+    // testSchemaValidation(schema.undefined(), undefined, isNotOptionalMessage);
+    // testSchemaValidation(schema.undefined(), null, mustBeUndefinedMessage);
+    // testSchemaValidation(schema.undefined(), {}, mustBeUndefinedMessage);
+    // testSchemaValidation(schema.null(), undefined, isNotOptionalMessage);
+    // testSchemaValidation(schema.null(), null);
+    // testSchemaValidation(schema.null(), {}, mustBeNullMessage);
   });
 
   it('should validate with .notNullable()', () => {
@@ -125,12 +125,12 @@ describe('ObjectSchema', () => {
     testSchemaValidation(schema.nullable(), null);
     testSchemaValidation(schema.nullable(), {});
 
-    testSchemaValidation(schema.undefined(), undefined, isNotOptionalMessage);
-    testSchemaValidation(schema.undefined(), null, isNotNullableMessage);
-    testSchemaValidation(schema.undefined(), {}, mustBeUndefinedMessage);
-    testSchemaValidation(schema.null(), undefined, isNotOptionalMessage);
-    testSchemaValidation(schema.null(), null, isNotNullableMessage);
-    testSchemaValidation(schema.null(), {}, mustBeNullMessage);
+    // testSchemaValidation(schema.undefined(), undefined, isNotOptionalMessage);
+    // testSchemaValidation(schema.undefined(), null, isNotNullableMessage);
+    // testSchemaValidation(schema.undefined(), {}, mustBeUndefinedMessage);
+    // testSchemaValidation(schema.null(), undefined, isNotOptionalMessage);
+    // testSchemaValidation(schema.null(), null, isNotNullableMessage);
+    // testSchemaValidation(schema.null(), {}, mustBeNullMessage);
   });
 
   it('should validate with .required()', () => {
@@ -154,12 +154,12 @@ describe('ObjectSchema', () => {
     testSchemaValidation(schema.notNullable(), null, isNotNullableMessage);
     testSchemaValidation(schema.notNullable(), {});
 
-    testSchemaValidation(schema.undefined(), undefined, isNotOptionalMessage);
-    testSchemaValidation(schema.undefined(), null, isNotNullableMessage);
-    testSchemaValidation(schema.undefined(), {}, mustBeUndefinedMessage);
-    testSchemaValidation(schema.null(), undefined, isNotOptionalMessage);
-    testSchemaValidation(schema.null(), null, isNotNullableMessage);
-    testSchemaValidation(schema.null(), {}, mustBeNullMessage);
+    // testSchemaValidation(schema.undefined(), undefined, isNotOptionalMessage);
+    // testSchemaValidation(schema.undefined(), null, isNotNullableMessage);
+    // testSchemaValidation(schema.undefined(), {}, mustBeUndefinedMessage);
+    // testSchemaValidation(schema.null(), undefined, isNotOptionalMessage);
+    // testSchemaValidation(schema.null(), null, isNotNullableMessage);
+    // testSchemaValidation(schema.null(), {}, mustBeNullMessage);
   });
 
   it('should validate with .notRequired()', () => {
@@ -183,12 +183,12 @@ describe('ObjectSchema', () => {
     testSchemaValidation(schema.notNullable(), null, isNotNullableMessage);
     testSchemaValidation(schema.notNullable(), {});
 
-    testSchemaValidation(schema.undefined(), undefined);
-    testSchemaValidation(schema.undefined(), null, mustBeUndefinedMessage);
-    testSchemaValidation(schema.undefined(), {}, mustBeUndefinedMessage);
-    testSchemaValidation(schema.null(), undefined, mustBeNullMessage);
-    testSchemaValidation(schema.null(), null);
-    testSchemaValidation(schema.null(), {}, mustBeNullMessage);
+    // testSchemaValidation(schema.undefined(), undefined);
+    // testSchemaValidation(schema.undefined(), null, mustBeUndefinedMessage);
+    // testSchemaValidation(schema.undefined(), {}, mustBeUndefinedMessage);
+    // testSchemaValidation(schema.null(), undefined, mustBeNullMessage);
+    // testSchemaValidation(schema.null(), null);
+    // testSchemaValidation(schema.null(), {}, mustBeNullMessage);
   });
 
   it('should clone', () => {

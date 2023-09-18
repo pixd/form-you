@@ -22,15 +22,15 @@ function rejectNullTest(message: string, value: any) {
   }
 }
 
-function undefinedTest(message: string, value: any) {
-  if (value !== undefined) {
-    throw new ValidationError(
-      message,
-      PredefinedValidationTestName.$ANY_NOT_UNDEFINED,
-      value,
-    );
-  }
-}
+// function undefinedTest(message: string, value: any) {
+//   if (value !== undefined) {
+//     throw new ValidationError(
+//       message,
+//       PredefinedValidationTestName.$ANY_NOT_UNDEFINED,
+//       value,
+//     );
+//   }
+// }
 
 // function notUndefinedTest(message: string, value: any) {
 //   if (value === undefined) {
@@ -42,15 +42,15 @@ function undefinedTest(message: string, value: any) {
 //   }
 // }
 
-function nullTest(message: string, value: any) {
-  if (value !== null) {
-    throw new ValidationError(
-      message,
-      PredefinedValidationTestName.$ANY_NOT_NULL,
-      value,
-    );
-  }
-}
+// function nullTest(message: string, value: any) {
+//   if (value !== null) {
+//     throw new ValidationError(
+//       message,
+//       PredefinedValidationTestName.$ANY_NOT_NULL,
+//       value,
+//     );
+//   }
+// }
 
 // function notNullTest(message: string, value: any) {
 //   if (value === null) {
@@ -69,8 +69,8 @@ type TestFn = {
 type Test = [string, TestFn];
 
 type SchemaCloneProps = {
-  rejectUndefined: null | string
-  rejectNull: null | string
+  rejectUndefined: null | string;
+  rejectNull: null | string;
 };
 
 export default class ObjectSchema<
@@ -138,27 +138,27 @@ export default class ObjectSchema<
     });
   }
 
-  undefined(message?: string): this {
-    const schema = this.clone();
+  // undefined(message?: string): this {
+  //   const schema = this.clone();
+  //
+  //   schema.definitionTests.set(
+  //     PredefinedValidationTestName.$ANY_UNDEFINED,
+  //     [message || errorMessages.MUST_BE_UNDEFINED_MESSAGE, undefinedTest],
+  //   );
+  //
+  //   return schema as this;
+  // }
 
-    schema.definitionTests.set(
-      PredefinedValidationTestName.$ANY_UNDEFINED,
-      [message || errorMessages.MUST_BE_UNDEFINED_MESSAGE, undefinedTest],
-    );
-
-    return schema as this;
-  }
-
-  null(message?: string): this {
-    const schema = this.clone();
-
-    schema.definitionTests.set(
-      PredefinedValidationTestName.$ANY_NULL,
-      [message || errorMessages.MUST_BE_NULL_MESSAGE, nullTest],
-    );
-
-    return schema as this;
-  }
+  // null(message?: string): this {
+  //   const schema = this.clone();
+  //
+  //   schema.definitionTests.set(
+  //     PredefinedValidationTestName.$ANY_NULL,
+  //     [message || errorMessages.MUST_BE_NULL_MESSAGE, nullTest],
+  //   );
+  //
+  //   return schema as this;
+  // }
 
   addMethod<
     TMethodName extends string,

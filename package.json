@@ -15,7 +15,7 @@
     "clear": "npm run clear:dts && npm run clear:lib",
     "clear:dts": "rm -rf dts",
     "clear:lib": "rm -rf lib",
-    "lint": "eslint src test --quiet --report-unused-disable-directives",
+    "lint": "eslint src test --quiet --report-unused-disable-directives & tsc --noEmit",
     "lint:fix": "eslint src test --fix",
     "prepublishOnly": "npm run build",
     "test": "jest --projects ./package.json"

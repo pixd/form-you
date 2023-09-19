@@ -74,6 +74,9 @@ import noop from './tools/noop';
 
     // @ts-expect-error
     noop<DataType>(null);
+
+    // @ts-expect-error
+    noop<DataType>({});
   }
 
   {
@@ -187,6 +190,31 @@ import noop from './tools/noop';
  * Data__TypeRef cloned schema property
  */
 {
+  {
+    const schema = StringSchema.create();
+
+    const nextSchema = schema.clone();
+
+    type DataType = typeof nextSchema.Data__TypeRef;
+
+    // @ts-expect-error
+    noop<DataType>(undefined);
+
+    // @ts-expect-error
+    noop<DataType>(null);
+
+    // @ts-expect-error
+    noop<DataType>(true);
+
+    // @ts-expect-error
+    noop<DataType>(0);
+
+    noop<DataType>('');
+
+    // @ts-expect-error
+    noop<DataType>({});
+  }
+
   {
     const schema = StringSchema.create().notRequired();
 

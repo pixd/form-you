@@ -272,6 +272,31 @@ import noop from './tools/noop';
  */
 {
   {
+    const schema = ObjectSchema.create({});
+
+    const nextSchema = schema.clone();
+
+    type DataType = typeof nextSchema.Data__TypeRef;
+
+    // @ts-expect-error
+    noop<DataType>(undefined);
+
+    // @ts-expect-error
+    noop<DataType>(null);
+
+    // @ts-expect-error
+    noop<DataType>(true);
+
+    // @ts-expect-error
+    noop<DataType>(0);
+
+    // @ts-expect-error
+    noop<DataType>('');
+
+    noop<DataType>({});
+  }
+
+  {
     const schema = ObjectSchema.create({}).notRequired();
 
     const nextSchema = schema.clone();

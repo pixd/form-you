@@ -2,11 +2,6 @@ import BaseSchema, { RejectType, SchemaCloneProps } from './BaseSchema';
 import errorMessages, { prepareErrorMessage } from './error-messages';
 import { ValidationError, PredefinedValidationTestName } from './ValidationError';
 
-type CloneStringSchema<
-  TRejectUndefined extends null | string = null | string,
-  TRejectNull extends null | string = null | string,
-> = BaseSchema<string, RejectType<TRejectUndefined>, RejectType<TRejectNull>>;
-
 // // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 // export default interface StringSchema<
 //   TOptional extends boolean = false,
@@ -19,9 +14,11 @@ export default class StringSchema<
 > extends BaseSchema<string, TOptional, TNullable> {
 
   public clone<
-    TRejectUndefined extends null | string = null | string,
-    TRejectNull extends null | string = null | string,
-  >(props?: SchemaCloneProps<TRejectUndefined, TRejectNull>): CloneStringSchema<TRejectUndefined, TRejectNull> {
+    TRejectUndefined extends null | string = TOptional extends true ? null : string,
+    TRejectNull extends null | string = TNullable extends true ? null : string,
+  >(
+    props?: SchemaCloneProps<TRejectUndefined, TRejectNull>,
+  ): BaseSchema<string, RejectType<TRejectUndefined>, RejectType<TRejectNull>> {
     const schema = new StringSchema(this.shape);
 
     return this.rich(schema, props);
@@ -33,7 +30,10 @@ export default class StringSchema<
 
   override validate<
     TValue extends any = any,
-  >(value: TValue, path?: string): TValue {
+  >(
+    value: TValue,
+    path?: string,
+  ): TValue {
     super.validate(value, path);
 
     if (value != null && typeof value !== 'string') {

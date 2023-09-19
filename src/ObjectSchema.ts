@@ -32,21 +32,17 @@ type OptionalShapeProps<
 // eslint-disable-next-line @typescript-eslint/naming-convention
 type _ShapeData<
   TShape extends Shape = Shape,
-> = {
-  [TKey in keyof TShape]-?: TShape[TKey]['Data__TypeRef'];
-};
+> = null | keyof TShape extends null
+  ? Record<string, never>
+  : {
+    [TKey in keyof TShape]-?: TShape[TKey]['Data__TypeRef'];
+  };
 
 type ShapeData<
   TShape extends Shape = Shape,
 > =
   & _ShapeData<Pick<TShape, DefinedShapeProps<TShape>>>
   & Partial<_ShapeData<Pick<TShape, OptionalShapeProps<TShape>>>>;
-
-type CloneObjectSchema<
-  TData extends any = any,
-  TRejectUndefined extends null | string = null | string,
-  TRejectNull extends null | string = null | string,
-> = BaseSchema<TData, RejectType<TRejectUndefined>, RejectType<TRejectNull>>;
 
 // // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 // export default interface ObjectSchema<
@@ -62,9 +58,11 @@ export default class ObjectSchema<
 > extends BaseSchema<TData, TOptional, TNullable> {
 
   public clone<
-    TRejectUndefined extends null | string = null | string,
-    TRejectNull extends null | string = null | string,
-  >(props?: SchemaCloneProps<TRejectUndefined, TRejectNull>): CloneObjectSchema<TData, TRejectUndefined, TRejectNull> {
+    TRejectUndefined extends null | string = TOptional extends true ? null : string,
+    TRejectNull extends null | string = TNullable extends true ? null : string,
+  >(
+    props?: SchemaCloneProps<TRejectUndefined, TRejectNull>,
+  ): BaseSchema<TData, RejectType<TRejectUndefined>, RejectType<TRejectNull>> {
     const schema = new ObjectSchema(this.shape);
 
     return this.rich(schema, props);
@@ -72,13 +70,18 @@ export default class ObjectSchema<
 
   static create<
     TShape extends Shape = Shape,
-  >(shape: TShape): ObjectSchema<ShapeData<TShape>> {
+  >(
+    shape: TShape,
+  ): ObjectSchema<ShapeData<TShape>> {
     return new ObjectSchema(shape);
   }
 
   override validate<
     TValue extends any = any,
-  >(value: TValue, path?: string): TValue {
+  >(
+    value: TValue,
+    path?: string,
+  ): TValue {
     super.validate(value, path);
 
     if (value != null && typeof value !== 'object') {

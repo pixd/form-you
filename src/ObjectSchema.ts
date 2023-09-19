@@ -1,5 +1,5 @@
 import errorMessages, { prepareErrorMessage } from './error-messages';
-import { AnyObject } from './types';
+import { _, AnyObject } from './types';
 import { ValidationError, PredefinedValidationTestName } from './ValidationError';
 
 function rejectUndefinedTest(message: string, value: any) {
@@ -68,13 +68,76 @@ type TestFn = {
 
 type Test = [string, TestFn];
 
-type SchemaCloneProps = {
-  rejectUndefined: null | string;
-  rejectNull: null | string;
+type SchemaCloneProps<
+  TRejectUndefined extends null | string = null | string,
+  TRejectNull extends null | string = null | string,
+> = {
+  rejectUndefined?: TRejectUndefined;
+  rejectNull?: TRejectNull;
 };
 
+// type Shape<
+//   TType extends AnyObject = AnyObject,
+// > = {
+//   [TKey in string]: ObjectSchema<TType[TKey]>;
+// };
+
+type Shape = {
+  [key in string]: ObjectSchema<any, any, any>;
+};
+
+type DefinedShapeProps<
+  TShape extends Shape = Shape,
+> = {
+  [TKey in keyof TShape]-?: undefined extends TShape[TKey]['Data__TypeRef']
+    ? never
+    : TKey;
+}[keyof TShape];
+
+type OptionalShapeProps<
+  TShape extends Shape = Shape,
+> = {
+  [TKey in keyof TShape]-?: undefined extends TShape[TKey]['Data__TypeRef']
+    ? TKey
+    : never;
+}[keyof TShape];
+
+// eslint-disable-next-line @typescript-eslint/naming-convention
+type _ShapeData<
+  TShape extends Shape = Shape,
+> = {
+  [TKey in keyof TShape]-?: TShape[TKey]['Data__TypeRef'];
+};
+
+type ShapeData<
+  TShape extends Shape = Shape,
+> =
+  & _ShapeData<Pick<TShape, DefinedShapeProps<TShape>>>
+  & Partial<_ShapeData<Pick<TShape, OptionalShapeProps<TShape>>>>;
+
+type SchemaData<
+  TData extends AnyObject = AnyObject,
+  TOptional extends boolean = false,
+  TNullable extends boolean = false,
+> =
+  | TData
+  | (TOptional extends true ? undefined : never)
+  | (TNullable extends true ? null : never);
+
+type CloneObjectSchema<
+  TData extends AnyObject = AnyObject,
+  TRejectUndefined extends null | string = null | string,
+  TRejectNull extends null | string = null | string,
+> = ObjectSchema<
+  TData,
+  TRejectUndefined extends string ? false : true,
+  TRejectNull extends string ? false : true
+>;
+
 export default class ObjectSchema<
-  TType extends undefined | null | AnyObject = AnyObject,
+  TData extends AnyObject = AnyObject,
+  TOptional extends boolean = false,
+  TNullable extends boolean = false,
 > {
   private rejectUndefined: null | string = '';
 
@@ -82,12 +145,25 @@ export default class ObjectSchema<
 
   private definitionTests = new Map<string, Test>();
 
-  static create() {
-    return new ObjectSchema();
+  private shape: Shape;
+
+  public Data__TypeRef = undefined as _<SchemaData<TData, TOptional, TNullable>>;
+
+  constructor(shape: Shape) {
+    this.shape = shape;
   }
 
-  clone(props?: Partial<SchemaCloneProps>): ObjectSchema<TType> {
-    const schema = ObjectSchema.create();
+  static create<
+    TShape extends Shape = Shape,
+  >(shape: TShape): ObjectSchema<ShapeData<TShape>> {
+    return new ObjectSchema(shape);
+  }
+
+  clone<
+    TRejectUndefined extends null | string = null | string,
+    TRejectNull extends null | string = null | string,
+  >(props?: SchemaCloneProps<TRejectUndefined, TRejectNull>): CloneObjectSchema<TData, TRejectUndefined, TRejectNull> {
+    const schema = ObjectSchema.create(this.shape);
 
     schema.rejectUndefined = this.rejectUndefined;
     schema.rejectNull = this.rejectNull;
@@ -97,41 +173,41 @@ export default class ObjectSchema<
       Object.assign(schema, props);
     }
 
-    return schema;
+    return schema as CloneObjectSchema<TData, TRejectUndefined, TRejectNull>;
   }
 
-  optional(): ObjectSchema<undefined | TType> {
+  optional(): ObjectSchema<TData, true, TNullable> {
     return this.clone({
       rejectUndefined: null,
     });
   }
 
-  notOptional(message?: string): ObjectSchema<Exclude<TType, undefined>> {
+  notOptional(message?: string): ObjectSchema<TData, false, TNullable> {
     return this.clone({
       rejectUndefined: message ?? '',
     });
   }
 
-  nullable(): ObjectSchema<null | TType> {
+  nullable(): ObjectSchema<TData, TOptional, true> {
     return this.clone({
       rejectNull: null,
     });
   }
 
-  notNullable(message?: string): ObjectSchema<Exclude<TType, null>> {
+  notNullable(message?: string): ObjectSchema<TData, TOptional, false> {
     return this.clone({
       rejectNull: message ?? '',
     });
   }
 
-  required(message?: string) {
+  required(message?: string): ObjectSchema<TData, false, false> {
     return this.clone({
       rejectUndefined: message ?? '',
       rejectNull: message ?? '',
     });
   }
 
-  notRequired() {
+  notRequired(): ObjectSchema<TData, true, true> {
     return this.clone({
       rejectUndefined: null,
       rejectNull: null,
@@ -160,17 +236,8 @@ export default class ObjectSchema<
   //   return schema as this;
   // }
 
-  addMethod<
-    TMethodName extends string,
-    TFn extends (this: ObjectSchema<TType>, ...args: any[]) => any,
-  >(name: TMethodName, fn: TFn): ObjectSchema<TType> & { [key in TMethodName]: TFn } {
-    const extended = new ObjectSchema() as any;
-    extended[name] = fn;
-    return extended;
-  }
-
   validate<
-    TValue extends any,
+    TValue extends any = any,
   >(value: TValue, path?: string): TValue {
     if (this.rejectUndefined != null) {
       rejectUndefinedTest(

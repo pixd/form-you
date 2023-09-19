@@ -1,7 +1,7 @@
 import ObjectSchema from '../src/ObjectSchema';
 import errorMessages, { prepareErrorMessage } from '../src/error-messages';
 
-function testSchemaValidation(schema: ObjectSchema, value: any, error?: string) {
+function testSchemaValidation(schema: ObjectSchema<any, any, any>, value: any, error?: string) {
   if (error) {
     expect(() => {
       schema.validate(value);
@@ -21,7 +21,7 @@ const mustBeAnObjectMessage = prepareErrorMessage(errorMessages.MUST_BE_AN_OBJEC
 
 describe('ObjectSchema', () => {
   it('should validate', () => {
-    const schema = ObjectSchema.create();
+    const schema = ObjectSchema.create({});
     testSchemaValidation(schema, undefined, isNotOptionalMessage);
     testSchemaValidation(schema, null, isNotNullableMessage);
     testSchemaValidation(schema, {});
@@ -30,7 +30,7 @@ describe('ObjectSchema', () => {
   });
 
   it('should validate with .optional()', () => {
-    const schema = ObjectSchema.create()
+    const schema = ObjectSchema.create({})
       .optional();
 
     testSchemaValidation(schema, undefined);
@@ -56,7 +56,7 @@ describe('ObjectSchema', () => {
   });
 
   it('should validate with .notOptional()', () => {
-    const schema = ObjectSchema.create()
+    const schema = ObjectSchema.create({})
       .notOptional();
 
     testSchemaValidation(schema, undefined, isNotOptionalMessage);
@@ -82,7 +82,7 @@ describe('ObjectSchema', () => {
   });
 
   it('should validate with .nullable()', () => {
-    const schema = ObjectSchema.create()
+    const schema = ObjectSchema.create({})
       .nullable();
 
     testSchemaValidation(schema, undefined, isNotOptionalMessage);
@@ -108,7 +108,7 @@ describe('ObjectSchema', () => {
   });
 
   it('should validate with .notNullable()', () => {
-    const schema = ObjectSchema.create()
+    const schema = ObjectSchema.create({})
       .notNullable();
 
     testSchemaValidation(schema, undefined, isNotOptionalMessage);
@@ -134,7 +134,7 @@ describe('ObjectSchema', () => {
   });
 
   it('should validate with .required()', () => {
-    const schema = ObjectSchema.create()
+    const schema = ObjectSchema.create({})
       .required();
 
     testSchemaValidation(schema, undefined, isNotOptionalMessage);
@@ -163,7 +163,7 @@ describe('ObjectSchema', () => {
   });
 
   it('should validate with .notRequired()', () => {
-    const schema = ObjectSchema.create()
+    const schema = ObjectSchema.create({})
       .notRequired();
 
     testSchemaValidation(schema, undefined);
@@ -192,7 +192,7 @@ describe('ObjectSchema', () => {
   });
 
   it('should clone', () => {
-    const schema = ObjectSchema.create();
+    const schema = ObjectSchema.create({});
 
     testSchemaValidation(schema.clone(), undefined, isNotOptionalMessage);
     testSchemaValidation(schema.clone(), null, isNotNullableMessage);
@@ -203,16 +203,5 @@ describe('ObjectSchema', () => {
     testSchemaValidation(schema.nullable().clone(), undefined, isNotOptionalMessage);
     testSchemaValidation(schema.nullable().clone(), null);
     testSchemaValidation(schema.nullable().clone(), {});
-  });
-
-  it('can be extended', () => {
-    const schema = ObjectSchema.create()
-      .addMethod('returnZero', function (value: number) {
-        expect(this).toBeInstanceOf(ObjectSchema);
-        return value;
-      });
-
-    expect(schema.returnZero).toBeInstanceOf(Function);
-    expect(schema.returnZero(123)).toBe(123);
   });
 });

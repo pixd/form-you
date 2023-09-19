@@ -1,4 +1,4 @@
-import ObjectSchema from '../src/ObjectSchema';
+import StringSchema from '../src/StringSchema';
 
 function noop<T extends any>(_a: T): void {
   return;
@@ -6,7 +6,7 @@ function noop<T extends any>(_a: T): void {
 
 BaseFunctionality: {
   {
-    const schema = ObjectSchema.create({});
+    const schema = StringSchema.create();
 
     noop<Function>(schema.optional);
     // @ts-expect-error
@@ -58,32 +58,13 @@ BaseFunctionality: {
   }
 }
 
-AcceptOnlySchemesInShapeProperties: {
-  {
-    const priceSchema = ObjectSchema.create({});
-
-    ObjectSchema.create({
-      price: priceSchema,
-    });
-  }
-
-  {
-    ObjectSchema.create({
-      // @ts-expect-error
-      price: {},
-    });
-  }
-}
-
 DataTypeRef: {
-  const priceSchema = ObjectSchema.create({});
-
   {
-    const schema = ObjectSchema.create({});
+    const schema = StringSchema.create();
 
     type DataType = typeof schema.Data__TypeRef;
 
-    noop<DataType>({});
+    noop<DataType>('');
 
     // @ts-expect-error
     noop<DataType>(undefined);
@@ -93,11 +74,11 @@ DataTypeRef: {
   }
 
   {
-    const schema = ObjectSchema.create({}).optional();
+    const schema = StringSchema.create().optional();
 
     type DataType = typeof schema.Data__TypeRef;
 
-    noop<DataType>({});
+    noop<DataType>('');
 
     noop<DataType>(undefined);
 
@@ -106,38 +87,11 @@ DataTypeRef: {
   }
 
   {
-    const schema = ObjectSchema.create({}).optional().notOptional();
+    const schema = StringSchema.create().optional().notOptional();
 
     type DataType = typeof schema.Data__TypeRef;
 
-    noop<DataType>({});
-
-    // @ts-expect-error
-    noop<DataType>(undefined);
-
-    // @ts-expect-error
-    noop<DataType>(null);
-  }
-
-  {
-    const schema = ObjectSchema.create({}).nullable();
-
-    type DataType = typeof schema.Data__TypeRef;
-
-    noop<DataType>({});
-
-    // @ts-expect-error
-    noop<DataType>(undefined);
-
-    noop<DataType>(null);
-  }
-
-  {
-    const schema = ObjectSchema.create({}).nullable().notNullable();
-
-    type DataType = typeof schema.Data__TypeRef;
-
-    noop<DataType>({});
+    noop<DataType>('');
 
     // @ts-expect-error
     noop<DataType>(undefined);
@@ -147,37 +101,11 @@ DataTypeRef: {
   }
 
   {
-    const schema = ObjectSchema.create({}).notRequired();
+    const schema = StringSchema.create().nullable();
 
     type DataType = typeof schema.Data__TypeRef;
 
-    noop<DataType>({});
-
-    noop<DataType>(undefined);
-
-    noop<DataType>(null);
-  }
-
-  {
-    const schema = ObjectSchema.create({}).notRequired().required();
-
-    type DataType = typeof schema.Data__TypeRef;
-
-    noop<DataType>({});
-
-    // @ts-expect-error
-    noop<DataType>(undefined);
-
-    // @ts-expect-error
-    noop<DataType>(null);
-  }
-
-  {
-    const schema = ObjectSchema.create({}).notRequired().notOptional();
-
-    type DataType = typeof schema.Data__TypeRef;
-
-    noop<DataType>({});
+    noop<DataType>('');
 
     // @ts-expect-error
     noop<DataType>(undefined);
@@ -186,12 +114,13 @@ DataTypeRef: {
   }
 
   {
-    const schema = ObjectSchema.create({}).notRequired().notNullable();
+    const schema = StringSchema.create().nullable().notNullable();
 
     type DataType = typeof schema.Data__TypeRef;
 
-    noop<DataType>({});
+    noop<DataType>('');
 
+    // @ts-expect-error
     noop<DataType>(undefined);
 
     // @ts-expect-error
@@ -199,71 +128,61 @@ DataTypeRef: {
   }
 
   {
-    const schema = ObjectSchema.create({
-      priceA: priceSchema,
-      priceB: priceSchema.optional(),
-      priceC: priceSchema.nullable(),
-      priceD: priceSchema.notRequired(),
-    });
+    const schema = StringSchema.create().notRequired();
 
     type DataType = typeof schema.Data__TypeRef;
 
-    noop<DataType>({
-      priceA: {},
-      priceB: {},
-      priceC: {},
-      priceD: {},
-    });
+    noop<DataType>('');
 
-    noop<DataType>({
-      // @ts-expect-error
-      priceA: undefined,
-      priceB: undefined,
-      // @ts-expect-error
-      priceC: undefined,
-      priceD: undefined,
-    });
+    noop<DataType>(undefined);
 
-    noop<DataType>({
-      // @ts-expect-error
-      priceA: null,
-      // @ts-expect-error
-      priceB: null,
-      priceC: null,
-      priceD: null,
-    });
+    noop<DataType>(null);
+  }
+
+  {
+    const schema = StringSchema.create().notRequired().required();
+
+    type DataType = typeof schema.Data__TypeRef;
+
+    noop<DataType>('');
 
     // @ts-expect-error
-    noop<DataType>({
-      priceB: {},
-      priceC: {},
-      priceD: {},
-    });
-
-    noop<DataType>({
-      priceA: {},
-      priceC: {},
-      priceD: {},
-    });
+    noop<DataType>(undefined);
 
     // @ts-expect-error
-    noop<DataType>({
-      priceA: {},
-      priceB: {},
-      priceD: {},
-    });
+    noop<DataType>(null);
+  }
 
-    noop<DataType>({
-      priceA: {},
-      priceB: {},
-      priceC: {},
-    });
+  {
+    const schema = StringSchema.create().notRequired().notOptional();
+
+    type DataType = typeof schema.Data__TypeRef;
+
+    noop<DataType>('');
+
+    // @ts-expect-error
+    noop<DataType>(undefined);
+
+    noop<DataType>(null);
+  }
+
+  {
+    const schema = StringSchema.create().notRequired().notNullable();
+
+    type DataType = typeof schema.Data__TypeRef;
+
+    noop<DataType>('');
+
+    noop<DataType>(undefined);
+
+    // @ts-expect-error
+    noop<DataType>(null);
   }
 }
 
 DataTypeRefOnClonedSchema: {
   {
-    const schema = ObjectSchema.create({}).notRequired();
+    const schema = StringSchema.create().notRequired();
 
     const nextSchema = schema.clone();
 
@@ -273,11 +192,11 @@ DataTypeRefOnClonedSchema: {
 
     noop<DataType>(null);
 
-    noop<DataType>({});
+    noop<DataType>('');
   }
 
   {
-    const schema = ObjectSchema.create({}).notRequired();
+    const schema = StringSchema.create().notRequired();
 
     const nextSchema = schema.clone({
       rejectUndefined: '',
@@ -290,11 +209,11 @@ DataTypeRefOnClonedSchema: {
 
     noop<DataType>(null);
 
-    noop<DataType>({});
+    noop<DataType>('');
   }
 
   {
-    const schema = ObjectSchema.create({}).notRequired();
+    const schema = StringSchema.create().notRequired();
 
     const nextSchema = schema.clone({
       rejectNull: '',
@@ -307,6 +226,6 @@ DataTypeRefOnClonedSchema: {
     // @ts-expect-error
     noop<DataType>(null);
 
-    noop<DataType>({});
+    noop<DataType>('');
   }
 }

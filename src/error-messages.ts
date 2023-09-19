@@ -4,6 +4,7 @@ export default {
   MUST_BE_UNDEFINED_MESSAGE: '${path} must be undefined',
   MUST_BE_NULL_MESSAGE: '${path} must be null',
   MUST_BE_AN_OBJECT_MESSAGE: '${path} must be an object',
+  MUST_BE_A_STRING_MESSAGE: '${path} must be a string',
 };
 
 export function prepareErrorMessage(message: string, path?: string) {

@@ -6,6 +6,7 @@ export enum PredefinedValidationTestName {
   $ANY_NULL = '$ANY_NULL',
   $ANY_NOT_NULL = '$ANY_NOT_NULL',
   $OBJECT_MUST_BE_AN_OBJECT = '$OBJECT_MUST_BE_AN_OBJECT',
+  $STRING_MUST_BE_A_STRING = '$STRING_MUST_BE_A_STRING',
 }
 
 export class ValidationError extends Error {

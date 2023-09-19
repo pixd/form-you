@@ -1,10 +1,10 @@
 import ObjectSchema from '../src/ObjectSchema';
+import noop from './tools/noop';
 
-function noop<T extends any>(_a: T): void {
-  return;
-}
-
-BaseFunctionality: {
+/**
+ * BaseFunctionality
+ */
+{
   {
     const schema = ObjectSchema.create({});
 
@@ -58,7 +58,10 @@ BaseFunctionality: {
   }
 }
 
-AcceptOnlySchemesInShapeProperties: {
+/**
+ * Shape properties
+ */
+{
   {
     const priceSchema = ObjectSchema.create({});
 
@@ -75,7 +78,10 @@ AcceptOnlySchemesInShapeProperties: {
   }
 }
 
-DataTypeRef: {
+/**
+ * Data__TypeRef property
+ */
+{
   const priceSchema = ObjectSchema.create({});
 
   {
@@ -261,7 +267,10 @@ DataTypeRef: {
   }
 }
 
-DataTypeRefOnClonedSchema: {
+/**
+ * Data__TypeRef cloned schema property
+ */
+{
   {
     const schema = ObjectSchema.create({}).notRequired();
 

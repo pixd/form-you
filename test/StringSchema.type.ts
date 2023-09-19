@@ -1,10 +1,10 @@
 import StringSchema from '../src/StringSchema';
+import noop from './tools/noop';
 
-function noop<T extends any>(_a: T): void {
-  return;
-}
-
-BaseFunctionality: {
+/**
+ * BaseFunctionality
+ */
+{
   {
     const schema = StringSchema.create();
 
@@ -58,7 +58,10 @@ BaseFunctionality: {
   }
 }
 
-DataTypeRef: {
+/**
+ * Data__TypeRef property
+ */
+{
   {
     const schema = StringSchema.create();
 
@@ -180,7 +183,10 @@ DataTypeRef: {
   }
 }
 
-DataTypeRefOnClonedSchema: {
+/**
+ * Data__TypeRef cloned schema property
+ */
+{
   {
     const schema = StringSchema.create().notRequired();
 

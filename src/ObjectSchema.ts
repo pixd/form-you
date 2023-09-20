@@ -3,14 +3,8 @@ import errorMessages, { prepareErrorMessage } from './error-messages';
 import { AnyObject, SchemaDataType } from './types';
 import { ValidationError, PredefinedValidationTestName } from './ValidationError';
 
-// type Shape<
-//   TType extends AnyObject = AnyObject,
-// > = {
-//   [TKey in string]: ObjectSchema<TType[TKey]>;
-// };
-
 type Shape = {
-  [key in string]: BaseSchema<any, any, any>;
+  [key in string]: BaseSchema;
 };
 
 type DefinedShapeProps<

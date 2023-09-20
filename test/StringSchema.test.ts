@@ -1,23 +1,10 @@
 import StringSchema from '../src/StringSchema';
-import errorMessages, { prepareErrorMessage } from '../src/error-messages';
-
-function testSchemaValidation(schema: StringSchema, value: any, error?: string) {
-  if (error) {
-    expect(() => {
-      schema.validate(value);
-    }).toThrow(error);
-  }
-  else {
-    const result = schema.validate(value);
-    expect(result).toBe(value);
-  }
-}
-
-const isNotOptionalMessage = prepareErrorMessage(errorMessages.IS_NOT_OPTIONAL_MESSAGE);
-const isNotNullableMessage = prepareErrorMessage(errorMessages.IS_NOT_NULLABLE_MESSAGE);
-// const mustBeUndefinedMessage = prepareErrorMessage(errorMessages.MUST_BE_UNDEFINED_MESSAGE);
-// const mustBeNullMessage = prepareErrorMessage(errorMessages.MUST_BE_NULL_MESSAGE);
-const mustBeAnStringMessage = prepareErrorMessage(errorMessages.MUST_BE_A_STRING_MESSAGE);
+import {
+  isNotOptionalMessage,
+  isNotNullableMessage,
+  mustBeAnStringMessage,
+} from './tools/checkMessage';
+import testSchemaValidation from './tools/testSchemaValidation';
 
 describe('StringSchema', () => {
   it('should validate', () => {

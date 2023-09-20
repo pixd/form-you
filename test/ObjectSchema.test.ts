@@ -1,23 +1,10 @@
 import ObjectSchema from '../src/ObjectSchema';
-import errorMessages, { prepareErrorMessage } from '../src/error-messages';
-
-function testSchemaValidation(schema: ObjectSchema, value: any, error?: string) {
-  if (error) {
-    expect(() => {
-      schema.validate(value);
-    }).toThrow(error);
-  }
-  else {
-    const result = schema.validate(value);
-    expect(result).toBe(value);
-  }
-}
-
-const isNotOptionalMessage = prepareErrorMessage(errorMessages.IS_NOT_OPTIONAL_MESSAGE);
-const isNotNullableMessage = prepareErrorMessage(errorMessages.IS_NOT_NULLABLE_MESSAGE);
-// const mustBeUndefinedMessage = prepareErrorMessage(errorMessages.MUST_BE_UNDEFINED_MESSAGE);
-// const mustBeNullMessage = prepareErrorMessage(errorMessages.MUST_BE_NULL_MESSAGE);
-const mustBeAnObjectMessage = prepareErrorMessage(errorMessages.MUST_BE_AN_OBJECT_MESSAGE);
+import {
+  isNotOptionalMessage,
+  isNotNullableMessage,
+  mustBeAnObjectMessage,
+} from './tools/checkMessage';
+import testSchemaValidation from './tools/testSchemaValidation';
 
 describe('ObjectSchema', () => {
   it('should validate', () => {

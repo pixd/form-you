@@ -1,4 +1,5 @@
 import StringSchema from '../src/StringSchema';
+import { SchemaDataType } from '../src/types';
 import noop from './tools/noop';
 
 /**
@@ -59,13 +60,13 @@ import noop from './tools/noop';
 }
 
 /**
- * Data__TypeRef property
+ * SchemaDataType
  */
 {
   {
     const schema = StringSchema.create();
 
-    type DataType = typeof schema.Data__TypeRef;
+    type DataType = SchemaDataType<typeof schema>;
 
     noop<DataType>('');
 
@@ -82,7 +83,7 @@ import noop from './tools/noop';
   {
     const schema = StringSchema.create().optional();
 
-    type DataType = typeof schema.Data__TypeRef;
+    type DataType = SchemaDataType<typeof schema>;
 
     noop<DataType>('');
 
@@ -95,7 +96,7 @@ import noop from './tools/noop';
   {
     const schema = StringSchema.create().optional().notOptional();
 
-    type DataType = typeof schema.Data__TypeRef;
+    type DataType = SchemaDataType<typeof schema>;
 
     noop<DataType>('');
 
@@ -109,7 +110,7 @@ import noop from './tools/noop';
   {
     const schema = StringSchema.create().nullable();
 
-    type DataType = typeof schema.Data__TypeRef;
+    type DataType = SchemaDataType<typeof schema>;
 
     noop<DataType>('');
 
@@ -122,7 +123,7 @@ import noop from './tools/noop';
   {
     const schema = StringSchema.create().nullable().notNullable();
 
-    type DataType = typeof schema.Data__TypeRef;
+    type DataType = SchemaDataType<typeof schema>;
 
     noop<DataType>('');
 
@@ -136,7 +137,7 @@ import noop from './tools/noop';
   {
     const schema = StringSchema.create().notRequired();
 
-    type DataType = typeof schema.Data__TypeRef;
+    type DataType = SchemaDataType<typeof schema>;
 
     noop<DataType>('');
 
@@ -148,7 +149,7 @@ import noop from './tools/noop';
   {
     const schema = StringSchema.create().notRequired().required();
 
-    type DataType = typeof schema.Data__TypeRef;
+    type DataType = SchemaDataType<typeof schema>;
 
     noop<DataType>('');
 
@@ -162,7 +163,7 @@ import noop from './tools/noop';
   {
     const schema = StringSchema.create().notRequired().notOptional();
 
-    type DataType = typeof schema.Data__TypeRef;
+    type DataType = SchemaDataType<typeof schema>;
 
     noop<DataType>('');
 
@@ -175,7 +176,7 @@ import noop from './tools/noop';
   {
     const schema = StringSchema.create().notRequired().notNullable();
 
-    type DataType = typeof schema.Data__TypeRef;
+    type DataType = SchemaDataType<typeof schema>;
 
     noop<DataType>('');
 
@@ -187,7 +188,7 @@ import noop from './tools/noop';
 }
 
 /**
- * Data__TypeRef cloned schema property
+ * SchemaDataType with cloned schema
  */
 {
   {
@@ -195,7 +196,7 @@ import noop from './tools/noop';
 
     const nextSchema = schema.clone();
 
-    type DataType = typeof nextSchema.Data__TypeRef;
+    type DataType = SchemaDataType<typeof nextSchema>;
 
     // @ts-expect-error
     noop<DataType>(undefined);
@@ -220,7 +221,7 @@ import noop from './tools/noop';
 
     const nextSchema = schema.clone();
 
-    type DataType = typeof nextSchema.Data__TypeRef;
+    type DataType = SchemaDataType<typeof nextSchema>;
 
     noop<DataType>(undefined);
 
@@ -236,7 +237,7 @@ import noop from './tools/noop';
       rejectUndefined: '',
     });
 
-    type DataType = typeof nextSchema.Data__TypeRef;
+    type DataType = SchemaDataType<typeof nextSchema>;
 
     // @ts-expect-error
     noop<DataType>(undefined);
@@ -253,7 +254,7 @@ import noop from './tools/noop';
       rejectNull: '',
     });
 
-    type DataType = typeof nextSchema.Data__TypeRef;
+    type DataType = SchemaDataType<typeof nextSchema>;
 
     noop<DataType>(undefined);
 
@@ -261,5 +262,44 @@ import noop from './tools/noop';
     noop<DataType>(null);
 
     noop<DataType>('');
+  }
+}
+
+/**
+ * Default value
+ */
+{
+  {
+    const schema = StringSchema.create();
+
+    const defaultValue = schema.getDefault();
+
+    // @ts-expect-error
+    noop<typeof defaultValue>(undefined);
+
+    // @ts-expect-error
+    noop<typeof defaultValue>(null);
+
+    // @ts-expect-error
+    noop<typeof defaultValue>(true);
+
+    noop<typeof defaultValue>('');
+  }
+
+  {
+    const schema = StringSchema.create().default('abc');
+
+    const defaultValue = schema.getDefault();
+
+    // @ts-expect-error
+    noop<typeof defaultValue>(undefined);
+
+    // @ts-expect-error
+    noop<typeof defaultValue>(null);
+
+    // @ts-expect-error
+    noop<typeof defaultValue>(true);
+
+    noop<typeof defaultValue>('');
   }
 }

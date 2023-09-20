@@ -1,7 +1,7 @@
 import ObjectSchema from '../src/ObjectSchema';
 import errorMessages, { prepareErrorMessage } from '../src/error-messages';
 
-function testSchemaValidation(schema: ObjectSchema<any, any, any>, value: any, error?: string) {
+function testSchemaValidation(schema: ObjectSchema, value: any, error?: string) {
   if (error) {
     expect(() => {
       schema.validate(value);

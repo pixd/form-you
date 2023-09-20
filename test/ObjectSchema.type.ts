@@ -1,4 +1,5 @@
 import ObjectSchema from '../src/ObjectSchema';
+import { SchemaDataType } from '../src/types';
 import noop from './tools/noop';
 
 /**
@@ -79,7 +80,7 @@ import noop from './tools/noop';
 }
 
 /**
- * Data__TypeRef property
+ * SchemaDataType
  */
 {
   const priceSchema = ObjectSchema.create({});
@@ -87,7 +88,7 @@ import noop from './tools/noop';
   {
     const schema = ObjectSchema.create({});
 
-    type DataType = typeof schema.Data__TypeRef;
+    type DataType = SchemaDataType<typeof schema>;
 
     noop<DataType>({});
 
@@ -101,7 +102,7 @@ import noop from './tools/noop';
   {
     const schema = ObjectSchema.create({}).optional();
 
-    type DataType = typeof schema.Data__TypeRef;
+    type DataType = SchemaDataType<typeof schema>;
 
     noop<DataType>({});
 
@@ -114,7 +115,7 @@ import noop from './tools/noop';
   {
     const schema = ObjectSchema.create({}).optional().notOptional();
 
-    type DataType = typeof schema.Data__TypeRef;
+    type DataType = SchemaDataType<typeof schema>;
 
     noop<DataType>({});
 
@@ -128,7 +129,7 @@ import noop from './tools/noop';
   {
     const schema = ObjectSchema.create({}).nullable();
 
-    type DataType = typeof schema.Data__TypeRef;
+    type DataType = SchemaDataType<typeof schema>;
 
     noop<DataType>({});
 
@@ -141,7 +142,7 @@ import noop from './tools/noop';
   {
     const schema = ObjectSchema.create({}).nullable().notNullable();
 
-    type DataType = typeof schema.Data__TypeRef;
+    type DataType = SchemaDataType<typeof schema>;
 
     noop<DataType>({});
 
@@ -155,7 +156,7 @@ import noop from './tools/noop';
   {
     const schema = ObjectSchema.create({}).notRequired();
 
-    type DataType = typeof schema.Data__TypeRef;
+    type DataType = SchemaDataType<typeof schema>;
 
     noop<DataType>({});
 
@@ -167,7 +168,7 @@ import noop from './tools/noop';
   {
     const schema = ObjectSchema.create({}).notRequired().required();
 
-    type DataType = typeof schema.Data__TypeRef;
+    type DataType = SchemaDataType<typeof schema>;
 
     noop<DataType>({});
 
@@ -181,7 +182,7 @@ import noop from './tools/noop';
   {
     const schema = ObjectSchema.create({}).notRequired().notOptional();
 
-    type DataType = typeof schema.Data__TypeRef;
+    type DataType = SchemaDataType<typeof schema>;
 
     noop<DataType>({});
 
@@ -194,7 +195,7 @@ import noop from './tools/noop';
   {
     const schema = ObjectSchema.create({}).notRequired().notNullable();
 
-    type DataType = typeof schema.Data__TypeRef;
+    type DataType = SchemaDataType<typeof schema>;
 
     noop<DataType>({});
 
@@ -212,7 +213,7 @@ import noop from './tools/noop';
       priceD: priceSchema.notRequired(),
     });
 
-    type DataType = typeof schema.Data__TypeRef;
+    type DataType = SchemaDataType<typeof schema>;
 
     noop<DataType>({
       priceA: {},
@@ -268,7 +269,7 @@ import noop from './tools/noop';
 }
 
 /**
- * Data__TypeRef cloned schema property
+ * SchemaDataType with cloned schema
  */
 {
   {
@@ -276,7 +277,7 @@ import noop from './tools/noop';
 
     const nextSchema = schema.clone();
 
-    type DataType = typeof nextSchema.Data__TypeRef;
+    type DataType = SchemaDataType<typeof nextSchema>;
 
     // @ts-expect-error
     noop<DataType>(undefined);
@@ -301,7 +302,7 @@ import noop from './tools/noop';
 
     const nextSchema = schema.clone();
 
-    type DataType = typeof nextSchema.Data__TypeRef;
+    type DataType = SchemaDataType<typeof nextSchema>;
 
     noop<DataType>(undefined);
 
@@ -317,7 +318,7 @@ import noop from './tools/noop';
       rejectUndefined: '',
     });
 
-    type DataType = typeof nextSchema.Data__TypeRef;
+    type DataType = SchemaDataType<typeof nextSchema>;
 
     // @ts-expect-error
     noop<DataType>(undefined);
@@ -334,7 +335,7 @@ import noop from './tools/noop';
       rejectNull: '',
     });
 
-    type DataType = typeof nextSchema.Data__TypeRef;
+    type DataType = SchemaDataType<typeof nextSchema>;
 
     noop<DataType>(undefined);
 
@@ -342,5 +343,50 @@ import noop from './tools/noop';
     noop<DataType>(null);
 
     noop<DataType>({});
+  }
+}
+
+/**
+ * Default value
+ */
+{
+  const priceSchema = ObjectSchema.create({});
+
+  {
+    const schema = ObjectSchema.create({});
+
+    const defaultValue = schema.getDefault();
+
+    // @ts-expect-error
+    noop<typeof defaultValue>(undefined);
+
+    // @ts-expect-error
+    noop<typeof defaultValue>(null);
+
+    // @ts-expect-error
+    noop<typeof defaultValue>(true);
+
+    noop<typeof defaultValue>({});
+  }
+
+  {
+    const schema = ObjectSchema.create({
+      price: priceSchema.default({}),
+    });
+
+    const defaultValue = schema.getDefault();
+
+    // @ts-expect-error
+    noop<typeof defaultValue>(undefined);
+
+    // @ts-expect-error
+    noop<typeof defaultValue>(null);
+
+    // @ts-expect-error
+    noop<typeof defaultValue>(true);
+
+    noop<typeof defaultValue>({
+      price: {},
+    });
   }
 }

@@ -1,7 +1,7 @@
 import StringSchema from '../src/StringSchema';
 import errorMessages, { prepareErrorMessage } from '../src/error-messages';
 
-function testSchemaValidation(schema: StringSchema<any, any>, value: any, error?: string) {
+function testSchemaValidation(schema: StringSchema, value: any, error?: string) {
   if (error) {
     expect(() => {
       schema.validate(value);

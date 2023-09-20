@@ -1,5 +1,4 @@
 import errorMessages, { prepareErrorMessage } from './error-messages';
-import { _ } from './types';
 import { ValidationError, PredefinedValidationTestName } from './ValidationError';
 
 function rejectUndefinedTest(message: string, value: any) {
@@ -69,9 +68,11 @@ type TestFn = {
 type Test = [string, TestFn];
 
 export type SchemaCloneProps<
+  TData extends any = any,
   TRejectUndefined extends null | string = null | string,
   TRejectNull extends null | string = null | string,
 > = {
+  defaultValue?: TData;
   rejectUndefined?: TRejectUndefined;
   rejectNull?: TRejectNull;
 };
@@ -89,39 +90,38 @@ export type RejectType<
   TSource extends null | string = null | string,
 > = TSource extends string ? false : true;
 
+type Data = any;
+
 export default abstract class BaseSchema<
-  TData extends any = any,
-  TOptional extends boolean = false,
-  TNullable extends boolean = false,
+  TData extends Data = Data,
+  TOptional extends boolean = any,
+  TNullable extends boolean = any,
 > {
+  public Data__TypeRef = undefined as SchemaData<TData, TOptional, TNullable>;
+
+  protected abstract defaultValue: any;
+
   protected rejectUndefined: null | string = '';
 
   protected rejectNull: null | string = '';
 
-  protected definitionTests = new Map<string, Test>();
-
-  public Data__TypeRef = undefined as _<SchemaData<TData, TOptional, TNullable>>;
-
-  protected shape: any;
-
-  constructor(shape: any) {
-    this.shape = shape;
-  }
-
-  abstract clone<
+  protected definitionTests = new Map<string, Test>();  abstract clone<
+    TInnerData extends TData = TData,
     TRejectUndefined extends null | string = null | string,
     TRejectNull extends null | string = null | string,
   >(
-    props?: SchemaCloneProps<TRejectUndefined, TRejectNull>,
+    props?: SchemaCloneProps<TInnerData, TRejectUndefined, TRejectNull>,
   ): BaseSchema<TData, RejectType<TRejectUndefined>, RejectType<TRejectNull>>
 
   protected rich<
+    TInnerData extends TData = TData,
     TRejectUndefined extends null | string = null | string,
     TRejectNull extends null | string = null | string,
   >(
     schema: BaseSchema,
-    props?: SchemaCloneProps<TRejectUndefined, TRejectNull>,
+    props?: SchemaCloneProps<TInnerData, TRejectUndefined, TRejectNull>,
   ): BaseSchema<TData, RejectType<TRejectUndefined>, RejectType<TRejectNull>> {
+    schema.defaultValue = this.defaultValue;
     schema.rejectUndefined = this.rejectUndefined;
     schema.rejectNull = this.rejectNull;
     schema.definitionTests = new Map(this.definitionTests);
@@ -198,6 +198,16 @@ export default abstract class BaseSchema<
   //
   //   return schema as this;
   // }
+
+  default(
+    defaultValue: TData,
+  ): BaseSchema<TData, TOptional, TNullable> {
+    return this.clone({
+      defaultValue,
+    });
+  }
+
+  abstract getDefault(): TData
 
   validate<
     TValue extends any = any,

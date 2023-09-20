@@ -1,6 +1,6 @@
 import BaseSchema, { RejectType, SchemaCloneProps } from './BaseSchema';
 import errorMessages, { prepareErrorMessage } from './error-messages';
-import { AnyObject } from './types';
+import { AnyObject, SchemaDataType } from './types';
 import { ValidationError, PredefinedValidationTestName } from './ValidationError';
 
 // type Shape<
@@ -10,13 +10,13 @@ import { ValidationError, PredefinedValidationTestName } from './ValidationError
 // };
 
 type Shape = {
-  [key in string]: ObjectSchema<any, any, any>;
+  [key in string]: BaseSchema<any, any, any>;
 };
 
 type DefinedShapeProps<
   TShape extends Shape = Shape,
 > = {
-  [TKey in keyof TShape]-?: undefined extends TShape[TKey]['Data__TypeRef']
+  [TKey in keyof TShape]-?: undefined extends SchemaDataType<TShape[TKey]>
     ? never
     : TKey;
 }[keyof TShape];
@@ -24,56 +24,126 @@ type DefinedShapeProps<
 type OptionalShapeProps<
   TShape extends Shape = Shape,
 > = {
-  [TKey in keyof TShape]-?: undefined extends TShape[TKey]['Data__TypeRef']
+  [TKey in keyof TShape]-?: undefined extends SchemaDataType<TShape[TKey]>
     ? TKey
     : never;
 }[keyof TShape];
 
+// // eslint-disable-next-line @typescript-eslint/naming-convention
+// type _ShapeData<
+//   TShape extends Shape = Shape,
+// > = null | keyof TShape extends null
+//   ? Record<string, never>
+//   : {
+//     [TKey in keyof TShape]-?: TShape[TKey]['Data__TypeRef'];
+//   };
+
+// // eslint-disable-next-line @typescript-eslint/naming-convention
+// type _ShapeData<
+//   TShape extends Shape = Shape,
+// > = object & {
+//   [TKey in keyof TShape]-?: SchemaDataType<TShape[TKey]>;
+// };
+
 // eslint-disable-next-line @typescript-eslint/naming-convention
 type _ShapeData<
   TShape extends Shape = Shape,
-> = null | keyof TShape extends null
-  ? Record<string, never>
-  : {
-    [TKey in keyof TShape]-?: TShape[TKey]['Data__TypeRef'];
-  };
+> = {
+  [TKey in keyof TShape]-?: SchemaDataType<TShape[TKey]>;
+};
 
 type ShapeData<
   TShape extends Shape = Shape,
-> =
-  & _ShapeData<Pick<TShape, DefinedShapeProps<TShape>>>
-  & Partial<_ShapeData<Pick<TShape, OptionalShapeProps<TShape>>>>;
+> = null | keyof TShape extends null
+  ? Record<string, never>
+  : (
+    & _ShapeData<Pick<TShape, DefinedShapeProps<TShape>>>
+    & Partial<_ShapeData<Pick<TShape, OptionalShapeProps<TShape>>>>
+  );
 
-// // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-// export default interface ObjectSchema<
-//   TData extends AnyObject = AnyObject,
-//   TOptional extends boolean = false,
-//   TNullable extends boolean = false,
-// > extends BaseSchema<TData, TOptional, TNullable> {}
+// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+export default interface ObjectSchema<
+  TData extends AnyObject = AnyObject,
+  TOptional extends boolean = any,
+  TNullable extends boolean = any,
+> extends BaseSchema<TData, TOptional, TNullable> {
+  rich<
+    TInnerData extends TData = TData,
+    TRejectUndefined extends null | string = null | string,
+    TRejectNull extends null | string = null | string,
+  >(
+    schema: BaseSchema,
+    props?: SchemaCloneProps<TInnerData, TRejectUndefined, TRejectNull>,
+  ): ObjectSchema<TData, RejectType<TRejectUndefined>, RejectType<TRejectNull>>;
+
+  optional(): ObjectSchema<TData, true, TNullable>;
+
+  notOptional(
+    message?: string,
+  ): ObjectSchema<TData, false, TNullable>;
+
+  nullable(): ObjectSchema<TData, TOptional, true>;
+
+  notNullable(
+    message?: string,
+  ): ObjectSchema<TData, TOptional, false>;
+
+  required(
+    message?: string,
+  ): ObjectSchema<TData, false, false>;
+
+  notRequired(): ObjectSchema<TData, true, true>;
+
+  default(
+    defaultValue: TData,
+  ): ObjectSchema<TData, TOptional, TNullable>;
+}
 
 export default class ObjectSchema<
   TData extends AnyObject = AnyObject,
-  TOptional extends boolean = false,
-  TNullable extends boolean = false,
+  TOptional extends boolean = any,
+  TNullable extends boolean = any,
 > extends BaseSchema<TData, TOptional, TNullable> {
+  protected shape: Shape = {};
 
-  public clone<
-    TRejectUndefined extends null | string = TOptional extends true ? null : string,
-    TRejectNull extends null | string = TNullable extends true ? null : string,
-  >(
-    props?: SchemaCloneProps<TRejectUndefined, TRejectNull>,
-  ): BaseSchema<TData, RejectType<TRejectUndefined>, RejectType<TRejectNull>> {
-    const schema = new ObjectSchema(this.shape);
+  protected override defaultValue: undefined | TData = undefined;
 
-    return this.rich(schema, props);
+  constructor(shape: Shape) {
+    super();
+
+    this.shape = shape;
   }
 
   static create<
     TShape extends Shape = Shape,
   >(
     shape: TShape,
-  ): ObjectSchema<ShapeData<TShape>> {
-    return new ObjectSchema(shape);
+  ): ObjectSchema<ShapeData<TShape>, false, false> {
+    return new ObjectSchema<ShapeData<TShape>, false, false>(shape);
+  }
+
+  public clone<
+    TInnerData extends TData = TData,
+    TRejectUndefined extends null | string = TOptional extends true ? null : string,
+    TRejectNull extends null | string = TNullable extends true ? null : string,
+  >(
+    props?: SchemaCloneProps<TInnerData, TRejectUndefined, TRejectNull>,
+  ): ObjectSchema<TData, RejectType<TRejectUndefined>, RejectType<TRejectNull>> {
+    const schema = ObjectSchema.create(this.shape);
+
+    return this.rich(schema, props);
+  }
+
+  override getDefault(): TData {
+    if (this.defaultValue == null) {
+      return Object.entries(this.shape).reduce((defaultValue, [key, shape]) => {
+        defaultValue[key as keyof TData] = shape.getDefault();
+        return defaultValue;
+      }, {} as TData);
+    }
+    else {
+      return this.defaultValue;
+    }
   }
 
   override validate<

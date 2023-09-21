@@ -6,7 +6,8 @@ import { ValidationError, PredefinedValidationTestName } from './ValidationError
 export default interface StringSchema<
   TOptional extends boolean = any,
   TNullable extends boolean = any,
-> extends BaseSchema<string, TOptional, TNullable> {
+  TContext extends object = any,
+> extends BaseSchema<string, TOptional, TNullable, TContext> {
   rich<
     TInnerData extends string = string,
     TRejectUndefined extends null | string = null | string,
@@ -14,39 +15,42 @@ export default interface StringSchema<
   >(
     schema: BaseSchema,
     props?: SchemaCloneProps<TInnerData, TRejectUndefined, TRejectNull>,
-  ): StringSchema<RejectType<TRejectUndefined>, RejectType<TRejectNull>>;
+  ): StringSchema<RejectType<TRejectUndefined>, RejectType<TRejectNull>, TContext>;
 
-  optional(): StringSchema<true, TNullable>;
+  optional(): StringSchema<true, TNullable, TContext>;
 
   notOptional(
     message?: string,
   ): StringSchema<false, TNullable>;
 
-  nullable(): StringSchema<TOptional, true>;
+  nullable(): StringSchema<TOptional, true, TContext>;
 
   notNullable(
     message?: string,
-  ): StringSchema<TOptional, false>;
+  ): StringSchema<TOptional, false, TContext>;
 
   required(
     message?: string,
-  ): StringSchema<false, false>;
+  ): StringSchema<false, false, TContext>;
 
-  notRequired(): StringSchema<true, true>;
+  notRequired(): StringSchema<true, true, TContext>;
 
   default(
-    defaultValue: string,
-  ): StringSchema<TOptional, TNullable>;
+    defaultValue: null | string,
+  ): StringSchema<TOptional, TNullable, TContext>;
 }
 
 export default class StringSchema<
   TOptional extends boolean = any,
   TNullable extends boolean = any,
-> extends BaseSchema<string, TOptional, TNullable> {
-  protected override defaultValue: undefined | string = undefined;
+  TContext extends object = any,
+> extends BaseSchema<string, TOptional, TNullable, TContext> {
+  protected override defaultValue: null | string = null;
 
-  public static create(): StringSchema<false, false> {
-    return new StringSchema<false, false>();
+  public static create<
+    TContext extends object = any,
+  >(): StringSchema<false, false, TContext> {
+    return new StringSchema<false, false, TContext>();
   }
 
   public clone<
@@ -55,7 +59,7 @@ export default class StringSchema<
     TRejectNull extends null | string = TNullable extends true ? null : string,
   >(
     props?: SchemaCloneProps<TInnerData, TRejectUndefined, TRejectNull>,
-  ): StringSchema<RejectType<TRejectUndefined>, RejectType<TRejectNull>> {
+  ): StringSchema<RejectType<TRejectUndefined>, RejectType<TRejectNull>, TContext> {
     const schema = StringSchema.create();
 
     return this.rich(schema, props);

@@ -72,7 +72,7 @@ export type SchemaCloneProps<
   TRejectUndefined extends null | string = null | string,
   TRejectNull extends null | string = null | string,
 > = {
-  defaultValue?: TData;
+  defaultValue?: null | TData;
   rejectUndefined?: TRejectUndefined;
   rejectNull?: TRejectNull;
 };
@@ -94,8 +94,11 @@ export default abstract class BaseSchema<
   TData extends any = any,
   TOptional extends boolean = any,
   TNullable extends boolean = any,
+  TContext extends any = any,
 > {
   public Data__TypeRef = undefined as SchemaData<TData, TOptional, TNullable>;
+
+  public Context__TypeRef = undefined as TContext;
 
   protected abstract defaultValue: any;
 
@@ -109,7 +112,7 @@ export default abstract class BaseSchema<
     TRejectNull extends null | string = null | string,
   >(
     props?: SchemaCloneProps<TInnerData, TRejectUndefined, TRejectNull>,
-  ): BaseSchema<TData, RejectType<TRejectUndefined>, RejectType<TRejectNull>>
+  ): BaseSchema<TData, RejectType<TRejectUndefined>, RejectType<TRejectNull>, TContext>
 
   protected rich<
     TInnerData extends TData = TData,
@@ -118,7 +121,7 @@ export default abstract class BaseSchema<
   >(
     schema: BaseSchema,
     props?: SchemaCloneProps<TInnerData, TRejectUndefined, TRejectNull>,
-  ): BaseSchema<TData, RejectType<TRejectUndefined>, RejectType<TRejectNull>> {
+  ): BaseSchema<TData, RejectType<TRejectUndefined>, RejectType<TRejectNull>, TContext> {
     schema.defaultValue = this.defaultValue;
     schema.rejectUndefined = this.rejectUndefined;
     schema.rejectNull = this.rejectNull;
@@ -131,51 +134,51 @@ export default abstract class BaseSchema<
     return schema as BaseSchema<TData, RejectType<TRejectUndefined>, RejectType<TRejectNull>>;
   }
 
-  optional(): BaseSchema<TData, true, TNullable> {
+  public optional(): BaseSchema<TData, true, TNullable, TContext> {
     return this.clone({
       rejectUndefined: null,
     });
   }
 
-  notOptional(
+  public notOptional(
     message?: string,
-  ): BaseSchema<TData, false, TNullable> {
+  ): BaseSchema<TData, false, TNullable, TContext> {
     return this.clone({
       rejectUndefined: message ?? '',
     });
   }
 
-  nullable(): BaseSchema<TData, TOptional, true> {
+  public nullable(): BaseSchema<TData, TOptional, true, TContext> {
     return this.clone({
       rejectNull: null,
     });
   }
 
-  notNullable(
+  public notNullable(
     message?: string,
-  ): BaseSchema<TData, TOptional, false> {
+  ): BaseSchema<TData, TOptional, false, TContext> {
     return this.clone({
       rejectNull: message ?? '',
     });
   }
 
-  required(
+  public required(
     message?: string,
-  ): BaseSchema<TData, false, false> {
+  ): BaseSchema<TData, false, false, TContext> {
     return this.clone({
       rejectUndefined: message ?? '',
       rejectNull: message ?? '',
     });
   }
 
-  notRequired(): BaseSchema<TData, true, true> {
+  public notRequired(): BaseSchema<TData, true, true, TContext> {
     return this.clone({
       rejectUndefined: null,
       rejectNull: null,
     });
   }
 
-  // undefined(message?: string): this {
+  // public undefined(message?: string): this {
   //   const schema = this.clone();
   //
   //   schema.definitionTests.set(
@@ -186,7 +189,7 @@ export default abstract class BaseSchema<
   //   return schema as this;
   // }
 
-  // null(message?: string): this {
+  // public null(message?: string): this {
   //   const schema = this.clone();
   //
   //   schema.definitionTests.set(
@@ -197,17 +200,17 @@ export default abstract class BaseSchema<
   //   return schema as this;
   // }
 
-  default(
-    defaultValue: TData,
-  ): BaseSchema<TData, TOptional, TNullable> {
+  public default(
+    defaultValue: null | TData,
+  ): BaseSchema<TData, TOptional, TNullable, TContext> {
     return this.clone({
       defaultValue,
     });
   }
 
-  abstract getDefault(): TData
+  public abstract getDefault(): TData
 
-  validate<
+  public validate<
     TValue extends any = any,
   >(
     value: TValue,

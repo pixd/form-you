@@ -8,6 +8,8 @@ es/
 
 # Misc
 .DS_Store
+todo.local.md
+trash/
 
 # IDE
 .idea

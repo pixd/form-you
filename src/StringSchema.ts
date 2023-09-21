@@ -45,7 +45,7 @@ export default class StringSchema<
 > extends BaseSchema<string, TOptional, TNullable> {
   protected override defaultValue: undefined | string = undefined;
 
-  static create(): StringSchema<false, false> {
+  public static create(): StringSchema<false, false> {
     return new StringSchema<false, false>();
   }
 
@@ -61,7 +61,7 @@ export default class StringSchema<
     return this.rich(schema, props);
   }
 
-  override getDefault(): string {
+  public override getDefault(): string {
     if (this.defaultValue == null) {
       return '';
     }
@@ -70,7 +70,7 @@ export default class StringSchema<
     }
   }
 
-  override validate<
+  public override validate<
     TValue extends any = any,
   >(
     value: TValue,

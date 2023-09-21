@@ -23,22 +23,6 @@ type OptionalShapeProps<
     : never;
 }[keyof TShape];
 
-// // eslint-disable-next-line @typescript-eslint/naming-convention
-// type _ShapeData<
-//   TShape extends Shape = Shape,
-// > = null | keyof TShape extends null
-//   ? Record<string, never>
-//   : {
-//     [TKey in keyof TShape]-?: TShape[TKey]['Data__TypeRef'];
-//   };
-
-// // eslint-disable-next-line @typescript-eslint/naming-convention
-// type _ShapeData<
-//   TShape extends Shape = Shape,
-// > = object & {
-//   [TKey in keyof TShape]-?: SchemaDataType<TShape[TKey]>;
-// };
-
 // eslint-disable-next-line @typescript-eslint/naming-convention
 type _ShapeData<
   TShape extends Shape = Shape,
@@ -108,7 +92,7 @@ export default class ObjectSchema<
     this.shape = shape;
   }
 
-  static create<
+  public static create<
     TShape extends Shape = Shape,
   >(
     shape: TShape,
@@ -128,7 +112,7 @@ export default class ObjectSchema<
     return this.rich(schema, props);
   }
 
-  override getDefault(): TData {
+  public override getDefault(): TData {
     if (this.defaultValue == null) {
       return Object.entries(this.shape).reduce((defaultValue, [key, shape]) => {
         defaultValue[key as keyof TData] = shape.getDefault();
@@ -140,7 +124,7 @@ export default class ObjectSchema<
     }
   }
 
-  override validate<
+  public override validate<
     TValue extends any = any,
   >(
     value: TValue,

@@ -90,10 +90,8 @@ export type RejectType<
   TSource extends null | string = null | string,
 > = TSource extends string ? false : true;
 
-type Data = any;
-
 export default abstract class BaseSchema<
-  TData extends Data = Data,
+  TData extends any = any,
   TOptional extends boolean = any,
   TNullable extends boolean = any,
 > {

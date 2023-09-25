@@ -4,73 +4,85 @@ import { ValidationError, PredefinedValidationTestName } from './ValidationError
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 export default interface StringSchema<
-  TOptional extends boolean = any,
-  TNullable extends boolean = any,
-  TContext extends object = any,
-> extends BaseSchema<string, TOptional, TNullable, TContext> {
+  TData extends string = string,
+  TOptional extends boolean = boolean,
+  TNullable extends boolean = boolean,
+  TContext extends Record<string, any> = Record<string, never>,
+> extends BaseSchema<TData, TOptional, TNullable, TContext> {
   rich<
     TInnerData extends string = string,
-    TRejectUndefined extends null | string = null | string,
-    TRejectNull extends null | string = null | string,
+    TRejectUndefined extends null | string = never,
+    TRejectNull extends null | string = never,
   >(
     schema: BaseSchema,
-    props?: SchemaCloneProps<TInnerData, TRejectUndefined, TRejectNull>,
-  ): StringSchema<RejectType<TRejectUndefined>, RejectType<TRejectNull>, TContext>;
+    props?: Partial<SchemaCloneProps<TInnerData, TRejectUndefined, TRejectNull>>,
+  ): StringSchema<TData, RejectType<TRejectUndefined, TOptional>, RejectType<TRejectNull, TNullable>, TContext>;
 
-  optional(): StringSchema<true, TNullable, TContext>;
+  optional(): StringSchema<TData, true, TNullable, TContext>;
 
   notOptional(
     message?: string,
-  ): StringSchema<false, TNullable>;
+  ): StringSchema<TData, false, TNullable, TContext>;
 
-  nullable(): StringSchema<TOptional, true, TContext>;
+  nullable(): StringSchema<TData, TOptional, true, TContext>;
 
   notNullable(
     message?: string,
-  ): StringSchema<TOptional, false, TContext>;
+  ): StringSchema<TData, TOptional, false, TContext>;
 
   required(
     message?: string,
-  ): StringSchema<false, false, TContext>;
+  ): StringSchema<TData, false, false, TContext>;
 
-  notRequired(): StringSchema<true, true, TContext>;
+  notRequired(): StringSchema<TData, true, true, TContext>;
 
   default(
-    defaultValue: null | string,
-  ): StringSchema<TOptional, TNullable, TContext>;
+    defaultValue: null | TData,
+  ): StringSchema<TData, TOptional, TNullable, TContext>;
 }
 
 export default class StringSchema<
-  TOptional extends boolean = any,
-  TNullable extends boolean = any,
-  TContext extends object = any,
-> extends BaseSchema<string, TOptional, TNullable, TContext> {
-  protected override defaultValue: null | string = null;
+  TData extends string = string,
+  TOptional extends boolean = boolean,
+  TNullable extends boolean = boolean,
+  TContext extends Record<string, any> = Record<string, never>,
+> extends BaseSchema<TData, TOptional, TNullable, TContext> {
+  protected override contentValue: null | string[] = null;
+
+  protected override defaultValue: null | TData = null;
 
   public static create<
-    TContext extends object = any,
-  >(): StringSchema<false, false, TContext> {
-    return new StringSchema<false, false, TContext>();
+    TValue extends string = string,
+    TContext extends Record<string, any> = Record<string, never>,
+  >(values?: TValue[]): StringSchema<TValue, false, false, TContext> {
+    const schema = new StringSchema<TValue, false, false, TContext>();
+
+    schema.contentValue = values ?? null;
+
+    return schema;
   }
 
   public clone<
-    TInnerData extends string = string,
-    TRejectUndefined extends null | string = TOptional extends true ? null : string,
-    TRejectNull extends null | string = TNullable extends true ? null : string,
+    TInnerData extends TData = TData,
+    TRejectUndefined extends null | string = never,
+    TRejectNull extends null | string = never,
   >(
-    props?: SchemaCloneProps<TInnerData, TRejectUndefined, TRejectNull>,
-  ): StringSchema<RejectType<TRejectUndefined>, RejectType<TRejectNull>, TContext> {
+    props?: Partial<SchemaCloneProps<TInnerData, TRejectUndefined, TRejectNull>>,
+  ): StringSchema<TData, RejectType<TRejectUndefined, TOptional>, RejectType<TRejectNull, TNullable>, TContext> {
     const schema = StringSchema.create();
 
     return this.rich(schema, props);
   }
 
-  public override getDefault(): string {
-    if (this.defaultValue == null) {
-      return '';
+  public override getDefault(): TData {
+    if (this.defaultValue != null) {
+      return this.defaultValue;
+    }
+    else if (this.contentValue) {
+      return (this.contentValue[0] ?? '') as TData;
     }
     else {
-      return this.defaultValue;
+      return '' as TData;
     }
   }
 

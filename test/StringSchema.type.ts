@@ -302,4 +302,63 @@ import noop from './tools/noop';
 
     noop<typeof defaultValue>('');
   }
+
+  {
+    const schema = StringSchema.create();
+
+    schema.default('');
+  }
+
+  {
+    const schema = StringSchema.create();
+
+    schema.default('Snickers');
+  }
+
+  {
+    const schema = StringSchema.create(['Snickers', 'Mars']);
+
+    schema.default('Snickers');
+  }
+
+  {
+    const schema = StringSchema.create(['Snickers', 'Mars']);
+
+    schema.default('Mars');
+  }
+
+  {
+    const schema = StringSchema.create(['Snickers', 'Mars']);
+
+    // @ts-expect-error
+    schema.default('Bounty');
+  }
+
+  {
+    const schema = StringSchema.create(['Snickers', 'Mars']);
+
+    // @ts-expect-error
+    schema.default('abc');
+  }
+
+  {
+    const schema = StringSchema.create(['Snickers', 'Mars']);
+
+    // @ts-expect-error
+    schema.default('');
+  }
+
+  {
+    const schema = StringSchema.create([]);
+
+    // @ts-expect-error
+    schema.default('');
+  }
+
+  {
+    const schema = StringSchema.create([]);
+
+    // @ts-expect-error
+    schema.default('abc');
+  }
 }

@@ -8,7 +8,3 @@ export type _<T> = T extends object
 export type SchemaDataType<
   TSchema extends BaseSchema,
 > = _<TSchema['Data__TypeRef']>;
-
-export type Shape = {
-  [key in string]: BaseSchema;
-};

@@ -8,7 +8,7 @@ import testSchemaValidation from './tools/testSchemaValidation';
 
 describe('ObjectSchema', () => {
   it('should validate', () => {
-    const schema = ObjectSchema.create({});
+    const schema = ObjectSchema.create();
     testSchemaValidation(schema, undefined, isNotOptionalMessage);
     testSchemaValidation(schema, null, isNotNullableMessage);
     testSchemaValidation(schema, {});
@@ -17,7 +17,7 @@ describe('ObjectSchema', () => {
   });
 
   it('should validate with .optional()', () => {
-    const schema = ObjectSchema.create({})
+    const schema = ObjectSchema.create()
       .optional();
 
     testSchemaValidation(schema, undefined);
@@ -43,7 +43,7 @@ describe('ObjectSchema', () => {
   });
 
   it('should validate with .notOptional()', () => {
-    const schema = ObjectSchema.create({})
+    const schema = ObjectSchema.create()
       .notOptional();
 
     testSchemaValidation(schema, undefined, isNotOptionalMessage);
@@ -69,7 +69,7 @@ describe('ObjectSchema', () => {
   });
 
   it('should validate with .nullable()', () => {
-    const schema = ObjectSchema.create({})
+    const schema = ObjectSchema.create()
       .nullable();
 
     testSchemaValidation(schema, undefined, isNotOptionalMessage);
@@ -95,7 +95,7 @@ describe('ObjectSchema', () => {
   });
 
   it('should validate with .notNullable()', () => {
-    const schema = ObjectSchema.create({})
+    const schema = ObjectSchema.create()
       .notNullable();
 
     testSchemaValidation(schema, undefined, isNotOptionalMessage);
@@ -121,7 +121,7 @@ describe('ObjectSchema', () => {
   });
 
   it('should validate with .required()', () => {
-    const schema = ObjectSchema.create({})
+    const schema = ObjectSchema.create()
       .required();
 
     testSchemaValidation(schema, undefined, isNotOptionalMessage);
@@ -150,7 +150,7 @@ describe('ObjectSchema', () => {
   });
 
   it('should validate with .notRequired()', () => {
-    const schema = ObjectSchema.create({})
+    const schema = ObjectSchema.create()
       .notRequired();
 
     testSchemaValidation(schema, undefined);
@@ -179,7 +179,7 @@ describe('ObjectSchema', () => {
   });
 
   it('should clone', () => {
-    const schema = ObjectSchema.create({});
+    const schema = ObjectSchema.create();
 
     testSchemaValidation(schema.clone(), undefined, isNotOptionalMessage);
     testSchemaValidation(schema.clone(), null, isNotNullableMessage);
@@ -190,5 +190,33 @@ describe('ObjectSchema', () => {
     testSchemaValidation(schema.nullable().clone(), undefined, isNotOptionalMessage);
     testSchemaValidation(schema.nullable().clone(), null);
     testSchemaValidation(schema.nullable().clone(), {});
+  });
+
+  it('should use default value', () => {
+    const schema = ObjectSchema.create();
+
+    expect(schema.getDefault()).toStrictEqual({});
+  });
+
+  it('should set default value', () => {
+    const schema = ObjectSchema.create().default({
+      price: 100,
+    });
+
+    expect(schema.getDefault()).toStrictEqual({
+      price: 100,
+    });
+  });
+
+  it('should use shape to calculate default value', () => {
+    const priceSchema = ObjectSchema.create();
+
+    const schema = ObjectSchema.create({
+      price: priceSchema,
+    });
+
+    expect(schema.getDefault()).toStrictEqual({
+      price: {},
+    });
   });
 });

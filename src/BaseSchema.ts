@@ -69,12 +69,12 @@ type Test = [string, TestFn];
 
 export type SchemaCloneProps<
   TData extends any = any,
-  TRejectUndefined extends null | string = null | string,
-  TRejectNull extends null | string = null | string,
+  TRejectUndefined extends null | string = never,
+  TRejectNull extends null | string = never,
 > = {
-  defaultValue?: null | TData;
-  rejectUndefined?: TRejectUndefined;
-  rejectNull?: TRejectNull;
+  defaultValue: null | TData;
+  rejectUndefined: TRejectUndefined;
+  rejectNull: TRejectNull;
 };
 
 type SchemaData<
@@ -87,18 +87,27 @@ type SchemaData<
   | (TNullable extends true ? null : never);
 
 export type RejectType<
-  TSource extends null | string = null | string,
-> = TSource extends string ? false : true;
+  TSource extends null | string = never,
+  TDefault extends boolean = boolean,
+> = TSource | object extends object
+  ? TDefault
+  : TSource extends string
+    ? false
+    : TSource extends null
+      ? true
+      : TDefault;
 
 export default abstract class BaseSchema<
   TData extends any = any,
-  TOptional extends boolean = any,
-  TNullable extends boolean = any,
-  TContext extends any = any,
+  TOptional extends boolean = boolean,
+  TNullable extends boolean = boolean,
+  TContext extends Record<string, any> = Record<string, never>,
 > {
   public Data__TypeRef = undefined as SchemaData<TData, TOptional, TNullable>;
 
-  public Context__TypeRef = undefined as TContext;
+  public Context__TypeRef = {};
+
+  protected contentValue: any = null;
 
   protected abstract defaultValue: any;
 
@@ -106,22 +115,29 @@ export default abstract class BaseSchema<
 
   protected rejectNull: null | string = '';
 
-  protected definitionTests = new Map<string, Test>();  abstract clone<
+  protected definitionTests = new Map<string, Test>();
+
+  public content(contentValue: any) {
+    this.contentValue = contentValue;
+  }
+
+  abstract clone<
     TInnerData extends TData = TData,
-    TRejectUndefined extends null | string = null | string,
-    TRejectNull extends null | string = null | string,
+    TRejectUndefined extends null | string = never,
+    TRejectNull extends null | string = never,
   >(
-    props?: SchemaCloneProps<TInnerData, TRejectUndefined, TRejectNull>,
-  ): BaseSchema<TData, RejectType<TRejectUndefined>, RejectType<TRejectNull>, TContext>
+    props?: Partial<SchemaCloneProps<TInnerData, TRejectUndefined, TRejectNull>>,
+  ): BaseSchema<TData, RejectType<TRejectUndefined, TOptional>, RejectType<TRejectNull, TNullable>, TContext>
 
   protected rich<
     TInnerData extends TData = TData,
-    TRejectUndefined extends null | string = null | string,
-    TRejectNull extends null | string = null | string,
+    TRejectUndefined extends null | string = never,
+    TRejectNull extends null | string = never,
   >(
     schema: BaseSchema,
-    props?: SchemaCloneProps<TInnerData, TRejectUndefined, TRejectNull>,
-  ): BaseSchema<TData, RejectType<TRejectUndefined>, RejectType<TRejectNull>, TContext> {
+    props?: Partial<SchemaCloneProps<TInnerData, TRejectUndefined, TRejectNull>>,
+  ): BaseSchema<TData, RejectType<TRejectUndefined, TOptional>, RejectType<TRejectNull, TNullable>, TContext> {
+    schema.contentValue = this.contentValue;
     schema.defaultValue = this.defaultValue;
     schema.rejectUndefined = this.rejectUndefined;
     schema.rejectNull = this.rejectNull;
@@ -131,7 +147,7 @@ export default abstract class BaseSchema<
       Object.assign(schema, props);
     }
 
-    return schema as BaseSchema<TData, RejectType<TRejectUndefined>, RejectType<TRejectNull>>;
+    return schema as BaseSchema<TData, RejectType<TRejectUndefined>, RejectType<TRejectNull>, TContext>;
   }
 
   public optional(): BaseSchema<TData, true, TNullable, TContext> {

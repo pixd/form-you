@@ -353,6 +353,23 @@ import noop from './tools/noop';
   const priceSchema = ObjectSchema.create({});
 
   {
+    const schema = ObjectSchema.create();
+
+    const defaultValue = schema.getDefault();
+
+    // @ts-expect-error
+    noop<typeof defaultValue>(undefined);
+
+    // @ts-expect-error
+    noop<typeof defaultValue>(null);
+
+    // @ts-expect-error
+    noop<typeof defaultValue>(true);
+
+    noop<typeof defaultValue>({});
+  }
+
+  {
     const schema = ObjectSchema.create({});
 
     const defaultValue = schema.getDefault();
@@ -386,6 +403,54 @@ import noop from './tools/noop';
     noop<typeof defaultValue>(true);
 
     noop<typeof defaultValue>({
+      price: {},
+    });
+  }
+
+  {
+    const schema = ObjectSchema.create();
+
+    schema.default({});
+  }
+
+  {
+    const schema = ObjectSchema.create();
+
+    schema.default({
+      price: 100,
+    });
+  }
+
+  {
+    const schema = ObjectSchema.create({});
+
+    schema.default({});
+  }
+
+  {
+    const schema = ObjectSchema.create({});
+
+    schema.default({
+      // @ts-expect-error
+      price: 100,
+    });
+  }
+
+  {
+    const schema = ObjectSchema.create({
+      price: priceSchema,
+    });
+
+    // @ts-expect-error
+    schema.default({});
+  }
+
+  {
+    const schema = ObjectSchema.create({
+      price: priceSchema,
+    });
+
+    schema.default({
       price: {},
     });
   }

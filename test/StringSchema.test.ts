@@ -191,4 +191,22 @@ describe('StringSchema', () => {
     testSchemaValidation(schema.nullable().clone(), null);
     testSchemaValidation(schema.nullable().clone(), '');
   });
+
+  it('should use default value', () => {
+    const schema = StringSchema.create();
+
+    expect(schema.getDefault()).toBe('');
+  });
+
+  it('should set default value', () => {
+    const schema = StringSchema.create().default('Snickers');
+
+    expect(schema.getDefault()).toBe('Snickers');
+  });
+
+  it('should use values to calculate default value', () => {
+    const schema = StringSchema.create(['Snickers', 'Mars']);
+
+    expect(schema.getDefault()).toBe('Snickers');
+  });
 });

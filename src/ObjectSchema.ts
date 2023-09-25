@@ -1,7 +1,11 @@
 import BaseSchema, { RejectType, SchemaCloneProps } from './BaseSchema';
 import errorMessages, { prepareErrorMessage } from './error-messages';
-import { SchemaDataType, Shape } from './types';
+import { SchemaDataType } from './types';
 import { ValidationError, PredefinedValidationTestName } from './ValidationError';
+
+export type Shape = {
+  [key in string]: BaseSchema;
+};
 
 type DefinedShapeProps<
   TShape extends Shape = Shape,
@@ -37,19 +41,19 @@ type ShapeData<
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 export default interface ObjectSchema<
-  TData extends object = object,
-  TOptional extends boolean = any,
-  TNullable extends boolean = any,
-  TContext extends object = any,
+  TData extends Record<string, any> = Record<string, never>,
+  TOptional extends boolean = boolean,
+  TNullable extends boolean = boolean,
+  TContext extends Record<string, any> = Record<string, never>,
 > extends BaseSchema<TData, TOptional, TNullable, TContext> {
   rich<
     TInnerData extends TData = TData,
-    TRejectUndefined extends null | string = null | string,
-    TRejectNull extends null | string = null | string,
+    TRejectUndefined extends null | string = never,
+    TRejectNull extends null | string = never,
   >(
     schema: BaseSchema,
-    props?: SchemaCloneProps<TInnerData, TRejectUndefined, TRejectNull>,
-  ): ObjectSchema<TData, RejectType<TRejectUndefined>, RejectType<TRejectNull>, TContext>;
+    props?: Partial<SchemaCloneProps<TInnerData, TRejectUndefined, TRejectNull>>,
+  ): ObjectSchema<TData, RejectType<TRejectUndefined, TOptional>, RejectType<TRejectNull, TNullable>, TContext>;
 
   optional(): ObjectSchema<TData, true, TNullable, TContext>;
 
@@ -75,51 +79,52 @@ export default interface ObjectSchema<
 }
 
 export default class ObjectSchema<
-  TData extends object = object,
-  TOptional extends boolean = any,
-  TNullable extends boolean = any,
-  TContext extends object = any,
+  TData extends Record<string, any> = Record<string, never>,
+  TOptional extends boolean = boolean,
+  TNullable extends boolean = boolean,
+  TContext extends Record<string, any> = Record<string, never>,
 > extends BaseSchema<TData, TOptional, TNullable, TContext> {
-  protected shape: Shape = {};
+  protected override contentValue: null | Shape = {};
 
   protected override defaultValue: null | TData = null;
 
-  constructor(shape: Shape) {
-    super();
-
-    this.shape = shape;
-  }
-
   public static create<
     TShape extends Shape = Shape,
-    TContext extends object = any,
+    TContext extends Record<string, any> = Record<string, never>,
   >(
-    shape: TShape,
+    shape?: TShape,
   ): ObjectSchema<ShapeData<TShape>, false, false, TContext> {
-    return new ObjectSchema<ShapeData<TShape>, false, false, TContext>(shape);
+    const schema = new ObjectSchema<ShapeData<TShape>, false, false, TContext>();
+
+    schema.contentValue = shape ?? null;
+
+    return schema;
   }
 
   public clone<
     TInnerData extends TData = TData,
-    TRejectUndefined extends null | string = TOptional extends true ? null : string,
-    TRejectNull extends null | string = TNullable extends true ? null : string,
+    TRejectUndefined extends null | string = never,
+    TRejectNull extends null | string = never,
   >(
-    props?: SchemaCloneProps<TInnerData, TRejectUndefined, TRejectNull>,
-  ): ObjectSchema<TData, RejectType<TRejectUndefined>, RejectType<TRejectNull>, TContext> {
-    const schema = ObjectSchema.create(this.shape);
+    props?: Partial<SchemaCloneProps<TInnerData, TRejectUndefined, TRejectNull>>,
+  ): ObjectSchema<TData, RejectType<TRejectUndefined, TOptional>, RejectType<TRejectNull, TNullable>, TContext> {
+    const schema = new ObjectSchema();
 
     return this.rich(schema, props);
   }
 
   public override getDefault(): TData {
-    if (this.defaultValue == null) {
-      return Object.entries(this.shape).reduce((defaultValue, [key, shape]) => {
-        defaultValue[key as keyof TData] = shape.getDefault();
+    if (this.defaultValue != null) {
+      return this.defaultValue;
+    }
+    else if (this.contentValue) {
+      return Object.entries(this.contentValue).reduce((defaultValue, [key, schema]) => {
+        defaultValue[key as keyof TData] = schema.getDefault();
         return defaultValue;
       }, {} as TData);
     }
     else {
-      return this.defaultValue;
+      return {} as TData;
     }
   }
 

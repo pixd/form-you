@@ -1,7 +1,7 @@
 import BaseSchema, { RejectType, SchemaCloneProps } from './BaseSchema';
 import errorMessages, { prepareErrorMessage } from './error-messages';
 import { SchemaDataType } from './types';
-import { ValidationError, PredefinedValidationTestName } from './ValidationError';
+import ValidationError, { PredefinedValidationTestName } from './ValidationError';
 
 export type Shape = {
   [key in string]: BaseSchema;
@@ -30,7 +30,7 @@ type _ShapeData<
   [TKey in keyof TShape]-?: SchemaDataType<TShape[TKey]>;
 };
 
-type ShapeData<
+export type ShapeData<
   TShape extends Shape = Shape,
 > = null | keyof TShape extends null
   ? Record<string, never>

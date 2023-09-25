@@ -9,7 +9,7 @@ export enum PredefinedValidationTestName {
   $STRING_MUST_BE_A_STRING = '$STRING_MUST_BE_A_STRING',
 }
 
-export class ValidationError extends Error {
+export default class ValidationError extends Error {
   testName: string;
 
   value: any;

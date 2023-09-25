@@ -1,6 +1,6 @@
 import BaseSchema, { RejectType, SchemaCloneProps } from './BaseSchema';
 import errorMessages, { prepareErrorMessage } from './error-messages';
-import { ValidationError, PredefinedValidationTestName } from './ValidationError';
+import ValidationError, { PredefinedValidationTestName } from './ValidationError';
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 export default interface StringSchema<

@@ -455,3 +455,61 @@ import noop from './tools/noop';
     });
   }
 }
+
+/**
+ * Change pattern
+ */
+{
+  const priceSchema = ObjectSchema.create({});
+  const categorySchema = ObjectSchema.create({});
+
+  {
+    const schema = ObjectSchema.create({
+      price: priceSchema,
+    });
+
+    const nextSchema = schema.shape({
+      category: categorySchema,
+    });
+
+    const schemaDefaultValue = schema.getDefault();
+
+    const nextSchemaDefaultValue = nextSchema.getDefault();
+
+    noop<typeof schemaDefaultValue>({
+      price: {},
+    });
+
+    noop<typeof schemaDefaultValue>({
+      // @ts-expect-error
+      category: {},
+    });
+
+    schema.default({
+      price: {},
+    });
+
+    schema.default({
+      // @ts-expect-error
+      category: {},
+    });
+
+    noop<typeof nextSchemaDefaultValue>({
+      // @ts-expect-error
+      price: {},
+    });
+
+    noop<typeof nextSchemaDefaultValue>({
+      category: {},
+    });
+
+    nextSchema.default({
+      // @ts-expect-error
+      price: {},
+    });
+
+    nextSchema.default({
+      category: {},
+    });
+  }
+}

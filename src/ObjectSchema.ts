@@ -41,18 +41,18 @@ export type ShapeData<
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 export default interface ObjectSchema<
-  TData extends Record<string, any> = Record<string, never>,
+  TData extends Record<string, any> = Record<string, any>,
   TOptional extends boolean = boolean,
   TNullable extends boolean = boolean,
   TContext extends Record<string, any> = Record<string, never>,
 > extends BaseSchema<TData, TOptional, TNullable, TContext> {
   rich<
-    TInnerData extends TData = TData,
+    TDefaultValue extends TData = TData,
     TRejectUndefined extends null | string = never,
     TRejectNull extends null | string = never,
   >(
     schema: BaseSchema,
-    props?: Partial<SchemaCloneProps<TInnerData, TRejectUndefined, TRejectNull>>,
+    props?: Partial<SchemaCloneProps<TDefaultValue, TRejectUndefined, TRejectNull>>,
   ): ObjectSchema<TData, RejectType<TRejectUndefined, TOptional>, RejectType<TRejectNull, TNullable>, TContext>;
 
   optional(): ObjectSchema<TData, true, TNullable, TContext>;
@@ -79,12 +79,12 @@ export default interface ObjectSchema<
 }
 
 export default class ObjectSchema<
-  TData extends Record<string, any> = Record<string, never>,
+  TData extends Record<string, any> = Record<string, any>,
   TOptional extends boolean = boolean,
   TNullable extends boolean = boolean,
   TContext extends Record<string, any> = Record<string, never>,
 > extends BaseSchema<TData, TOptional, TNullable, TContext> {
-  protected override contentValue: null | Shape = {};
+  protected override patternValue: null | Shape = null;
 
   protected override defaultValue: null | TData = null;
 
@@ -96,17 +96,39 @@ export default class ObjectSchema<
   ): ObjectSchema<ShapeData<TShape>, false, false, TContext> {
     const schema = new ObjectSchema<ShapeData<TShape>, false, false, TContext>();
 
-    schema.contentValue = shape ?? null;
+    schema.patternValue = shape ?? null;
 
     return schema;
   }
 
+  public pattern<
+    TShape extends Shape = Shape,
+  >(
+    shape: TShape,
+  ): ObjectSchema<ShapeData<TShape>, TOptional, TNullable, TContext> {
+    const schema = new ObjectSchema<ShapeData<TShape>, TOptional, TNullable, TContext>();
+
+    this.rich(schema);
+
+    schema.patternValue = shape;
+
+    return schema;
+  }
+
+  public shape<
+    TShape extends Shape = Shape,
+  >(
+    shape: TShape,
+  ): ObjectSchema<ShapeData<TShape>, TOptional, TNullable, TContext> {
+    return this.pattern(shape);
+  }
+
   public clone<
-    TInnerData extends TData = TData,
+    TDefaultValue extends TData = TData,
     TRejectUndefined extends null | string = never,
     TRejectNull extends null | string = never,
   >(
-    props?: Partial<SchemaCloneProps<TInnerData, TRejectUndefined, TRejectNull>>,
+    props?: Partial<SchemaCloneProps<TDefaultValue, TRejectUndefined, TRejectNull>>,
   ): ObjectSchema<TData, RejectType<TRejectUndefined, TOptional>, RejectType<TRejectNull, TNullable>, TContext> {
     const schema = new ObjectSchema();
 
@@ -117,8 +139,8 @@ export default class ObjectSchema<
     if (this.defaultValue != null) {
       return this.defaultValue;
     }
-    else if (this.contentValue) {
-      return Object.entries(this.contentValue).reduce((defaultValue, [key, schema]) => {
+    else if (this.patternValue) {
+      return Object.entries(this.patternValue).reduce((defaultValue, [key, schema]) => {
         defaultValue[key as keyof TData] = schema.getDefault();
         return defaultValue;
       }, {} as TData);

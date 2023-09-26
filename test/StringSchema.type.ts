@@ -362,3 +362,38 @@ import noop from './tools/noop';
     schema.default('abc');
   }
 }
+
+/**
+ * Change pattern
+ */
+{
+  {
+    const schema = StringSchema.create(['Snickers', 'Bounty']);
+
+    const nextSchema = schema.values(['Mars', 'Twix']);
+
+    const schemaDefaultValue = schema.getDefault();
+
+    const nextSchemaDefaultValue = nextSchema.getDefault();
+
+    noop<typeof schemaDefaultValue>('Snickers');
+
+    // @ts-expect-error
+    noop<typeof schemaDefaultValue>('Mars');
+
+    schema.default('Bounty');
+
+    // @ts-expect-error
+    schema.default('Twix');
+
+    // @ts-expect-error
+    noop<typeof nextSchemaDefaultValue>('Snickers');
+
+    noop<typeof nextSchemaDefaultValue>('Mars');
+
+    // @ts-expect-error
+    nextSchema.default('Bounty');
+
+    nextSchema.default('Twix');
+  }
+}

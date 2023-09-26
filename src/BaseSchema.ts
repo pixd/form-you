@@ -68,11 +68,11 @@ type TestFn = {
 type Test = [string, TestFn];
 
 export type SchemaCloneProps<
-  TData extends any = any,
+  TDefaultValue extends any = any,
   TRejectUndefined extends null | string = never,
   TRejectNull extends null | string = never,
 > = {
-  defaultValue: null | TData;
+  defaultValue: null | TDefaultValue;
   rejectUndefined: TRejectUndefined;
   rejectNull: TRejectNull;
 };
@@ -107,7 +107,7 @@ export default abstract class BaseSchema<
 
   public Context__TypeRef = {};
 
-  protected contentValue: any = null;
+  protected patternValue: any = null;
 
   protected abstract defaultValue: any;
 
@@ -117,27 +117,27 @@ export default abstract class BaseSchema<
 
   protected definitionTests = new Map<string, Test>();
 
-  public content(contentValue: any) {
-    this.contentValue = contentValue;
-  }
+  public abstract pattern(
+    patternValue: any,
+  ): BaseSchema;
 
-  abstract clone<
-    TInnerData extends TData = TData,
+  public abstract clone<
+    TDefaultValue extends TData = TData,
     TRejectUndefined extends null | string = never,
     TRejectNull extends null | string = never,
   >(
-    props?: Partial<SchemaCloneProps<TInnerData, TRejectUndefined, TRejectNull>>,
-  ): BaseSchema<TData, RejectType<TRejectUndefined, TOptional>, RejectType<TRejectNull, TNullable>, TContext>
+    props?: Partial<SchemaCloneProps<TDefaultValue, TRejectUndefined, TRejectNull>>,
+  ): BaseSchema<TData, RejectType<TRejectUndefined, TOptional>, RejectType<TRejectNull, TNullable>, TContext>;
 
   protected rich<
-    TInnerData extends TData = TData,
+    TDefaultValue extends TData = TData,
     TRejectUndefined extends null | string = never,
     TRejectNull extends null | string = never,
   >(
     schema: BaseSchema,
-    props?: Partial<SchemaCloneProps<TInnerData, TRejectUndefined, TRejectNull>>,
+    props?: Partial<SchemaCloneProps<TDefaultValue, TRejectUndefined, TRejectNull>>,
   ): BaseSchema<TData, RejectType<TRejectUndefined, TOptional>, RejectType<TRejectNull, TNullable>, TContext> {
-    schema.contentValue = this.contentValue;
+    schema.patternValue = this.patternValue;
     schema.defaultValue = this.defaultValue;
     schema.rejectUndefined = this.rejectUndefined;
     schema.rejectNull = this.rejectNull;

@@ -219,4 +219,29 @@ describe('ObjectSchema', () => {
       price: {},
     });
   });
+
+  it('should change default value on pattern change', () => {
+    const priceSchema = ObjectSchema.create().default({ amount: 100 });
+    const categorySchema = ObjectSchema.create().default({ id: 1 });
+
+    const schema = ObjectSchema.create({
+      price: priceSchema,
+    });
+
+    expect(schema.getDefault()).toStrictEqual({
+      price: {
+        amount: 100,
+      },
+    });
+
+    const nextSchema = schema.shape({
+      category: categorySchema,
+    });
+
+    expect(nextSchema.getDefault()).toStrictEqual({
+      category: {
+        id: 1,
+      },
+    });
+  });
 });

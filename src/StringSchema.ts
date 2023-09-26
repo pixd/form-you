@@ -9,13 +9,21 @@ export default interface StringSchema<
   TNullable extends boolean = boolean,
   TContext extends Record<string, any> = Record<string, never>,
 > extends BaseSchema<TData, TOptional, TNullable, TContext> {
+  clone<
+    TDefaultValue extends TData = TData,
+    TRejectUndefined extends null | string = never,
+    TRejectNull extends null | string = never,
+  >(
+    props?: Partial<SchemaCloneProps<TDefaultValue, TRejectUndefined, TRejectNull>>,
+  ): StringSchema<TData, RejectType<TRejectUndefined, TOptional>, RejectType<TRejectNull, TNullable>, TContext>;
+
   rich<
-    TInnerData extends string = string,
+    TDefaultValue extends TData = TData,
     TRejectUndefined extends null | string = never,
     TRejectNull extends null | string = never,
   >(
     schema: BaseSchema,
-    props?: Partial<SchemaCloneProps<TInnerData, TRejectUndefined, TRejectNull>>,
+    props?: Partial<SchemaCloneProps<TDefaultValue, TRejectUndefined, TRejectNull>>,
   ): StringSchema<TData, RejectType<TRejectUndefined, TOptional>, RejectType<TRejectNull, TNullable>, TContext>;
 
   optional(): StringSchema<TData, true, TNullable, TContext>;
@@ -47,29 +55,53 @@ export default class StringSchema<
   TNullable extends boolean = boolean,
   TContext extends Record<string, any> = Record<string, never>,
 > extends BaseSchema<TData, TOptional, TNullable, TContext> {
-  protected override contentValue: null | string[] = null;
+  protected override patternValue: null | string[] = null;
 
   protected override defaultValue: null | TData = null;
 
   public static create<
     TValue extends string = string,
     TContext extends Record<string, any> = Record<string, never>,
-  >(values?: TValue[]): StringSchema<TValue, false, false, TContext> {
+  >(
+    values?: TValue[],
+  ): StringSchema<TValue, false, false, TContext> {
     const schema = new StringSchema<TValue, false, false, TContext>();
 
-    schema.contentValue = values ?? null;
+    schema.patternValue = values ?? null;
 
     return schema;
   }
 
+  public pattern<
+    TValue extends string = string,
+  >(
+    values: TValue[],
+  ): StringSchema<TValue, TOptional, TNullable, TContext> {
+    const schema = new StringSchema<TValue, TOptional, TNullable, TContext>();
+
+    this.rich(schema);
+
+    schema.patternValue = values;
+
+    return schema;
+  }
+
+  public values<
+    TValue extends string = string,
+  >(
+    values: TValue[],
+  ): StringSchema<TValue, TOptional, TNullable, TContext> {
+    return this.pattern(values);
+  }
+
   public clone<
-    TInnerData extends TData = TData,
+    TDefaultValue extends TData = TData,
     TRejectUndefined extends null | string = never,
     TRejectNull extends null | string = never,
   >(
-    props?: Partial<SchemaCloneProps<TInnerData, TRejectUndefined, TRejectNull>>,
+    props?: Partial<SchemaCloneProps<TDefaultValue, TRejectUndefined, TRejectNull>>,
   ): StringSchema<TData, RejectType<TRejectUndefined, TOptional>, RejectType<TRejectNull, TNullable>, TContext> {
-    const schema = StringSchema.create();
+    const schema = new StringSchema();
 
     return this.rich(schema, props);
   }
@@ -78,8 +110,8 @@ export default class StringSchema<
     if (this.defaultValue != null) {
       return this.defaultValue;
     }
-    else if (this.contentValue) {
-      return (this.contentValue[0] ?? '') as TData;
+    else if (this.patternValue) {
+      return (this.patternValue[0] ?? '') as TData;
     }
     else {
       return '' as TData;

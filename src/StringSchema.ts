@@ -7,7 +7,7 @@ export default interface StringSchema<
   TData extends string = string,
   TOptional extends boolean = boolean,
   TNullable extends boolean = boolean,
-  TContext extends Record<string, any> = Record<string, never>,
+  TContext extends Record<string, any> = Record<string, any>,
 > extends BaseSchema<TData, TOptional, TNullable, TContext> {
   clone<
     TDefaultValue extends TData = TData,
@@ -53,7 +53,7 @@ export default class StringSchema<
   TData extends string = string,
   TOptional extends boolean = boolean,
   TNullable extends boolean = boolean,
-  TContext extends Record<string, any> = Record<string, never>,
+  TContext extends Record<string, any> = Record<string, any>,
 > extends BaseSchema<TData, TOptional, TNullable, TContext> {
   protected override patternValue: null | string[] = null;
 
@@ -61,7 +61,7 @@ export default class StringSchema<
 
   public static create<
     TValue extends string = string,
-    TContext extends Record<string, any> = Record<string, never>,
+    TContext extends Record<string, any> = never,
   >(
     values?: TValue[],
   ): StringSchema<TValue, false, false, TContext> {

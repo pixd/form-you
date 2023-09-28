@@ -13,3 +13,4 @@ trash/
 
 # IDE
 .idea
+*.patch

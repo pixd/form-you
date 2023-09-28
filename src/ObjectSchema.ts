@@ -44,7 +44,7 @@ export default interface ObjectSchema<
   TData extends Record<string, any> = Record<string, any>,
   TOptional extends boolean = boolean,
   TNullable extends boolean = boolean,
-  TContext extends Record<string, any> = Record<string, never>,
+  TContext extends Record<string, any> = Record<string, any>,
 > extends BaseSchema<TData, TOptional, TNullable, TContext> {
   rich<
     TDefaultValue extends TData = TData,
@@ -82,7 +82,7 @@ export default class ObjectSchema<
   TData extends Record<string, any> = Record<string, any>,
   TOptional extends boolean = boolean,
   TNullable extends boolean = boolean,
-  TContext extends Record<string, any> = Record<string, never>,
+  TContext extends Record<string, any> = Record<string, any>,
 > extends BaseSchema<TData, TOptional, TNullable, TContext> {
   protected override patternValue: null | Shape = null;
 
@@ -90,7 +90,7 @@ export default class ObjectSchema<
 
   public static create<
     TShape extends Shape = Shape,
-    TContext extends Record<string, any> = Record<string, never>,
+    TContext extends Record<string, any> = never,
   >(
     shape?: TShape,
   ): ObjectSchema<ShapeData<TShape>, false, false, TContext> {

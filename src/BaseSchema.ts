@@ -101,11 +101,11 @@ export default abstract class BaseSchema<
   TData extends any = any,
   TOptional extends boolean = boolean,
   TNullable extends boolean = boolean,
-  TContext extends Record<string, any> = Record<string, never>,
+  TContext extends Record<string, any> = Record<string, any>,
 > {
   public Data__TypeRef = undefined as SchemaData<TData, TOptional, TNullable>;
 
-  public Context__TypeRef = {};
+  public Context__TypeRef = {} as TContext;
 
   protected patternValue: any = null;
 
@@ -148,6 +148,12 @@ export default abstract class BaseSchema<
     }
 
     return schema as BaseSchema<TData, RejectType<TRejectUndefined>, RejectType<TRejectNull>, TContext>;
+  }
+
+  public context<
+    TNextContext extends null | TContext extends null ? Record<string, any> : (object & Partial<TContext>) = TContext,
+  >(): BaseSchema<TData, TOptional, TNullable, (null | TContext extends null ? object : TContext) & TNextContext> {
+    return this as BaseSchema<TData, TOptional, TNullable, (null | TContext extends null ? object : TContext) & TNextContext>;
   }
 
   public optional(): BaseSchema<TData, true, TNullable, TContext> {

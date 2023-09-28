@@ -1,9 +1,9 @@
 import ObjectSchema from '../src/ObjectSchema';
-import { SchemaDataType } from '../src/types';
+import { SchemaContextType, SchemaDataType } from '../src/types';
 import noop from './tools/noop';
 
 /**
- * BaseFunctionality
+ * Base functionality
  */
 {
   {
@@ -80,7 +80,7 @@ import noop from './tools/noop';
 }
 
 /**
- * SchemaDataType
+ * Schema data type
  */
 {
   const priceSchema = ObjectSchema.create({});
@@ -269,7 +269,7 @@ import noop from './tools/noop';
 }
 
 /**
- * SchemaDataType with cloned schema
+ * Schema data type with cloned schema
  */
 {
   {
@@ -511,5 +511,361 @@ import noop from './tools/noop';
     nextSchema.default({
       category: {},
     });
+  }
+}
+
+/**
+ * Context
+ */
+{
+  {
+    type Context = {
+      price: number;
+    };
+
+    const schema = ObjectSchema.create().context<Context>();
+
+    type ContextType = SchemaContextType<typeof schema>;
+
+    noop<ContextType>({
+      price: 100,
+    });
+
+    noop<ContextType>({
+      price: 100,
+      // @ts-expect-error
+      active: true,
+    });
+
+    // @ts-expect-error
+    noop<ContextType>({});
+  }
+
+  {
+    type Context = {
+      price?: number;
+    };
+
+    const schema = ObjectSchema.create().context<Context>();
+
+    type ContextType = SchemaContextType<typeof schema>;
+
+    noop<ContextType>({
+      price: 100,
+    });
+
+    noop<ContextType>({
+      price: 100,
+      // @ts-expect-error
+      active: true,
+    });
+
+    noop<ContextType>({});
+  }
+
+  {
+    type Context = {
+      price: number;
+    };
+
+    type NextContext = {
+      name: string;
+    };
+
+    const schema = ObjectSchema.create().context<Context>().context<NextContext>();
+
+    type ContextType = SchemaContextType<typeof schema>;
+
+    noop<ContextType>({
+      price: 100,
+      name: 'Snickers',
+    });
+
+    noop<ContextType>({
+      price: 100,
+      name: 'Snickers',
+      // @ts-expect-error
+      active: true,
+    });
+
+    // @ts-expect-error
+    noop<ContextType>({
+      price: 100,
+    });
+
+    // @ts-expect-error
+    noop<ContextType>({
+      name: 'Snickers',
+    });
+
+    // @ts-expect-error
+    noop<ContextType>({});
+  }
+
+  {
+    type Context = {
+      price?: number;
+    };
+
+    type NextContext = {
+      name: string;
+    };
+
+    const schema = ObjectSchema.create().context<Context>().context<NextContext>();
+
+    type ContextType = SchemaContextType<typeof schema>;
+
+    noop<ContextType>({
+      price: 100,
+      name: 'Snickers',
+    });
+
+    noop<ContextType>({
+      price: 100,
+      name: 'Snickers',
+      // @ts-expect-error
+      active: true,
+    });
+
+    // @ts-expect-error
+    noop<ContextType>({
+      price: 100,
+    });
+
+    noop<ContextType>({
+      name: 'Snickers',
+    });
+
+    // @ts-expect-error
+    noop<ContextType>({});
+  }
+
+  {
+    type Context = {
+      price: number;
+    };
+
+    type NextContext = {
+      name?: string;
+    };
+
+    const schema = ObjectSchema.create().context<Context>().context<NextContext>();
+
+    type ContextType = SchemaContextType<typeof schema>;
+
+    noop<ContextType>({
+      price: 100,
+      name: 'Snickers',
+    });
+
+    noop<ContextType>({
+      price: 100,
+      name: 'Snickers',
+      // @ts-expect-error
+      active: true,
+    });
+
+    noop<ContextType>({
+      price: 100,
+    });
+
+    // @ts-expect-error
+    noop<ContextType>({
+      name: 'Snickers',
+    });
+
+    // @ts-expect-error
+    noop<ContextType>({});
+  }
+
+  {
+    type Context = {
+      price: number;
+      name?: string;
+    };
+
+    type NextContext = {
+      name: string;
+    };
+
+    const schema = ObjectSchema.create().context<Context>().context<NextContext>();
+
+    type ContextType = SchemaContextType<typeof schema>;
+
+    noop<ContextType>({
+      price: 100,
+      name: 'Snickers',
+    });
+
+    noop<ContextType>({
+      price: 100,
+      name: 'Snickers',
+      // @ts-expect-error
+      active: true,
+    });
+
+    // @ts-expect-error
+    noop<ContextType>({
+      price: 100,
+    });
+
+    // @ts-expect-error
+    noop<ContextType>({
+      name: 'Snickers',
+    });
+
+    // @ts-expect-error
+    noop<ContextType>({});
+  }
+
+  {
+    type Context = {
+      price: number;
+      name: string;
+    };
+
+    type NextContext = {
+      name?: string;
+    };
+
+    const schema = ObjectSchema.create().context<Context>().context<NextContext>();
+
+    type ContextType = SchemaContextType<typeof schema>;
+
+    noop<ContextType>({
+      price: 100,
+      name: 'Snickers',
+    });
+
+    noop<ContextType>({
+      price: 100,
+      name: 'Snickers',
+      // @ts-expect-error
+      active: true,
+    });
+
+    // @ts-expect-error
+    noop<ContextType>({
+      price: 100,
+    });
+
+    // @ts-expect-error
+    noop<ContextType>({
+      name: 'Snickers',
+    });
+
+    // @ts-expect-error
+    noop<ContextType>({});
+  }
+
+  {
+    type Context = {
+      sale: number | string;
+    };
+
+    type NextContext = {
+      sale: string;
+    };
+
+    const schema = ObjectSchema.create().context<Context>().context<NextContext>();
+
+    type ContextType = SchemaContextType<typeof schema>;
+
+    noop<ContextType>({
+      sale: 'new-year',
+    });
+
+    noop<ContextType>({
+      // @ts-expect-error
+      sale: 15,
+    });
+  }
+
+  {
+    type Context = {
+      sale: string;
+    };
+
+    type NextContext = {
+      sale: number | string;
+    };
+
+    ObjectSchema.create()
+      .context<Context>()
+      // @ts-expect-error
+      .context<NextContext>();
+  }
+
+  {
+    type Context = {
+      sale: string;
+    };
+
+    type NextContext = {
+      sale: number;
+    };
+
+    ObjectSchema.create()
+      .context<Context>()
+      // @ts-expect-error
+      .context<NextContext>();
+  }
+
+  {
+    type Context = {
+      sale: (number | string)[];
+    };
+
+    type NextContext = {
+      sale: number[];
+    };
+
+    const schema = ObjectSchema.create().context<Context>().context<NextContext>();
+
+    type ContextType = SchemaContextType<typeof schema>;
+
+    noop<ContextType>({
+      sale: [15],
+    });
+
+    noop<ContextType>({
+      // @ts-expect-error
+      sale: ['new-year'],
+    });
+
+    noop<ContextType>({
+      // @ts-expect-error
+      sale: [15, 'new-year'],
+    });
+  }
+
+  {
+    type Context = {
+      sale: string[];
+    };
+
+    type NextContext = {
+      sale: (number | string)[];
+    };
+
+    ObjectSchema.create()
+      .context<Context>()
+      // @ts-expect-error
+      .context<NextContext>();
+  }
+
+  {
+    type Context = {
+      sale: string[];
+    };
+
+    type NextContext = {
+      sale: number[];
+    };
+
+    ObjectSchema.create()
+      .context<Context>()
+      // @ts-expect-error
+      .context<NextContext>();
   }
 }

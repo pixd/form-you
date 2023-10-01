@@ -258,4 +258,10 @@ export default abstract class BaseSchema<
 
     return value;
   }
+
+  // TODO This is tor testing purposes only and should be removed
+  public testContext(_cb: (context: TContext) => void ): this {
+    // @ts-ignore
+    return;
+  }
 }

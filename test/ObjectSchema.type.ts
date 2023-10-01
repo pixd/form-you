@@ -1,4 +1,5 @@
 import ObjectSchema from '../src/ObjectSchema';
+import StringSchema from '../src/StringSchema';
 import { SchemaContextType, SchemaDataType } from '../src/types';
 import noop from './tools/noop';
 
@@ -69,12 +70,35 @@ import noop from './tools/noop';
     ObjectSchema.create({
       price: priceSchema,
     });
-  }
 
-  {
     ObjectSchema.create({
       // @ts-expect-error
       price: {},
+    });
+
+    ObjectSchema.create({
+      // @ts-expect-error
+      price: null,
+    });
+
+    ObjectSchema.create({
+      // @ts-expect-error
+      price: undefined,
+    });
+
+    ObjectSchema.create({
+      // @ts-expect-error
+      price: true,
+    });
+
+    ObjectSchema.create({
+      // @ts-expect-error
+      price: 0,
+    });
+
+    ObjectSchema.create({
+      // @ts-expect-error
+      price: '',
     });
   }
 }
@@ -264,6 +288,37 @@ import noop from './tools/noop';
       priceA: {},
       priceB: {},
       priceC: {},
+    });
+  }
+
+  {
+    const schema = ObjectSchema.create({
+      stringProp: StringSchema.create(),
+      objectProp: ObjectSchema.create(),
+    });
+
+    type DataType = SchemaDataType<typeof schema>;
+
+    noop<DataType>({
+      stringProp: '',
+      objectProp: {},
+    });
+
+    // @ts-expect-error
+    noop<DataType>({
+      objectProp: {},
+    });
+
+    // @ts-expect-error
+    noop<DataType>({
+      stringProp: '',
+    });
+
+    noop<DataType>({
+      // @ts-expect-error
+      stringProp: true,
+      // @ts-expect-error
+      objectProp: true,
     });
   }
 }

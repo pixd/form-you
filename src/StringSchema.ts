@@ -26,6 +26,10 @@ export default interface StringSchema<
     props?: Partial<SchemaCloneProps<TDefaultValue, TRejectUndefined, TRejectNull>>,
   ): StringSchema<TData, RejectType<TRejectUndefined, TOptional>, RejectType<TRejectNull, TNullable>, TContext>;
 
+  context<
+    TNextContext extends null | TContext extends null ? Record<string, any> : (object & Partial<TContext>) = TContext,
+  >(): StringSchema<TData, TOptional, TNullable, (null | TContext extends null ? object : TContext) & TNextContext>;
+
   optional(): StringSchema<TData, true, TNullable, TContext>;
 
   notOptional(

@@ -6,17 +6,22 @@ import ValidationError from './ValidationError';
 
 import type { SchemaCloneProps } from './BaseSchema';
 import type { Shape, ShapeData } from './ObjectSchema';
-import type { SchemaDataType } from './types';
+import type { AnySchema, SchemaDataType } from './types';
 
 export {
-  BaseSchema,
-  ObjectSchema,
   prepareErrorMessage,
-  StringSchema,
   ValidationError,
 };
 
+// Schemas
+export {
+  BaseSchema,
+  ObjectSchema,
+  StringSchema,
+};
+
 export type {
+  AnySchema,
   SchemaCloneProps,
   SchemaDataType,
   Shape,

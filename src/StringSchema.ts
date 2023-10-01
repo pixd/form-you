@@ -9,6 +9,12 @@ export default interface StringSchema<
   TNullable extends boolean = boolean,
   TContext extends Record<string, any> = Record<string, any>,
 > extends BaseSchema<TData, TOptional, TNullable, TContext> {
+  pattern<
+    TValue extends string = string,
+  >(
+    values: TValue[],
+  ): StringSchema<TValue, TOptional, TNullable, TContext>;
+
   clone<
     TDefaultValue extends TData = TData,
     TRejectUndefined extends null | string = never,
@@ -63,6 +69,8 @@ export default class StringSchema<
 
   protected override defaultValue: null | TData = null;
 
+  protected selfConstructor = StringSchema;
+
   public static create<
     TValue extends string = string,
     TContext extends Record<string, any> = never,
@@ -76,38 +84,12 @@ export default class StringSchema<
     return schema;
   }
 
-  public pattern<
-    TValue extends string = string,
-  >(
-    values: TValue[],
-  ): StringSchema<TValue, TOptional, TNullable, TContext> {
-    const schema = new StringSchema<TValue, TOptional, TNullable, TContext>();
-
-    this.rich(schema);
-
-    schema.patternValue = values;
-
-    return schema;
-  }
-
   public values<
     TValue extends string = string,
   >(
     values: TValue[],
   ): StringSchema<TValue, TOptional, TNullable, TContext> {
     return this.pattern(values);
-  }
-
-  public clone<
-    TDefaultValue extends TData = TData,
-    TRejectUndefined extends null | string = never,
-    TRejectNull extends null | string = never,
-  >(
-    props?: Partial<SchemaCloneProps<TDefaultValue, TRejectUndefined, TRejectNull>>,
-  ): StringSchema<TData, RejectType<TRejectUndefined, TOptional>, RejectType<TRejectNull, TNullable>, TContext> {
-    const schema = new StringSchema();
-
-    return this.rich(schema, props);
   }
 
   public override getDefault(): TData {

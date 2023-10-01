@@ -117,17 +117,35 @@ export default abstract class BaseSchema<
 
   protected definitionTests = new Map<string, Test>();
 
-  public abstract pattern(
-    patternValue: any,
-  ): BaseSchema;
+  protected mutationPhase: boolean = false;
 
-  public abstract clone<
+  protected abstract selfConstructor: {
+    new (): BaseSchema;
+  };
+
+  public pattern(
+    pattern: any,
+  ): BaseSchema<any, TOptional, TNullable, TContext> {
+    const schema = new (this.selfConstructor)();
+
+    this.rich(schema);
+
+    schema.patternValue = pattern;
+
+    return schema as BaseSchema<any, TOptional, TNullable, TContext>;
+  }
+
+  public clone<
     TDefaultValue extends TData = TData,
     TRejectUndefined extends null | string = never,
     TRejectNull extends null | string = never,
   >(
     props?: Partial<SchemaCloneProps<TDefaultValue, TRejectUndefined, TRejectNull>>,
-  ): BaseSchema<TData, RejectType<TRejectUndefined, TOptional>, RejectType<TRejectNull, TNullable>, TContext>;
+  ): BaseSchema<TData, RejectType<TRejectUndefined, TOptional>, RejectType<TRejectNull, TNullable>, TContext> {
+    const schema = this.mutationPhase ? this : new (this.selfConstructor)();
+
+    return this.rich(schema, props);
+  }
 
   protected rich<
     TDefaultValue extends TData = TData,

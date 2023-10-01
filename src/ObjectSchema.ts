@@ -48,6 +48,20 @@ export default interface ObjectSchema<
   TNullable extends boolean = boolean,
   TContext extends Record<string, any> = Record<string, any>,
 > extends BaseSchema<TData, TOptional, TNullable, TContext> {
+  pattern<
+    TShape extends Shape = Shape,
+  >(
+    shape: TShape,
+  ): ObjectSchema<ShapeData<TShape>, TOptional, TNullable, TContext>;
+
+  clone<
+    TDefaultValue extends TData = TData,
+    TRejectUndefined extends null | string = never,
+    TRejectNull extends null | string = never,
+  >(
+    props?: Partial<SchemaCloneProps<TDefaultValue, TRejectUndefined, TRejectNull>>,
+  ): ObjectSchema<TData, RejectType<TRejectUndefined, TOptional>, RejectType<TRejectNull, TNullable>, TContext>;
+
   rich<
     TDefaultValue extends TData = TData,
     TRejectUndefined extends null | string = never,
@@ -94,6 +108,8 @@ export default class ObjectSchema<
 
   protected override defaultValue: null | TData = null;
 
+  protected selfConstructor = ObjectSchema;
+
   public static create<
     TShape extends Shape = never,
     TContext extends Record<string, any> = never,
@@ -107,38 +123,12 @@ export default class ObjectSchema<
     return schema;
   }
 
-  public pattern<
-    TShape extends Shape = Shape,
-  >(
-    shape: TShape,
-  ): ObjectSchema<ShapeData<TShape>, TOptional, TNullable, TContext> {
-    const schema = new ObjectSchema<ShapeData<TShape>, TOptional, TNullable, TContext>();
-
-    this.rich(schema);
-
-    schema.patternValue = shape;
-
-    return schema;
-  }
-
   public shape<
     TShape extends Shape = Shape,
   >(
     shape: TShape,
   ): ObjectSchema<ShapeData<TShape>, TOptional, TNullable, TContext> {
     return this.pattern(shape);
-  }
-
-  public clone<
-    TDefaultValue extends TData = TData,
-    TRejectUndefined extends null | string = never,
-    TRejectNull extends null | string = never,
-  >(
-    props?: Partial<SchemaCloneProps<TDefaultValue, TRejectUndefined, TRejectNull>>,
-  ): ObjectSchema<TData, RejectType<TRejectUndefined, TOptional>, RejectType<TRejectNull, TNullable>, TContext> {
-    const schema = new ObjectSchema();
-
-    return this.rich(schema, props);
   }
 
   public override getDefault(): TData {

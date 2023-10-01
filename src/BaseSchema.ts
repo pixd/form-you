@@ -1,7 +1,10 @@
 import errorMessages, { prepareErrorMessage } from './error-messages';
 import ValidationError, { PredefinedValidationTestName } from './ValidationError';
 
-function rejectUndefinedTest(message: string, value: any) {
+function rejectUndefinedTest(
+  message: string,
+  value: any,
+): void {
   if (value === undefined) {
     throw new ValidationError(
       message,
@@ -11,7 +14,10 @@ function rejectUndefinedTest(message: string, value: any) {
   }
 }
 
-function rejectNullTest(message: string, value: any) {
+function rejectNullTest(
+  message: string,
+  value: any,
+): void {
   if (value === null) {
     throw new ValidationError(
       message,
@@ -126,9 +132,14 @@ export default abstract class BaseSchema<
   public pattern(
     pattern: any,
   ): BaseSchema<any, TOptional, TNullable, TContext> {
-    const schema = new (this.selfConstructor)();
-
-    this.rich(schema);
+    let schema: BaseSchema;
+    if (this.mutationPhase) {
+      schema = this;
+    }
+    else {
+      schema = new (this.selfConstructor)();
+      this.rich(schema);
+    }
 
     schema.patternValue = pattern;
 
@@ -166,6 +177,22 @@ export default abstract class BaseSchema<
     }
 
     return schema as BaseSchema<TData, RejectType<TRejectUndefined>, RejectType<TRejectNull>, TContext>;
+  }
+
+  withMutation<
+    TReturned extends BaseSchema = BaseSchema,
+  >(
+    cb: {
+      (schema: BaseSchema): TReturned;
+    },
+  ) {
+    this.mutationPhase = true;
+
+    cb(this);
+
+    this.mutationPhase = false;
+
+    return this;
   }
 
   public context<

@@ -209,4 +209,56 @@ describe('StringSchema', () => {
 
     expect(schema.getDefault()).toBe('Snickers');
   });
+
+  it('should mutate with withMutation', () => {
+    {
+      const schema = StringSchema.create();
+
+      testSchemaValidation(schema, undefined, isNotOptionalMessage);
+
+      const nextSchema = schema.withMutation(schema => schema.optional());
+
+      expect(schema).toBe(nextSchema);
+
+      testSchemaValidation(nextSchema, undefined);
+    }
+
+    {
+      const schema = StringSchema.create();
+
+      testSchemaValidation(schema, null, isNotNullableMessage);
+
+      const nextSchema = schema.withMutation(schema => schema.nullable());
+
+      expect(schema).toBe(nextSchema);
+
+      testSchemaValidation(nextSchema, null);
+    }
+
+    {
+      const schema = StringSchema.create();
+
+      testSchemaValidation(schema, undefined, isNotOptionalMessage);
+      testSchemaValidation(schema, null, isNotNullableMessage);
+
+      const nextSchema = schema.withMutation(schema => schema.notRequired());
+
+      expect(schema).toBe(nextSchema);
+
+      testSchemaValidation(nextSchema, undefined);
+      testSchemaValidation(nextSchema, null);
+    }
+
+    {
+      const schema = StringSchema.create();
+
+      expect(schema.getDefault()).toBe('');
+
+      const nextSchema = schema.withMutation(schema => schema.default('abc'));
+
+      expect(schema).toBe(nextSchema);
+
+      expect(nextSchema.getDefault()).toBe('abc');
+    }
+  });
 });

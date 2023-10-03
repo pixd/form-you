@@ -71,6 +71,14 @@ export default interface ObjectSchema<
     props?: Partial<SchemaCloneProps<TDefaultValue, TRejectUndefined, TRejectNull>>,
   ): ObjectSchema<TData, RejectType<TRejectUndefined, TOptional>, RejectType<TRejectNull, TNullable>, TContext>;
 
+  withMutation<
+    TReturned extends ObjectSchema<TData> = ObjectSchema<TData>,
+  >(
+    cb: {
+      (schema: ObjectSchema<TData, TOptional, TNullable, TContext>): TReturned;
+    },
+  ): TReturned;
+
   context<
     TNextContext extends null | TContext extends null ? Record<string, any> : (object & Partial<TContext>) = TContext,
   >(): ObjectSchema<TData, TOptional, TNullable, (null | TContext extends null ? object : TContext) & TNextContext>;
@@ -108,7 +116,9 @@ export default class ObjectSchema<
 
   protected override defaultValue: null | TData = null;
 
-  protected selfConstructor = ObjectSchema;
+  protected override selfConstructor: {
+    new (): ObjectSchema;
+  } = ObjectSchema;
 
   public static create<
     TShape extends Shape = never,

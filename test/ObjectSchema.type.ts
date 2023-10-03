@@ -924,3 +924,82 @@ import noop from './tools/noop';
       .context<NextContext>();
   }
 }
+
+/**
+ * Mutation
+ */
+{
+  {
+    const schema = ObjectSchema.create();
+
+    type DataType = SchemaDataType<typeof schema>;
+
+    noop<DataType>({});
+
+    // @ts-expect-error
+    noop<DataType>(undefined);
+
+    // @ts-expect-error
+    noop<DataType>(null);
+
+    const nextSchema = schema.withMutation(schema => schema.optional());
+
+    type NextDataType = SchemaDataType<typeof nextSchema>;
+
+    noop<NextDataType>({});
+
+    noop<NextDataType>(undefined);
+
+    // @ts-expect-error
+    noop<NextDataType>(null);
+  }
+
+  {
+    const schema = ObjectSchema.create();
+
+    type DataType = SchemaDataType<typeof schema>;
+
+    noop<DataType>({});
+
+    // @ts-expect-error
+    noop<DataType>(undefined);
+
+    // @ts-expect-error
+    noop<DataType>(null);
+
+    const nextSchema = schema.withMutation(schema => schema.nullable());
+
+    type NextDataType = SchemaDataType<typeof nextSchema>;
+
+    noop<NextDataType>({});
+
+    // @ts-expect-error
+    noop<NextDataType>(undefined);
+
+    noop<NextDataType>(null);
+  }
+
+  {
+    const schema = ObjectSchema.create();
+
+    type DataType = SchemaDataType<typeof schema>;
+
+    noop<DataType>({});
+
+    // @ts-expect-error
+    noop<DataType>(undefined);
+
+    // @ts-expect-error
+    noop<DataType>(null);
+
+    const nextSchema = schema.withMutation(schema => schema.notRequired());
+
+    type NextDataType = SchemaDataType<typeof nextSchema>;
+
+    noop<NextDataType>({});
+
+    noop<NextDataType>(undefined);
+
+    noop<NextDataType>(null);
+  }
+}

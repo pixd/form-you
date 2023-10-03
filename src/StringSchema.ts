@@ -32,6 +32,14 @@ export default interface StringSchema<
     props?: Partial<SchemaCloneProps<TDefaultValue, TRejectUndefined, TRejectNull>>,
   ): StringSchema<TData, RejectType<TRejectUndefined, TOptional>, RejectType<TRejectNull, TNullable>, TContext>;
 
+  withMutation<
+    TReturned extends StringSchema<TData> = StringSchema<TData>,
+  >(
+    cb: {
+      (schema: StringSchema<TData, TOptional, TNullable, TContext>): TReturned;
+    },
+  ): TReturned;
+
   context<
     TNextContext extends null | TContext extends null ? Record<string, any> : (object & Partial<TContext>) = TContext,
   >(): StringSchema<TData, TOptional, TNullable, (null | TContext extends null ? object : TContext) & TNextContext>;
@@ -69,7 +77,9 @@ export default class StringSchema<
 
   protected override defaultValue: null | TData = null;
 
-  protected selfConstructor = StringSchema;
+  protected override selfConstructor: {
+    new (): StringSchema;
+  } = StringSchema;
 
   public static create<
     TValue extends string = string,

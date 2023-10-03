@@ -244,4 +244,56 @@ describe('ObjectSchema', () => {
       },
     });
   });
+
+  it('should mutate with withMutation', () => {
+    {
+      const schema = ObjectSchema.create();
+
+      testSchemaValidation(schema, undefined, isNotOptionalMessage);
+
+      const nextSchema = schema.withMutation(schema => schema.optional());
+
+      expect(schema).toBe(nextSchema);
+
+      testSchemaValidation(nextSchema, undefined);
+    }
+
+    {
+      const schema = ObjectSchema.create();
+
+      testSchemaValidation(schema, null, isNotNullableMessage);
+
+      const nextSchema = schema.withMutation(schema => schema.nullable());
+
+      expect(schema).toBe(nextSchema);
+
+      testSchemaValidation(nextSchema, null);
+    }
+
+    {
+      const schema = ObjectSchema.create();
+
+      testSchemaValidation(schema, undefined, isNotOptionalMessage);
+      testSchemaValidation(schema, null, isNotNullableMessage);
+
+      const nextSchema = schema.withMutation(schema => schema.notRequired());
+
+      expect(schema).toBe(nextSchema);
+
+      testSchemaValidation(nextSchema, undefined);
+      testSchemaValidation(nextSchema, null);
+    }
+
+    {
+      const schema = ObjectSchema.create();
+
+      expect(schema.getDefault()).toStrictEqual({});
+
+      const nextSchema = schema.withMutation(schema => schema.default({ id: 0 }));
+
+      expect(schema).toBe(nextSchema);
+
+      expect(nextSchema.getDefault()).toStrictEqual({ id: 0 });
+    }
+  });
 });

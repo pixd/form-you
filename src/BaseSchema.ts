@@ -123,7 +123,7 @@ export default abstract class BaseSchema<
 
   protected definitionTests = new Map<string, Test>();
 
-  protected mutationPhase: boolean = false;
+  protected mutating = false;
 
   protected abstract selfConstructor: {
     new (): BaseSchema;
@@ -133,7 +133,7 @@ export default abstract class BaseSchema<
     pattern: any,
   ): BaseSchema<any, TOptional, TNullable, TContext> {
     let schema: BaseSchema;
-    if (this.mutationPhase) {
+    if (this.mutating) {
       schema = this;
     }
     else {
@@ -153,7 +153,7 @@ export default abstract class BaseSchema<
   >(
     props?: Partial<SchemaCloneProps<TDefaultValue, TRejectUndefined, TRejectNull>>,
   ): BaseSchema<TData, RejectType<TRejectUndefined, TOptional>, RejectType<TRejectNull, TNullable>, TContext> {
-    const schema = this.mutationPhase ? this : new (this.selfConstructor)();
+    const schema = this.mutating ? this : new (this.selfConstructor)();
 
     return this.rich(schema, props);
   }
@@ -179,20 +179,18 @@ export default abstract class BaseSchema<
     return schema as BaseSchema<TData, RejectType<TRejectUndefined>, RejectType<TRejectNull>, TContext>;
   }
 
-  withMutation<
-    TReturned extends BaseSchema = BaseSchema,
-  >(
+  public withMutation(
     cb: {
-      (schema: BaseSchema): TReturned;
+      (schema: BaseSchema): BaseSchema;
     },
-  ) {
-    this.mutationPhase = true;
+  ): BaseSchema {
+    this.mutating = true;
 
-    cb(this);
+    const schema = cb(this);
 
-    this.mutationPhase = false;
+    this.mutating = false;
 
-    return this;
+    return schema;
   }
 
   public context<

@@ -245,13 +245,13 @@ describe('ObjectSchema', () => {
     });
   });
 
-  it('should mutate with withMutation', () => {
+  it('should mutate with mutate', () => {
     {
       const schema = ObjectSchema.create();
 
       testSchemaValidation(schema, undefined, isNotOptionalMessage);
 
-      const nextSchema = schema.withMutation(schema => schema.optional());
+      const nextSchema = schema.mutate(schema => schema.optional());
 
       expect(schema).toBe(nextSchema);
 
@@ -263,7 +263,7 @@ describe('ObjectSchema', () => {
 
       testSchemaValidation(schema, null, isNotNullableMessage);
 
-      const nextSchema = schema.withMutation(schema => schema.nullable());
+      const nextSchema = schema.mutate(schema => schema.nullable());
 
       expect(schema).toBe(nextSchema);
 
@@ -276,7 +276,7 @@ describe('ObjectSchema', () => {
       testSchemaValidation(schema, undefined, isNotOptionalMessage);
       testSchemaValidation(schema, null, isNotNullableMessage);
 
-      const nextSchema = schema.withMutation(schema => schema.notRequired());
+      const nextSchema = schema.mutate(schema => schema.notRequired());
 
       expect(schema).toBe(nextSchema);
 
@@ -289,7 +289,7 @@ describe('ObjectSchema', () => {
 
       expect(schema.getDefault()).toStrictEqual({});
 
-      const nextSchema = schema.withMutation(schema => schema.default({ id: 0 }));
+      const nextSchema = schema.mutate(schema => schema.default({ id: 0 }));
 
       expect(schema).toBe(nextSchema);
 

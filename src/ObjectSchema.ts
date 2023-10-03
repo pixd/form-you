@@ -71,7 +71,7 @@ export default interface ObjectSchema<
     props?: Partial<SchemaCloneProps<TDefaultValue, TRejectUndefined, TRejectNull>>,
   ): ObjectSchema<TData, RejectType<TRejectUndefined, TOptional>, RejectType<TRejectNull, TNullable>, TContext>;
 
-  withMutation<
+  mutate<
     TReturned extends ObjectSchema<TData> = ObjectSchema<TData>,
   >(
     cb: {

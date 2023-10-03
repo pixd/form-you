@@ -771,7 +771,7 @@ import noop from './tools/noop';
     // @ts-expect-error
     noop<DataType>(null);
 
-    const nextSchema = schema.withMutation(schema => schema.optional());
+    const nextSchema = schema.mutate(schema => schema.optional());
 
     type NextDataType = SchemaDataType<typeof nextSchema>;
 
@@ -796,7 +796,7 @@ import noop from './tools/noop';
     // @ts-expect-error
     noop<DataType>(null);
 
-    const nextSchema = schema.withMutation(schema => schema.nullable());
+    const nextSchema = schema.mutate(schema => schema.nullable());
 
     type NextDataType = SchemaDataType<typeof nextSchema>;
 
@@ -821,7 +821,7 @@ import noop from './tools/noop';
     // @ts-expect-error
     noop<DataType>(null);
 
-    const nextSchema = schema.withMutation(schema => schema.notRequired());
+    const nextSchema = schema.mutate(schema => schema.notRequired());
 
     type NextDataType = SchemaDataType<typeof nextSchema>;
 

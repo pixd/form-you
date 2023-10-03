@@ -32,7 +32,7 @@ export default interface StringSchema<
     props?: Partial<SchemaCloneProps<TDefaultValue, TRejectUndefined, TRejectNull>>,
   ): StringSchema<TData, RejectType<TRejectUndefined, TOptional>, RejectType<TRejectNull, TNullable>, TContext>;
 
-  withMutation<
+  mutate<
     TReturned extends StringSchema<TData> = StringSchema<TData>,
   >(
     cb: {

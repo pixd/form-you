@@ -179,7 +179,7 @@ export default abstract class BaseSchema<
     return schema as BaseSchema<TData, RejectType<TRejectUndefined>, RejectType<TRejectNull>, TContext>;
   }
 
-  public withMutation(
+  public mutate(
     cb: {
       (schema: BaseSchema): BaseSchema;
     },

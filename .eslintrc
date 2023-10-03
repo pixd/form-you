@@ -11,6 +11,9 @@
     "project": "./tsconfig.json"
   },
   "rules": {
+    "arrow-parens": ["error", "always"],
+    "function-call-argument-newline": ["error", "consistent"],
+    "space-in-parens": ["error", "never"],
     "@typescript-eslint/no-this-alias": "warn"
   },
   "overrides": [

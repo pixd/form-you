@@ -1,6 +1,6 @@
 import BaseSchema, { RejectType, SchemaCloneProps } from './BaseSchema';
 import errorMessages, { prepareErrorMessage } from './error-messages';
-import { SchemaDataType, AnySchema } from './types';
+import { _, AnySchema, SchemaDataType } from './types';
 import ValidationError, { PredefinedValidationTestName } from './ValidationError';
 
 export type Shape = {
@@ -44,15 +44,15 @@ export type ShapeData<
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 export default interface ObjectSchema<
   TData extends Record<string, any> = Record<string, any>,
-  TOptional extends boolean = boolean,
-  TNullable extends boolean = boolean,
+  TOptional extends boolean = never,
+  TNullable extends boolean = never,
   TContext extends Record<string, any> = Record<string, any>,
 > extends BaseSchema<TData, TOptional, TNullable, TContext> {
   pattern<
     TShape extends Shape = Shape,
   >(
     shape: TShape,
-  ): ObjectSchema<ShapeData<TShape>, TOptional, TNullable, TContext>;
+  ): ObjectSchema<_<ShapeData<TShape>>, TOptional, TNullable, TContext>;
 
   clone<
     TDefaultValue extends TData = TData,
@@ -108,8 +108,8 @@ export default interface ObjectSchema<
 
 export default class ObjectSchema<
   TData extends Record<string, any> = Record<string, any>,
-  TOptional extends boolean = boolean,
-  TNullable extends boolean = boolean,
+  TOptional extends boolean = never,
+  TNullable extends boolean = never,
   TContext extends Record<string, any> = Record<string, any>,
 > extends BaseSchema<TData, TOptional, TNullable, TContext> {
   protected override patternValue: null | Shape = null;
@@ -125,8 +125,8 @@ export default class ObjectSchema<
     TContext extends Record<string, any> = never,
   >(
     shape?: TShape,
-  ): ObjectSchema<ShapeData<TShape>, false, false, TContext> {
-    const schema = new ObjectSchema<ShapeData<TShape>, false, false, TContext>();
+  ): ObjectSchema<_<ShapeData<TShape>>, false, false, TContext> {
+    const schema = new ObjectSchema<_<ShapeData<TShape>>, false, false, TContext>();
 
     schema.patternValue = shape ?? null;
 
@@ -137,7 +137,7 @@ export default class ObjectSchema<
     TShape extends Shape = Shape,
   >(
     shape: TShape,
-  ): ObjectSchema<ShapeData<TShape>, TOptional, TNullable, TContext> {
+  ): ObjectSchema<_<ShapeData<TShape>>, TOptional, TNullable, TContext> {
     return this.pattern(shape);
   }
 

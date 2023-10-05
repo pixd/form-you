@@ -1,105 +1,14 @@
 import ObjectSchema from '../src/ObjectSchema';
 import StringSchema from '../src/StringSchema';
-import { SchemaContextType, SchemaDataType } from '../src/types';
-import noop from './tools/noop';
-
-/**
- * Base functionality
- */
-{
-  {
-    const schema = ObjectSchema.create({});
-
-    noop<Function>(schema.optional);
-    // @ts-expect-error
-    noop<never>(schema.optional);
-    // @ts-expect-error
-    noop<null>(schema.optional);
-
-    noop<Function>(schema.notOptional);
-    // @ts-expect-error
-    noop<never>(schema.notOptional);
-    // @ts-expect-error
-    noop<null>(schema.notOptional);
-
-    noop<Function>(schema.nullable);
-    // @ts-expect-error
-    noop<never>(schema.nullable());
-    // @ts-expect-error
-    noop<null>(schema.nullable());
-
-    noop<Function>(schema.notNullable);
-    // @ts-expect-error
-    noop<never>(schema.notNullable);
-    // @ts-expect-error
-    noop<null>(schema.notNullable);
-
-    noop<Function>(schema.required);
-    // @ts-expect-error
-    noop<never>(schema.required);
-    // @ts-expect-error
-    noop<null>(schema.required);
-
-    noop<Function>(schema.notRequired);
-    // @ts-expect-error
-    noop<never>(schema.notRequired);
-    // @ts-expect-error
-    noop<null>(schema.notRequired);
-
-    noop<Function>(schema.clone);
-    // @ts-expect-error
-    noop<never>(schema.clone);
-    // @ts-expect-error
-    noop<null>(schema.clone);
-
-    noop<Function>(schema.validate);
-    // @ts-expect-error
-    noop<never>(schema.validate);
-    // @ts-expect-error
-    noop<null>(schema.validate);
-  }
-}
+import { AnySchema, SchemaContextType, SchemaDataType } from '../src/types';
+import noop, { expect, PASSED } from './tools/noop';
 
 /**
  * Shape properties
  */
 {
   {
-    const priceSchema = ObjectSchema.create({});
-
-    ObjectSchema.create({
-      price: priceSchema,
-    });
-
-    ObjectSchema.create({
-      // @ts-expect-error
-      price: {},
-    });
-
-    ObjectSchema.create({
-      // @ts-expect-error
-      price: null,
-    });
-
-    ObjectSchema.create({
-      // @ts-expect-error
-      price: undefined,
-    });
-
-    ObjectSchema.create({
-      // @ts-expect-error
-      price: true,
-    });
-
-    ObjectSchema.create({
-      // @ts-expect-error
-      price: 0,
-    });
-
-    ObjectSchema.create({
-      // @ts-expect-error
-      price: '',
-    });
+    expect.equal<Parameters<typeof ObjectSchema.create>[0], undefined | Record<string, AnySchema>>(PASSED)
   }
 }
 
@@ -110,17 +19,19 @@ import noop from './tools/noop';
   const priceSchema = ObjectSchema.create({});
 
   {
+    const schema = ObjectSchema.create();
+
+    type DataType = SchemaDataType<typeof schema>;
+
+    expect.equal<DataType, Record<string, any>>(PASSED);
+  }
+
+  {
     const schema = ObjectSchema.create({});
 
     type DataType = SchemaDataType<typeof schema>;
 
-    noop<DataType>({});
-
-    // @ts-expect-error
-    noop<DataType>(undefined);
-
-    // @ts-expect-error
-    noop<DataType>(null);
+    expect.equal<DataType, Record<string, never>>(PASSED);
   }
 
   {
@@ -128,12 +39,7 @@ import noop from './tools/noop';
 
     type DataType = SchemaDataType<typeof schema>;
 
-    noop<DataType>({});
-
-    noop<DataType>(undefined);
-
-    // @ts-expect-error
-    noop<DataType>(null);
+    expect.equal<DataType, undefined | Record<string, never>>(PASSED);
   }
 
   {
@@ -141,13 +47,7 @@ import noop from './tools/noop';
 
     type DataType = SchemaDataType<typeof schema>;
 
-    noop<DataType>({});
-
-    // @ts-expect-error
-    noop<DataType>(undefined);
-
-    // @ts-expect-error
-    noop<DataType>(null);
+    expect.equal<DataType, Record<string, never>>(PASSED);
   }
 
   {
@@ -155,12 +55,7 @@ import noop from './tools/noop';
 
     type DataType = SchemaDataType<typeof schema>;
 
-    noop<DataType>({});
-
-    // @ts-expect-error
-    noop<DataType>(undefined);
-
-    noop<DataType>(null);
+    expect.equal<DataType, null | Record<string, never>>(PASSED);
   }
 
   {
@@ -168,13 +63,7 @@ import noop from './tools/noop';
 
     type DataType = SchemaDataType<typeof schema>;
 
-    noop<DataType>({});
-
-    // @ts-expect-error
-    noop<DataType>(undefined);
-
-    // @ts-expect-error
-    noop<DataType>(null);
+    expect.equal<DataType, Record<string, never>>(PASSED);
   }
 
   {
@@ -182,11 +71,7 @@ import noop from './tools/noop';
 
     type DataType = SchemaDataType<typeof schema>;
 
-    noop<DataType>({});
-
-    noop<DataType>(undefined);
-
-    noop<DataType>(null);
+    expect.equal<DataType, undefined | null | Record<string, never>>(PASSED);
   }
 
   {
@@ -194,13 +79,7 @@ import noop from './tools/noop';
 
     type DataType = SchemaDataType<typeof schema>;
 
-    noop<DataType>({});
-
-    // @ts-expect-error
-    noop<DataType>(undefined);
-
-    // @ts-expect-error
-    noop<DataType>(null);
+    expect.equal<DataType, Record<string, never>>(PASSED);
   }
 
   {
@@ -208,12 +87,7 @@ import noop from './tools/noop';
 
     type DataType = SchemaDataType<typeof schema>;
 
-    noop<DataType>({});
-
-    // @ts-expect-error
-    noop<DataType>(undefined);
-
-    noop<DataType>(null);
+    expect.equal<DataType, null | Record<string, never>>(PASSED);
   }
 
   {
@@ -221,12 +95,7 @@ import noop from './tools/noop';
 
     type DataType = SchemaDataType<typeof schema>;
 
-    noop<DataType>({});
-
-    noop<DataType>(undefined);
-
-    // @ts-expect-error
-    noop<DataType>(null);
+    expect.equal<DataType, undefined | Record<string, never>>(PASSED);
   }
 
   {
@@ -239,56 +108,12 @@ import noop from './tools/noop';
 
     type DataType = SchemaDataType<typeof schema>;
 
-    noop<DataType>({
-      priceA: {},
-      priceB: {},
-      priceC: {},
-      priceD: {},
-    });
-
-    noop<DataType>({
-      // @ts-expect-error
-      priceA: undefined,
-      priceB: undefined,
-      // @ts-expect-error
-      priceC: undefined,
-      priceD: undefined,
-    });
-
-    noop<DataType>({
-      // @ts-expect-error
-      priceA: null,
-      // @ts-expect-error
-      priceB: null,
-      priceC: null,
-      priceD: null,
-    });
-
-    // @ts-expect-error
-    noop<DataType>({
-      priceB: {},
-      priceC: {},
-      priceD: {},
-    });
-
-    noop<DataType>({
-      priceA: {},
-      priceC: {},
-      priceD: {},
-    });
-
-    // @ts-expect-error
-    noop<DataType>({
-      priceA: {},
-      priceB: {},
-      priceD: {},
-    });
-
-    noop<DataType>({
-      priceA: {},
-      priceB: {},
-      priceC: {},
-    });
+    expect.equal<DataType, {
+      priceA: Record<string, never>;
+      priceB?: undefined | Record<string, never>;
+      priceC: null | Record<string, never>;
+      priceD?: undefined | null | Record<string, never>;
+    }>(PASSED);
   }
 
   {
@@ -299,27 +124,10 @@ import noop from './tools/noop';
 
     type DataType = SchemaDataType<typeof schema>;
 
-    noop<DataType>({
-      stringProp: '',
-      objectProp: {},
-    });
-
-    // @ts-expect-error
-    noop<DataType>({
-      objectProp: {},
-    });
-
-    // @ts-expect-error
-    noop<DataType>({
-      stringProp: '',
-    });
-
-    noop<DataType>({
-      // @ts-expect-error
-      stringProp: true,
-      // @ts-expect-error
-      objectProp: true,
-    });
+    expect.equal<DataType, {
+      stringProp: string;
+      objectProp: Record<string, any>;
+    }>(PASSED);
   }
 }
 
@@ -334,22 +142,7 @@ import noop from './tools/noop';
 
     type DataType = SchemaDataType<typeof nextSchema>;
 
-    // @ts-expect-error
-    noop<DataType>(undefined);
-
-    // @ts-expect-error
-    noop<DataType>(null);
-
-    // @ts-expect-error
-    noop<DataType>(true);
-
-    // @ts-expect-error
-    noop<DataType>(0);
-
-    // @ts-expect-error
-    noop<DataType>('');
-
-    noop<DataType>({});
+    expect.equal<DataType, Record<string, never>>(PASSED);
   }
 
   {
@@ -359,11 +152,7 @@ import noop from './tools/noop';
 
     type DataType = SchemaDataType<typeof nextSchema>;
 
-    noop<DataType>(undefined);
-
-    noop<DataType>(null);
-
-    noop<DataType>({});
+    expect.equal<DataType, undefined | null | Record<string, never>>(PASSED);
   }
 
   {
@@ -375,12 +164,7 @@ import noop from './tools/noop';
 
     type DataType = SchemaDataType<typeof nextSchema>;
 
-    // @ts-expect-error
-    noop<DataType>(undefined);
-
-    noop<DataType>(null);
-
-    noop<DataType>({});
+    expect.equal<DataType, null | Record<string, never>>(PASSED);
   }
 
   {
@@ -392,12 +176,7 @@ import noop from './tools/noop';
 
     type DataType = SchemaDataType<typeof nextSchema>;
 
-    noop<DataType>(undefined);
-
-    // @ts-expect-error
-    noop<DataType>(null);
-
-    noop<DataType>({});
+    expect.equal<DataType, undefined | Record<string, never>>(PASSED);
   }
 }
 
@@ -410,85 +189,29 @@ import noop from './tools/noop';
   {
     const schema = ObjectSchema.create();
 
-    const defaultValue = schema.getDefault();
-
-    // @ts-expect-error
-    noop<typeof defaultValue>(undefined);
-
-    // @ts-expect-error
-    noop<typeof defaultValue>(null);
-
-    // @ts-expect-error
-    noop<typeof defaultValue>(true);
-
-    noop<typeof defaultValue>({});
-  }
-
-  {
-    const schema = ObjectSchema.create({});
-
-    const defaultValue = schema.getDefault();
-
-    // @ts-expect-error
-    noop<typeof defaultValue>(undefined);
-
-    // @ts-expect-error
-    noop<typeof defaultValue>(null);
-
-    // @ts-expect-error
-    noop<typeof defaultValue>(true);
-
-    noop<typeof defaultValue>({});
-  }
-
-  {
-    const schema = ObjectSchema.create({
-      price: priceSchema.default({}),
-    });
-
-    const defaultValue = schema.getDefault();
-
-    // @ts-expect-error
-    noop<typeof defaultValue>(undefined);
-
-    // @ts-expect-error
-    noop<typeof defaultValue>(null);
-
-    // @ts-expect-error
-    noop<typeof defaultValue>(true);
-
-    noop<typeof defaultValue>({
-      price: {},
-    });
+    expect.equal<Parameters<typeof schema.default>[0], null | Record<string, any>>(PASSED);
   }
 
   {
     const schema = ObjectSchema.create();
 
-    schema.default({});
-  }
+    const defaultValue = schema.getDefault();
 
-  {
-    const schema = ObjectSchema.create();
-
-    schema.default({
-      price: 100,
-    });
+    expect.equal<typeof defaultValue, Record<string, any>>(PASSED);
   }
 
   {
     const schema = ObjectSchema.create({});
 
-    schema.default({});
+    expect.equal<Parameters<typeof schema.default>[0], null | Record<string, never>>(PASSED);
   }
 
   {
     const schema = ObjectSchema.create({});
 
-    schema.default({
-      // @ts-expect-error
-      price: 100,
-    });
+    const defaultValue = schema.getDefault();
+
+    expect.equal<typeof defaultValue, Record<string, never>>(PASSED);
   }
 
   {
@@ -496,8 +219,9 @@ import noop from './tools/noop';
       price: priceSchema,
     });
 
-    // @ts-expect-error
-    schema.default({});
+    expect.equal<Parameters<typeof schema.default>[0], null | {
+      price: Record<string, never>;
+    }>(PASSED);
   }
 
   {
@@ -505,9 +229,41 @@ import noop from './tools/noop';
       price: priceSchema,
     });
 
-    schema.default({
-      price: {},
-    });
+    const defaultValue = schema.getDefault();
+
+    expect.equal<typeof defaultValue, {
+      price: Record<string, never>;
+    }>(PASSED);
+  }
+
+  {
+    const schema = ObjectSchema
+      .create({
+        price: priceSchema,
+      })
+      .default({
+        price: {},
+      });
+
+    const defaultValue = schema.getDefault();
+
+    expect.equal<typeof defaultValue, {
+      price: Record<string, never>;
+    }>(PASSED);
+  }
+
+  {
+    const schema = ObjectSchema
+      .create({
+        price: priceSchema,
+      })
+      .default(null);
+
+    const defaultValue = schema.getDefault();
+
+    expect.equal<typeof defaultValue, {
+      price: Record<string, never>;
+    }>(PASSED);
   }
 }
 
@@ -515,6 +271,8 @@ import noop from './tools/noop';
  * Change pattern
  */
 {
+  // TODO This functionality should be changed
+
   const priceSchema = ObjectSchema.create({});
   const categorySchema = ObjectSchema.create({});
 
@@ -582,18 +340,9 @@ import noop from './tools/noop';
 
     type ContextType = SchemaContextType<typeof schema>;
 
-    noop<ContextType>({
-      price: 100,
-    });
-
-    noop<ContextType>({
-      price: 100,
-      // @ts-expect-error
-      active: true,
-    });
-
-    // @ts-expect-error
-    noop<ContextType>({});
+    expect.equal<ContextType, {
+      price: number;
+    }>(PASSED);
   }
 
   {
@@ -605,17 +354,9 @@ import noop from './tools/noop';
 
     type ContextType = SchemaContextType<typeof schema>;
 
-    noop<ContextType>({
-      price: 100,
-    });
-
-    noop<ContextType>({
-      price: 100,
-      // @ts-expect-error
-      active: true,
-    });
-
-    noop<ContextType>({});
+    expect.equal<ContextType, {
+      price?: number;
+    }>(PASSED);
   }
 
   {
@@ -631,30 +372,10 @@ import noop from './tools/noop';
 
     type ContextType = SchemaContextType<typeof schema>;
 
-    noop<ContextType>({
-      price: 100,
-      name: 'Snickers',
-    });
-
-    noop<ContextType>({
-      price: 100,
-      name: 'Snickers',
-      // @ts-expect-error
-      active: true,
-    });
-
-    // @ts-expect-error
-    noop<ContextType>({
-      price: 100,
-    });
-
-    // @ts-expect-error
-    noop<ContextType>({
-      name: 'Snickers',
-    });
-
-    // @ts-expect-error
-    noop<ContextType>({});
+    expect.equal<ContextType, {
+      price: number;
+      name: string;
+    }>(PASSED);
   }
 
   {
@@ -670,29 +391,10 @@ import noop from './tools/noop';
 
     type ContextType = SchemaContextType<typeof schema>;
 
-    noop<ContextType>({
-      price: 100,
-      name: 'Snickers',
-    });
-
-    noop<ContextType>({
-      price: 100,
-      name: 'Snickers',
-      // @ts-expect-error
-      active: true,
-    });
-
-    // @ts-expect-error
-    noop<ContextType>({
-      price: 100,
-    });
-
-    noop<ContextType>({
-      name: 'Snickers',
-    });
-
-    // @ts-expect-error
-    noop<ContextType>({});
+    expect.equal<ContextType, {
+      price?: number;
+      name: string;
+    }>(PASSED);
   }
 
   {
@@ -708,29 +410,10 @@ import noop from './tools/noop';
 
     type ContextType = SchemaContextType<typeof schema>;
 
-    noop<ContextType>({
-      price: 100,
-      name: 'Snickers',
-    });
-
-    noop<ContextType>({
-      price: 100,
-      name: 'Snickers',
-      // @ts-expect-error
-      active: true,
-    });
-
-    noop<ContextType>({
-      price: 100,
-    });
-
-    // @ts-expect-error
-    noop<ContextType>({
-      name: 'Snickers',
-    });
-
-    // @ts-expect-error
-    noop<ContextType>({});
+    expect.equal<ContextType, {
+      price: number;
+      name?: string;
+    }>(PASSED);
   }
 
   {
@@ -747,30 +430,10 @@ import noop from './tools/noop';
 
     type ContextType = SchemaContextType<typeof schema>;
 
-    noop<ContextType>({
-      price: 100,
-      name: 'Snickers',
-    });
-
-    noop<ContextType>({
-      price: 100,
-      name: 'Snickers',
-      // @ts-expect-error
-      active: true,
-    });
-
-    // @ts-expect-error
-    noop<ContextType>({
-      price: 100,
-    });
-
-    // @ts-expect-error
-    noop<ContextType>({
-      name: 'Snickers',
-    });
-
-    // @ts-expect-error
-    noop<ContextType>({});
+    expect.equal<ContextType, {
+      price: number;
+      name: string;
+    }>(PASSED);
   }
 
   {
@@ -787,30 +450,10 @@ import noop from './tools/noop';
 
     type ContextType = SchemaContextType<typeof schema>;
 
-    noop<ContextType>({
-      price: 100,
-      name: 'Snickers',
-    });
-
-    noop<ContextType>({
-      price: 100,
-      name: 'Snickers',
-      // @ts-expect-error
-      active: true,
-    });
-
-    // @ts-expect-error
-    noop<ContextType>({
-      price: 100,
-    });
-
-    // @ts-expect-error
-    noop<ContextType>({
-      name: 'Snickers',
-    });
-
-    // @ts-expect-error
-    noop<ContextType>({});
+    expect.equal<ContextType, {
+      price: number;
+      name: string;
+    }>(PASSED);
   }
 
   {
@@ -826,14 +469,9 @@ import noop from './tools/noop';
 
     type ContextType = SchemaContextType<typeof schema>;
 
-    noop<ContextType>({
-      sale: 'new-year',
-    });
-
-    noop<ContextType>({
-      // @ts-expect-error
-      sale: 15,
-    });
+    expect.equal<ContextType, {
+      sale: string;
+    }>(PASSED);
   }
 
   {
@@ -878,6 +516,13 @@ import noop from './tools/noop';
     const schema = ObjectSchema.create().context<Context>().context<NextContext>();
 
     type ContextType = SchemaContextType<typeof schema>;
+
+    // TODO This should work
+
+    // @ts-ignore It would be better if it worked
+    expect.equal<ContextType, { sale: number[] }>(PASSED);
+
+    expect.equal<ContextType, { sale: number[] & (string | number)[] }>(PASSED);
 
     noop<ContextType>({
       sale: [15],
@@ -934,24 +579,13 @@ import noop from './tools/noop';
 
     type DataType = SchemaDataType<typeof schema>;
 
-    noop<DataType>({});
+    expect.equal<DataType, Record<string, any>>(PASSED);
 
-    // @ts-expect-error
-    noop<DataType>(undefined);
-
-    // @ts-expect-error
-    noop<DataType>(null);
-
-    const nextSchema = schema.mutate(schema => schema.optional());
+    const nextSchema = schema.mutate((schema) => schema.optional());
 
     type NextDataType = SchemaDataType<typeof nextSchema>;
 
-    noop<NextDataType>({});
-
-    noop<NextDataType>(undefined);
-
-    // @ts-expect-error
-    noop<NextDataType>(null);
+    expect.equal<NextDataType, undefined | Record<string, any>>(PASSED);
   }
 
   {
@@ -959,24 +593,13 @@ import noop from './tools/noop';
 
     type DataType = SchemaDataType<typeof schema>;
 
-    noop<DataType>({});
+    expect.equal<DataType, Record<string, any>>(PASSED);
 
-    // @ts-expect-error
-    noop<DataType>(undefined);
-
-    // @ts-expect-error
-    noop<DataType>(null);
-
-    const nextSchema = schema.mutate(schema => schema.nullable());
+    const nextSchema = schema.mutate((schema) => schema.nullable());
 
     type NextDataType = SchemaDataType<typeof nextSchema>;
 
-    noop<NextDataType>({});
-
-    // @ts-expect-error
-    noop<NextDataType>(undefined);
-
-    noop<NextDataType>(null);
+    expect.equal<NextDataType, null | Record<string, any>>(PASSED);
   }
 
   {
@@ -984,22 +607,12 @@ import noop from './tools/noop';
 
     type DataType = SchemaDataType<typeof schema>;
 
-    noop<DataType>({});
+    expect.equal<DataType, Record<string, any>>(PASSED);
 
-    // @ts-expect-error
-    noop<DataType>(undefined);
-
-    // @ts-expect-error
-    noop<DataType>(null);
-
-    const nextSchema = schema.mutate(schema => schema.notRequired());
+    const nextSchema = schema.mutate((schema) => schema.notRequired());
 
     type NextDataType = SchemaDataType<typeof nextSchema>;
 
-    noop<NextDataType>({});
-
-    noop<NextDataType>(undefined);
-
-    noop<NextDataType>(null);
+    expect.equal<NextDataType, undefined | null | Record<string, any>>(PASSED);
   }
 }

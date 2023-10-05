@@ -5,8 +5,8 @@ import ValidationError, { PredefinedValidationTestName } from './ValidationError
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 export default interface StringSchema<
   TData extends string = string,
-  TOptional extends boolean = boolean,
-  TNullable extends boolean = boolean,
+  TOptional extends boolean = never,
+  TNullable extends boolean = never,
   TContext extends Record<string, any> = Record<string, any>,
 > extends BaseSchema<TData, TOptional, TNullable, TContext> {
   pattern<
@@ -69,8 +69,8 @@ export default interface StringSchema<
 
 export default class StringSchema<
   TData extends string = string,
-  TOptional extends boolean = boolean,
-  TNullable extends boolean = boolean,
+  TOptional extends boolean = never,
+  TNullable extends boolean = never,
   TContext extends Record<string, any> = Record<string, any>,
 > extends BaseSchema<TData, TOptional, TNullable, TContext> {
   protected override patternValue: null | string[] = null;

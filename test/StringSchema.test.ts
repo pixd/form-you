@@ -216,10 +216,11 @@ describe('StringSchema', () => {
 
       testSchemaValidation(schema, undefined, isNotOptionalMessage);
 
-      const nextSchema = schema.mutate(schema => schema.optional());
+      const nextSchema = schema.mutate((schema) => schema.optional());
 
       expect(schema).toBe(nextSchema);
 
+      testSchemaValidation(schema, undefined);
       testSchemaValidation(nextSchema, undefined);
     }
 
@@ -228,10 +229,11 @@ describe('StringSchema', () => {
 
       testSchemaValidation(schema, null, isNotNullableMessage);
 
-      const nextSchema = schema.mutate(schema => schema.nullable());
+      const nextSchema = schema.mutate((schema) => schema.nullable());
 
       expect(schema).toBe(nextSchema);
 
+      testSchemaValidation(schema, null);
       testSchemaValidation(nextSchema, null);
     }
 
@@ -241,10 +243,12 @@ describe('StringSchema', () => {
       testSchemaValidation(schema, undefined, isNotOptionalMessage);
       testSchemaValidation(schema, null, isNotNullableMessage);
 
-      const nextSchema = schema.mutate(schema => schema.notRequired());
+      const nextSchema = schema.mutate((schema) => schema.notRequired());
 
       expect(schema).toBe(nextSchema);
 
+      testSchemaValidation(schema, undefined);
+      testSchemaValidation(schema, null);
       testSchemaValidation(nextSchema, undefined);
       testSchemaValidation(nextSchema, null);
     }
@@ -254,10 +258,11 @@ describe('StringSchema', () => {
 
       expect(schema.getDefault()).toBe('');
 
-      const nextSchema = schema.mutate(schema => schema.default('abc'));
+      const nextSchema = schema.mutate((schema) => schema.default('abc'));
 
       expect(schema).toBe(nextSchema);
 
+      expect(schema.getDefault()).toBe('abc');
       expect(nextSchema.getDefault()).toBe('abc');
     }
   });

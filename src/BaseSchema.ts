@@ -85,12 +85,22 @@ export type SchemaCloneProps<
 
 type SchemaData<
   TData extends any = any,
-  TOptional extends boolean = false,
-  TNullable extends boolean = false,
+  TOptional extends boolean = never,
+  TNullable extends boolean = never,
 > =
   | TData
-  | (TOptional extends true ? undefined : never)
-  | (TNullable extends true ? null : never);
+  | (null | TOptional extends null
+    ? never
+    : TOptional extends true
+      ? undefined
+      : never
+  )
+  | (null | TNullable extends null
+    ? never
+    : TNullable extends true
+      ? null
+      : never
+    );
 
 export type RejectType<
   TSource extends null | string = never,
@@ -105,8 +115,8 @@ export type RejectType<
 
 export default abstract class BaseSchema<
   TData extends any = any,
-  TOptional extends boolean = boolean,
-  TNullable extends boolean = boolean,
+  TOptional extends boolean = never,
+  TNullable extends boolean = never,
   TContext extends Record<string, any> = Record<string, any>,
 > {
   public Data__TypeRef = undefined as SchemaData<TData, TOptional, TNullable>;
@@ -303,7 +313,7 @@ export default abstract class BaseSchema<
   }
 
   // TODO This is tor testing purposes only and should be removed
-  public testContext(_cb: (context: TContext) => void ): this {
+  public testContext(_cb: (context: TContext) => void): this {
     // @ts-ignore
     return;
   }

@@ -1,7 +1,7 @@
 import ObjectSchema from '../src/ObjectSchema';
 import StringSchema from '../src/StringSchema';
 import { SchemaDataType, SchemaContextType } from '../src/types';
-import noop from './tools/noop';
+import { expect, PASSED } from './tools/noop';
 
 {
   type You<
@@ -10,15 +10,15 @@ import noop from './tools/noop';
     object: {
       <
         TData extends Record<string, any> = Record<string, never>,
-        TOptional extends boolean = boolean,
-        TNullable extends boolean = boolean,
+        TOptional extends boolean = never,
+        TNullable extends boolean = never,
       >(): ObjectSchema<TData, TOptional, TNullable, TContext>;
     };
     string: {
       <
         TData extends string = string,
-        TOptional extends boolean = boolean,
-        TNullable extends boolean = boolean,
+        TOptional extends boolean = never,
+        TNullable extends boolean = never,
       >(): StringSchema<TData, TOptional, TNullable, TContext>;
     };
   };
@@ -60,92 +60,18 @@ import noop from './tools/noop';
 
   const myForm = form.withContext<Context>().create((you) => {
     return you.object().shape({
-      name: StringSchema.create(),
+      name: you.string(),
     }).testContext((context) => {
-      type FormContext = typeof context;
-
-      noop<FormContext>({
-        price: 1,
-        $: {
-          name: '',
-        },
-      });
-
-      noop<FormContext>({
-        // @ts-expect-error
-        price: '',
-        $: {
-          name: '',
-        },
-      });
-
-      // @ts-expect-error
-      noop<FormContext>({
-        price: 1,
-      });
-
-      noop<FormContext>({
-        price: 1,
-        // @ts-expect-error
-        $: {},
-      });
-
-      noop<FormContext>({
-        price: 1,
-        $: {
-          // @ts-expect-error
-          name: 1,
-        },
-      });
+      expect.equal<typeof context, Context>(PASSED);
     });
   });
 
   type FormData = SchemaDataType<typeof myForm>;
   type FormContext = SchemaContextType<typeof myForm>;
 
-  noop<FormData>({
-    name: '',
-  });
+  expect.equal<FormData, {
+    name: string;
+  }>(PASSED);
 
-  noop<FormData>({
-    // @ts-expect-error
-    name: 1,
-  });
-
-  // @ts-expect-error
-  noop<FormData>({});
-
-  noop<FormContext>({
-    price: 1,
-    $: {
-      name: '',
-    },
-  });
-
-  noop<FormContext>({
-    // @ts-expect-error
-    price: '',
-    $: {
-      name: '',
-    },
-  });
-
-  // @ts-expect-error
-  noop<FormContext>({
-    price: 1,
-  });
-
-  noop<FormContext>({
-    price: 1,
-    // @ts-expect-error
-    $: {},
-  });
-
-  noop<FormContext>({
-    price: 1,
-    $: {
-      // @ts-expect-error
-      name: 1,
-    },
-  });
+  expect.equal<FormContext, Context>(PASSED);
 }

@@ -54,7 +54,7 @@ export function expectNotEqual<TX, TY>(
 }
 
 export function expectSafetyExtends<TX, TY>(
-  ..._a: Equal<TX, never> extends true
+  ..._args: Equal<TX, never> extends true
     ? [__NEVER_TYPE__]
     : Equal<TX, unknown> extends true
       ? [__UNKNOWN_TYPE__]
@@ -68,7 +68,7 @@ export function expectSafetyExtends<TX, TY>(
 }
 
 export function expectSafetyNotExtends<TX, TY>(
-  ..._a: Equal<TX, never> extends true
+  ..._args: Equal<TX, never> extends true
     ? [__NEVER_TYPE__]
     : Equal<TX, unknown> extends true
       ? [__UNKNOWN_TYPE__]
@@ -81,12 +81,30 @@ export function expectSafetyNotExtends<TX, TY>(
   return;
 }
 
-export type Expect<T extends true> = T;
-
-export type Equal<TX, TY> = (<T>() => T extends TX ? 1 : 2) extends (<T>() => (T extends TY ? 1 : 2))
+export type Equal<TX, TY> = (
+  <T>() => T extends TX
+    ? 1
+    : 2
+) extends (
+  <T>() => (
+    T extends TY
+      ? 1
+      : 2
+  )
+)
   ? true
   : false;
 
-export type NotEqual<TX, TY> = Equal<TX, TY> extends true
+export type NotEqual<TX, TY> = (
+  <T>() => T extends TX
+    ? 1
+    : 2
+) extends (
+  <T>() => (
+    T extends TY
+      ? 1
+      : 2
+    )
+)
   ? false
   : true;

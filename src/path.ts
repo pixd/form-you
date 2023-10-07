@@ -1,24 +1,35 @@
-import { AnyData, AnyPath, NodeValue, PossiblePath, PossibleValue } from './path.types';
+import { AnyPath, NodeValue, PossiblePath, PossibleValue } from './path.types';
 
 export function getAtPath<
-  TData extends AnyData,
-  TPath extends PossiblePath<TData>,
->(data: TData, path: TPath): NodeValue<TData, TPath>;
+  TData extends Record<string, any> = Record<string, any>,
+  TPath extends AnyPath = AnyPath,
+>(
+  data: TData,
+  path: TPath,
+): PossibleValue<TData>;
 
 export function getAtPath<
-  TData extends AnyData,
-  TPath extends AnyPath,
->(data: TData, path: TPath): PossibleValue<TData>;
+  TData extends Record<string, any> = Record<string, any>,
+  TPath extends PossiblePath<TData> = PossiblePath<TData>,
+>(
+  data: TData,
+  path: TPath,
+): NodeValue<TData, TPath>;
 
 export function getAtPath<
-  TData extends AnyData,
-  TPath extends number | string,
->(data: TData, path: TPath): NodeValue<TData, TPath>;
+  TData extends Record<string, any> = Record<string, any>,
+  TPath extends number | string = number | string,
+>(
+  data: TData,
+  path: TPath,
+):
+  // @ts-ignore
+  NodeValue<TData, TPath>;
 
 export function getAtPath(
-  data: any,
+  data: Record<string, any>,
   path: number | string | (number | string)[],
-) {
+): any {
   const pathParts = typeof path === 'number'
     ? [String(path)]
     : typeof path === 'string'

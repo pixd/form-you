@@ -38,7 +38,13 @@ import { expect, PASSED } from './tools/noop';
     expect.equal<typeof secondSetting, 'dark' | 'light'>(PASSED);
 
     const thirdSetting = getAtPath(product, 'settings.2');
-    expect.equal<typeof thirdSetting, unknown>(PASSED);
+    expect.equal<typeof thirdSetting, undefined>(PASSED);
+
+    const unknownSetting = getAtPath(product, 'settings.abc');
+    expect.equal<typeof unknownSetting, unknown>(PASSED);
+
+    const settingsLength = getAtPath(product, 'settings.length');
+    expect.equal<typeof settingsLength, unknown>(PASSED);
 
     const dotSetting = getAtPath(product, 'settings.');
     expect.equal<typeof dotSetting, unknown>(PASSED);
@@ -47,16 +53,83 @@ import { expect, PASSED } from './tools/noop';
     expect.equal<typeof tags, string[]>(PASSED);
 
     const firstTag = getAtPath(product, 'tags.0');
-    expect.equal<typeof firstTag, string>(PASSED);
+    expect.equal<typeof firstTag, undefined | string>(PASSED);
 
     const secondTag = getAtPath(product, 'tags.1');
-    expect.equal<typeof secondTag, string>(PASSED);
+    expect.equal<typeof secondTag, undefined | string>(PASSED);
+
+    const unknownTag = getAtPath(product, 'tags.abc');
+    expect.equal<typeof unknownTag, unknown>(PASSED);
+
+    const tagsLength = getAtPath(product, 'tags.length');
+    expect.equal<typeof tagsLength, unknown>(PASSED);
 
     const dotTag = getAtPath(product, 'tags.');
     expect.equal<typeof dotTag, unknown>(PASSED);
 
     const nonexistent = getAtPath(product, 'nonexistent');
     expect.equal<typeof nonexistent, unknown>(PASSED);
+  }
+
+  {
+    type EmptyPropNameTest = {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      '': string;
+      inner: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        '': number;
+      };
+    };
+
+    const emptyPropNameTest = {} as EmptyPropNameTest;
+
+    const empty = getAtPath(emptyPropNameTest, '');
+    expect.equal<typeof empty, string>(PASSED);
+
+    const innerEmpty = getAtPath(emptyPropNameTest, 'inner.');
+    expect.equal<typeof innerEmpty, number>(PASSED);
+
+    const nonexistentEmpty = getAtPath(emptyPropNameTest, 'inner..');
+    expect.equal<typeof nonexistentEmpty, unknown>(PASSED);
+  }
+
+  {
+    type EmptyPropNameTest = {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      '': {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        '': number;
+      };
+    };
+
+    const emptyPropNameTest = {} as EmptyPropNameTest;
+
+    const innerEmpty = getAtPath(emptyPropNameTest, '.');
+    expect.equal<typeof innerEmpty, number>(PASSED);
+
+    const nonexistentEmpty = getAtPath(emptyPropNameTest, '..');
+    expect.equal<typeof nonexistentEmpty, unknown>(PASSED);
+  }
+
+  {
+    type EmptyPropNameTest = {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      '': {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        '': {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          '': number;
+        };
+      };
+    };
+
+    const emptyPropNameTest = {} as EmptyPropNameTest;
+
+    const innerEmpty = getAtPath(emptyPropNameTest, '..');
+    expect.equal<typeof innerEmpty, number>(PASSED);
+
+    const nonexistentEmpty = getAtPath(emptyPropNameTest, '...');
+    expect.equal<typeof nonexistentEmpty, unknown>(PASSED);
   }
 }
 
@@ -145,7 +218,7 @@ import { expect, PASSED } from './tools/noop';
 
     type Value = PossibleValue<User>;
 
-    expect.equal<Value, string>(PASSED);
+    expect.equal<Value, undefined | string>(PASSED);
   }
 
   {
@@ -156,6 +229,30 @@ import { expect, PASSED } from './tools/noop';
     type SettingsValue = PossibleValue<User>;
 
     expect.equal<SettingsValue, 'on' | 'off' | 'dark' | 'light' | ['on' | 'off', 'dark' | 'light']>(PASSED);
+  }
+
+  {
+    type Settings = ['on' | 'off', 'dark' | 'light'];
+
+    type SettingsValue = PossibleValue<Settings>;
+
+    expect.equal<SettingsValue, 'on' | 'off' | 'dark' | 'light'>(PASSED);
+  }
+
+  {
+    type Settings = string[];
+
+    type SettingsValue = PossibleValue<Settings>;
+
+    expect.equal<SettingsValue, string>(PASSED);
+  }
+
+  {
+    type Settings = undefined | null | boolean | number;
+
+    type SettingsValue = PossibleValue<Settings>;
+
+    expect.equal<SettingsValue, undefined | null | boolean | number>(PASSED);
   }
 }
 
@@ -175,18 +272,104 @@ import { expect, PASSED } from './tools/noop';
     };
 
     expect.equal<NodeValue<Product, 'name'>, string>(PASSED);
+    expect.equal<NodeValue<Product, 'name'>, string>(PASSED);
     expect.equal<NodeValue<Product, 'category'>, { id: number }>(PASSED);
     expect.equal<NodeValue<Product, 'category.id'>, number>(PASSED);
     expect.equal<NodeValue<Product, 'settings'>, ['on' | 'off', 'dark' | 'light']>(PASSED);
     expect.equal<NodeValue<Product, 'settings.0'>, 'on' | 'off'>(PASSED);
     expect.equal<NodeValue<Product, 'settings.1'>, 'dark' | 'light'>(PASSED);
-    expect.equal<NodeValue<Product, 'settings.2'>, unknown>(PASSED);
-    expect.equal<NodeValue<Product, 'settings.'>, unknown>(PASSED);
+    // @ts-expect-error
+    expect.equal<NodeValue<Product, 'settings.2'>, undefined>(
+      PASSED,
+    );
+    // @ts-expect-error
+    expect.equal<NodeValue<Product, 'settings.abc'>, unknown>(
+      PASSED,
+    );
+    // @ts-expect-error
+    expect.equal<NodeValue<Product, 'settings.length'>, unknown>(
+      PASSED,
+    );
+    // @ts-expect-error
+    expect.equal<NodeValue<Product, 'settings.'>, unknown>(
+      PASSED,
+    );
     expect.equal<NodeValue<Product, 'tags'>, string[]>(PASSED);
-    expect.equal<NodeValue<Product, 'tags.0'>, string>(PASSED);
-    expect.equal<NodeValue<Product, 'tags.1'>, string>(PASSED);
-    expect.equal<NodeValue<Product, 'tags.'>, unknown>(PASSED);
+    expect.equal<NodeValue<Product, 'tags.0'>, undefined | string>(PASSED);
+    expect.equal<NodeValue<Product, 'tags.1'>, undefined | string>(PASSED);
+    // @ts-expect-error
+    expect.equal<NodeValue<Product, 'tags.abc'>, unknown>(
+      PASSED,
+    );
+    // @ts-expect-error
+    expect.equal<NodeValue<Product, 'tags.length'>, unknown>(
+      PASSED,
+    );
+    // @ts-expect-error
+    expect.equal<NodeValue<Product, 'tags.'>, unknown>(
+      PASSED,
+    );
     expect.equal<NodeValue<Product, 'sort'>, undefined | number>(PASSED);
-    expect.equal<NodeValue<Product, 'nonexistent'>, unknown>(PASSED);
+    // @ts-expect-error
+    expect.equal<NodeValue<Product, 'nonexistent'>, unknown>(
+      PASSED,
+    );
+  }
+
+  {
+    type EmptyPropNameTest = {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      '': string;
+      inner: {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        '': number;
+      };
+    };
+
+    expect.equal<NodeValue<EmptyPropNameTest, ''>, string>(PASSED);
+
+    expect.equal<NodeValue<EmptyPropNameTest, 'inner.'>, number>(PASSED);
+
+    // @ts-expect-error
+    expect.equal<NodeValue<EmptyPropNameTest, 'inner..'>, unknown>(
+      PASSED,
+    );
+  }
+
+  {
+    type EmptyPropNameTest = {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      '': {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        '': number;
+      };
+    };
+
+    expect.equal<NodeValue<EmptyPropNameTest, '.'>, number>(PASSED);
+
+    // @ts-expect-error
+    expect.equal<NodeValue<EmptyPropNameTest, '..'>, unknown>(
+      PASSED,
+    );
+  }
+
+  {
+    type EmptyPropNameTest = {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      '': {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        '': {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          '': number;
+        };
+      };
+    };
+
+    expect.equal<NodeValue<EmptyPropNameTest, '..'>, number>(PASSED);
+
+    // @ts-expect-error
+    expect.equal<NodeValue<EmptyPropNameTest, '...'>, unknown>(
+      PASSED,
+    );
   }
 }

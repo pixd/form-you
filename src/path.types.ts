@@ -10,31 +10,29 @@
  * https://stackoverflow.com/a/58436959/20580746
  */
 
-export type AnyData = {
-  [TKey in string]: any;
-};
-
 export type AnyPath = (number | string)[];
+
+// @ts-ignore
+export type AtPath<TData, TPath> = NodeValue<TData, TPath>;
 
 export type AtKey<
   TData extends any,
   TKey extends number | string,
 > = TData extends any[]
   ? Extract<keyof TData, `${number}` | number> extends number
-    ? TData[number]
+    ? TKey extends `${number}`
+      ? undefined | TData[number]
+      : unknown
     : Extract<keyof TData, `${number}` | number> extends number | string
       ? TKey extends Extract<keyof TData, `${number}`>
         ? TData[TKey]
-        : unknown
+        : TKey extends `${number}`
+          ? undefined
+          : unknown
       : unknown
-  : TData extends Record<number | string, any>
+  : TKey extends keyof TData
     ? TData[TKey]
     : unknown;
-
-export type AtPath<
-  TData extends any,
-  TPath extends number | string,
-> = NodeValue<TData, TPath>;
 
 export type PrevIndex = [
   never, 0,
@@ -44,13 +42,11 @@ export type PrevIndex = [
 ];
 
 export type ConcatPath<
-  TPathLeft,
-  TPathRight,
-> = TPathLeft extends string | number
-  ? TPathRight extends string | number
-    ? `${TPathLeft}${TPathRight extends string ? '.' : ''}${TPathRight}`
-    : never
-  : never;
+  TPathLeft extends string | number,
+  TPathRight extends any,
+> = TPathRight extends string | number
+    ? `${TPathLeft}.${TPathRight}`
+    : never;
 
 export type PossiblePath<
   TData extends any,
@@ -78,19 +74,15 @@ export type PossibleValue<
   : TData extends (infer I)[]
     ? I | PossibleValue<I, TCircularlyHack | TData>
     : TData extends object
-      ? { [TKey in keyof TData]-?: TKey extends number | string
+      ? { [TKey in keyof TData]: TKey extends number | string
         ? TData[TKey] | PossibleValue<TData[TKey], TCircularlyHack | TData>
         : never;
       }[keyof TData]
-      : never;
+      : TData;
 
 export type NodeValue<
-  TData extends any,
-  TPath extends number | string,
-  // TODO That could be a better option, but it make my compiler unhappy ¯\_(ツ)_/¯
-  // TPath extends PossiblePath<TData>,
-> = TPath extends `${any}.`
-    ? unknown
-    : TPath extends `${infer TKey}.${infer TKeyRest}`
-      ? AtPath<AtKey<TData, TKey>, TKeyRest>
-      : AtKey<TData, TPath>;
+  TData extends Record<string, any>,
+  TPath extends PossiblePath<TData>,
+> = TPath extends `${infer TKey}.${infer TKeyRest}`
+  ? AtPath<AtKey<TData, TKey>, TKeyRest>
+  : AtKey<TData, TPath>;

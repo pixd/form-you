@@ -28,42 +28,42 @@ type PreventControls<
 
 type Set<
   TData extends any,
-> = { $$set: TData; $$unset?: never; $$delete?: never; [key: number]: never } & (
-  TData extends Record<string, any>
-    ? { [TKey in keyof TData]?: undefined }
+> = { $$set: TData; $$unset?: never; $$delete?: never; id?: never; [key: number]: never } & (
+  Exclude<TData, undefined> extends Record<string, any>
+    ? { [TKey in keyof TData]?: never }
     : Record<string, any>
 );
 
 type Unset<
   TData extends any,
 > = { $$unset: true; $$set?: never; $$delete?: never; [key: number]: never } & (
-  TData extends Record<string, any>
-    ? { [TKey in keyof TData]?: undefined }
+  Exclude<TData, undefined> extends Record<string, any>
+    ? { [TKey in keyof TData]?: never }
     : Record<string, any>
 );
 
 type Delete<
   TData extends any,
 > = { $$delete: true; $$set?: never; $$unset?: never; [key: number]: never } & (
-  TData extends Record<string, any>
-    ? { [TKey in keyof TData]?: undefined }
+  Exclude<TData, undefined> extends Record<string, any>
+    ? { [TKey in keyof TData]?: never }
     : Record<string, any>
 );
 
 export type UpdatePayload<
   TData extends any,
-> = Set<Exclude<TData, undefined>> | (
+> = Set<TData> | (
   TData extends (infer I)[]
     ?
       | I[]
       | PreventControls<{ $$append: I[] }>
       | PreventControls<{ $$prepend: I[] }>
       | PreventControls<{ $$exclude: number | number[] }>
-      | PreventControls<{ $$excludeLeft: number; skip?: number }>
-      | PreventControls<{ $$excludeRight: number; skip?: number }>
+      | PreventControls<{ $$excludeLeft: number; skip?: undefined | null | number }>
+      | PreventControls<{ $$excludeRight: number; skip?: undefined | null | number }>
       | PreventControls<{ $$extract: number | number[] }>
-      | PreventControls<{ $$extractLeft: number; skip?: number }>
-      | PreventControls<{ $$extractRight: number; skip?: number }>
+      | PreventControls<{ $$extractLeft: number; skip?: undefined | null | number }>
+      | PreventControls<{ $$extractRight: number; skip?: undefined | null | number }>
       | PreventControls<{ $$move: [number, number] }>
       | PreventControls<{ $$swap: [number, number] }>
       | PreventControls<{ $$merge: { [key: number]: UpdatePayload<I> } }>
@@ -72,7 +72,7 @@ export type UpdatePayload<
       | PreventControls<{ $$reset: I }>
     : TData extends Record<string, any>
       ? { [TKey in keyof TData]?: undefined extends TData[TKey]
-          ? Unset<Exclude<TData[TKey], undefined>> | Delete<Exclude<TData[TKey], undefined>> | UpdatePayload<Exclude<TData[TKey], undefined>>
+          ? Unset<TData[TKey]> | Delete<TData[TKey]> | UpdatePayload<TData[TKey]>
           : UpdatePayload<TData[TKey]>
         } & { $$set?: never; $$unset?: never; $$delete?: never }
       :

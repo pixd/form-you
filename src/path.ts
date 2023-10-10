@@ -28,23 +28,24 @@ export function getAtPath<
 
 export function getAtPath(
   data: Record<string, any>,
-  path: number | string | (number | string)[],
+  path: number | string | AnyPath,
 ): any {
-  const pathParts = typeof path === 'number'
-    ? [String(path)]
+  const anyPath = typeof path === 'number'
+    ? [path]
     : typeof path === 'string'
       ? path.split('.')
       : path;
 
-  if (pathParts.length === 0) {
+  if (anyPath.length === 0) {
     return data;
   }
   else {
-    if (data instanceof Object) {
-      return getAtPath(data[pathParts[0]], pathParts.slice(1));
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    if (data && typeof data === 'object') {
+      return getAtPath(data[anyPath[0]], anyPath.slice(1));
     }
     else {
-      throw new Error('Path `' + pathParts.join('.') + '` can not be reached in `' + data + '`');
+      throw new Error('Path `' + anyPath.join('.') + '` can not be reached in `' + String(data) + '`');
     }
   }
 }

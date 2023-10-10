@@ -6,7 +6,7 @@
     "alwaysStrict": true,
     "declaration": true,
     "esModuleInterop": true,
-    "exactOptionalPropertyTypes": false,
+    "exactOptionalPropertyTypes": true,
     "forceConsistentCasingInFileNames": true,
     "jsx": "react",
     "isolatedModules": false,

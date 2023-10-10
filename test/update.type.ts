@@ -7,192 +7,232 @@ import { expect, PASSED } from './tools/noop';
 {
   {
     type Product = {
-      name: string;
+      id: number;
       code: undefined | string;
+      enabled?: boolean;
       category?: {
         id: number;
-        name?: string;
+        code: undefined | string;
+        enabled?: boolean;
       };
       settings: ['on' | 'off', 'dark' | 'light'];
       tags: string[];
-      sort?: number;
     };
 
     expect.safety.extends<UpdatePayload<Product>, Partial<Product>>(PASSED);
 
-    expect.safety.extends<UpdatePayload<Product>, { name: string }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { name: undefined }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { name: string; nonexistent: string }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { name: string; nonexistent: undefined }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { name: undefined; nonexistent: string }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { name: undefined; nonexistent: undefined }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { nonexistent: string }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { nonexistent: undefined }>(PASSED);
+
+    expect.safety.extends<UpdatePayload<Product>, { id: number }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { id: undefined }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { id: undefined; code: string }>(PASSED);
+    expect.safety.extends<UpdatePayload<Product>, { id: number; nonexistent: string }>(PASSED);
+    expect.safety.extends<UpdatePayload<Product>, { id: number; nonexistent: undefined }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { id: undefined; nonexistent: string }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { id: undefined; nonexistent: undefined }>(PASSED);
+
+    expect.safety.not.extends<UpdatePayload<Product>, { id: { nonexistent: string } }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { id: { nonexistent: undefined } }>(PASSED);
+
+    expect.safety.extends<UpdatePayload<Product>, { id: { $$set: number } }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { id: { $$set: undefined } }>(PASSED);
+    expect.safety.extends<UpdatePayload<Product>, { id: { $$set: number; nonexistent: string } }>(PASSED);
+    expect.safety.extends<UpdatePayload<Product>, { id: { $$set: number; nonexistent: undefined } }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { id: { $$set: undefined; nonexistent: string } }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { id: { $$set: undefined; nonexistent: undefined } }>(PASSED);
+
+    expect.safety.not.extends<UpdatePayload<Product>, { id: { $$unset: true } }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { id: { $$unset: undefined } }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { id: { $$unset: true; nonexistent: string } }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { id: { $$unset: true; nonexistent: undefined } }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { id: { $$unset: undefined; nonexistent: string } }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { id: { $$unset: undefined; nonexistent: undefined } }>(PASSED);
+
+    expect.safety.not.extends<UpdatePayload<Product>, { id: { $$delete: true } }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { id: { $$delete: undefined } }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { id: { $$delete: true; nonexistent: string } }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { id: { $$delete: true; nonexistent: undefined } }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { id: { $$delete: undefined; nonexistent: string } }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { id: { $$delete: undefined; nonexistent: undefined } }>(PASSED);
 
     expect.safety.extends<UpdatePayload<Product>, { code: string }>(PASSED);
     expect.safety.extends<UpdatePayload<Product>, { code: undefined }>(PASSED);
+    expect.safety.extends<UpdatePayload<Product>, { code: undefined; id: number }>(PASSED);
     expect.safety.extends<UpdatePayload<Product>, { code: string; nonexistent: string }>(PASSED);
     expect.safety.extends<UpdatePayload<Product>, { code: string; nonexistent: undefined }>(PASSED);
     expect.safety.extends<UpdatePayload<Product>, { code: undefined; nonexistent: string }>(PASSED);
     expect.safety.extends<UpdatePayload<Product>, { code: undefined; nonexistent: undefined }>(PASSED);
 
-    expect.safety.extends<UpdatePayload<Product>, { sort: number }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { sort: undefined }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { sort: number; nonexistent: string }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { sort: number; nonexistent: undefined }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { sort: undefined; nonexistent: string }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { sort: undefined; nonexistent: undefined }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { code: { nonexistent: string } }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { code: { nonexistent: undefined } }>(PASSED);
 
-    expect.safety.not.extends<UpdatePayload<Product>, { nonexistent: string }>(PASSED);
-    expect.safety.not.extends<UpdatePayload<Product>, { nonexistent: undefined }>(PASSED);
+    expect.safety.extends<UpdatePayload<Product>, { code: { $$set: string } }>(PASSED);
+    expect.safety.extends<UpdatePayload<Product>, { code: { $$set: undefined } }>(PASSED);
+    expect.safety.extends<UpdatePayload<Product>, { code: { $$set: string; nonexistent: string } }>(PASSED);
+    expect.safety.extends<UpdatePayload<Product>, { code: { $$set: string; nonexistent: undefined } }>(PASSED);
+    expect.safety.extends<UpdatePayload<Product>, { code: { $$set: undefined; nonexistent: string } }>(PASSED);
+    expect.safety.extends<UpdatePayload<Product>, { code: { $$set: undefined; nonexistent: undefined } }>(PASSED);
+
+    expect.safety.extends<UpdatePayload<Product>, { code: { $$unset: true } }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { code: { $$unset: undefined } }>(PASSED);
+    expect.safety.extends<UpdatePayload<Product>, { code: { $$unset: true; nonexistent: string } }>(PASSED);
+    expect.safety.extends<UpdatePayload<Product>, { code: { $$unset: true; nonexistent: undefined } }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { code: { $$unset: undefined; nonexistent: string } }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { code: { $$unset: undefined; nonexistent: undefined } }>(PASSED);
+
+    expect.safety.extends<UpdatePayload<Product>, { code: { $$delete: true } }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { code: { $$delete: undefined } }>(PASSED);
+    expect.safety.extends<UpdatePayload<Product>, { code: { $$delete: true; nonexistent: string } }>(PASSED);
+    expect.safety.extends<UpdatePayload<Product>, { code: { $$delete: true; nonexistent: undefined } }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { code: { $$delete: undefined; nonexistent: string } }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { code: { $$delete: undefined; nonexistent: undefined } }>(PASSED);
+
+    expect.safety.extends<UpdatePayload<Product>, { enabled: boolean }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { enabled: undefined }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { enabled: undefined; id: number }>(PASSED);
+    expect.safety.extends<UpdatePayload<Product>, { enabled: boolean; nonexistent: string }>(PASSED);
+    expect.safety.extends<UpdatePayload<Product>, { enabled: boolean; nonexistent: undefined }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { enabled: undefined; nonexistent: string }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { enabled: undefined; nonexistent: undefined }>(PASSED);
+
+    expect.safety.not.extends<UpdatePayload<Product>, { enabled: { nonexistent: string } }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { enabled: { nonexistent: undefined } }>(PASSED);
+
+    expect.safety.extends<UpdatePayload<Product>, { enabled: { $$set: boolean } }>(PASSED);
+    expect.safety.extends<UpdatePayload<Product>, { enabled: { $$set: undefined } }>(PASSED);
+    expect.safety.extends<UpdatePayload<Product>, { enabled: { $$set: boolean; nonexistent: string } }>(PASSED);
+    expect.safety.extends<UpdatePayload<Product>, { enabled: { $$set: boolean; nonexistent: undefined } }>(PASSED);
+    expect.safety.extends<UpdatePayload<Product>, { enabled: { $$set: undefined; nonexistent: string } }>(PASSED);
+    expect.safety.extends<UpdatePayload<Product>, { enabled: { $$set: undefined; nonexistent: undefined } }>(PASSED);
+
+    expect.safety.extends<UpdatePayload<Product>, { enabled: { $$unset: true } }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { enabled: { $$unset: undefined } }>(PASSED);
+    expect.safety.extends<UpdatePayload<Product>, { enabled: { $$unset: true; nonexistent: string } }>(PASSED);
+    expect.safety.extends<UpdatePayload<Product>, { enabled: { $$unset: true; nonexistent: undefined } }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { enabled: { $$unset: undefined; nonexistent: string } }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { enabled: { $$unset: undefined; nonexistent: undefined } }>(PASSED);
+
+    expect.safety.extends<UpdatePayload<Product>, { enabled: { $$delete: true } }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { enabled: { $$delete: undefined } }>(PASSED);
+    expect.safety.extends<UpdatePayload<Product>, { enabled: { $$delete: true; nonexistent: string } }>(PASSED);
+    expect.safety.extends<UpdatePayload<Product>, { enabled: { $$delete: true; nonexistent: undefined } }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { enabled: { $$delete: undefined; nonexistent: string } }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { enabled: { $$delete: undefined; nonexistent: undefined } }>(PASSED);
 
     expect.safety.extends<UpdatePayload<Product>, { $$set: Product }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { $$set: undefined }>(PASSED);
-    expect.safety.not.extends<UpdatePayload<Product>, { $$set: Product; name: string }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { $$set: Product; name: undefined }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { $$set: undefined; name: string }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { $$set: undefined; name: undefined }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { $$set: undefined }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { $$set: Product; id: number }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { $$set: Product; code: undefined }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { $$set: Product; enabled: undefined }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { $$set: undefined; id: number }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { $$set: undefined; code: undefined }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { $$set: undefined; enabled: undefined }>(PASSED);
     expect.safety.extends<UpdatePayload<Product>, { $$set: Product; nonexistent: string }>(PASSED);
     expect.safety.extends<UpdatePayload<Product>, { $$set: Product; nonexistent: undefined }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { $$set: undefined; nonexistent: string }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { $$set: undefined; nonexistent: undefined }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { $$set: undefined; nonexistent: string }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { $$set: undefined; nonexistent: undefined }>(PASSED);
 
     expect.safety.not.extends<UpdatePayload<Product>, { $$unset: true }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { $$unset: undefined }>(PASSED);
-    expect.safety.not.extends<UpdatePayload<Product>, { $$unset: true; name: string }>(PASSED);
-    expect.safety.not.extends<UpdatePayload<Product>, { $$unset: true; name: undefined }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { $$unset: undefined; name: string }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { $$unset: undefined; name: undefined }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { $$unset: undefined }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { $$unset: true; id: number }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { $$unset: true; code: undefined }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { $$unset: true; enabled: undefined }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { $$unset: undefined; id: number }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { $$unset: undefined; code: undefined }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { $$unset: undefined; enabled: undefined }>(PASSED);
     expect.safety.not.extends<UpdatePayload<Product>, { $$unset: true; nonexistent: string }>(PASSED);
     expect.safety.not.extends<UpdatePayload<Product>, { $$unset: true; nonexistent: undefined }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { $$unset: undefined; nonexistent: string }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { $$unset: undefined; nonexistent: undefined }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { $$unset: undefined; nonexistent: string }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { $$unset: undefined; nonexistent: undefined }>(PASSED);
+
+    expect.safety.not.extends<UpdatePayload<Product>, { $$delete: true }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { $$delete: undefined }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { $$delete: true; id: number }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { $$delete: true; code: undefined }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { $$delete: true; enabled: undefined }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { $$delete: undefined; id: number }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { $$delete: undefined; code: undefined }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { $$delete: undefined; enabled: undefined }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { $$delete: true; nonexistent: string }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { $$delete: true; nonexistent: undefined }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { $$delete: undefined; nonexistent: string }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { $$delete: undefined; nonexistent: undefined }>(PASSED);
 
     expect.safety.extends<UpdatePayload<undefined | Product>, { $$set: Product }>(PASSED);
     expect.safety.extends<UpdatePayload<undefined | Product>, { $$set: undefined }>(PASSED);
-    expect.safety.not.extends<UpdatePayload<undefined | Product>, { $$set: Product; name: string }>(PASSED);
-    expect.safety.extends<UpdatePayload<undefined | Product>, { $$set: Product; name: undefined }>(PASSED);
-    expect.safety.extends<UpdatePayload<undefined | Product>, { $$set: undefined; name: string }>(PASSED);
-    expect.safety.extends<UpdatePayload<undefined | Product>, { $$set: undefined; name: undefined }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<undefined | Product>, { $$set: Product; id: number }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<undefined | Product>, { $$set: Product; code: undefined }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<undefined | Product>, { $$set: Product; enabled: undefined }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<undefined | Product>, { $$set: undefined; id: number }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<undefined | Product>, { $$set: undefined; code: undefined }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<undefined | Product>, { $$set: undefined; enabled: undefined }>(PASSED);
     expect.safety.extends<UpdatePayload<undefined | Product>, { $$set: Product; nonexistent: string }>(PASSED);
     expect.safety.extends<UpdatePayload<undefined | Product>, { $$set: Product; nonexistent: undefined }>(PASSED);
     expect.safety.extends<UpdatePayload<undefined | Product>, { $$set: undefined; nonexistent: string }>(PASSED);
     expect.safety.extends<UpdatePayload<undefined | Product>, { $$set: undefined; nonexistent: undefined }>(PASSED);
 
     expect.safety.not.extends<UpdatePayload<undefined | Product>, { $$unset: true }>(PASSED);
-    expect.safety.extends<UpdatePayload<undefined | Product>, { $$unset: undefined }>(PASSED);
-    expect.safety.not.extends<UpdatePayload<undefined | Product>, { $$unset: true; name: string }>(PASSED);
-    expect.safety.not.extends<UpdatePayload<undefined | Product>, { $$unset: true; name: undefined }>(PASSED);
-    expect.safety.extends<UpdatePayload<undefined | Product>, { $$unset: undefined; name: string }>(PASSED);
-    expect.safety.extends<UpdatePayload<undefined | Product>, { $$unset: undefined; name: undefined }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<undefined | Product>, { $$unset: undefined }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<undefined | Product>, { $$unset: true; id: number }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<undefined | Product>, { $$unset: true; code: undefined }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<undefined | Product>, { $$unset: true; enabled: undefined }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<undefined | Product>, { $$unset: undefined; id: number }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<undefined | Product>, { $$unset: undefined; code: undefined }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<undefined | Product>, { $$unset: undefined; enabled: undefined }>(PASSED);
     expect.safety.not.extends<UpdatePayload<undefined | Product>, { $$unset: true; nonexistent: string }>(PASSED);
     expect.safety.not.extends<UpdatePayload<undefined | Product>, { $$unset: true; nonexistent: undefined }>(PASSED);
-    expect.safety.extends<UpdatePayload<undefined | Product>, { $$unset: undefined; nonexistent: string }>(PASSED);
-    expect.safety.extends<UpdatePayload<undefined | Product>, { $$unset: undefined; nonexistent: undefined }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<undefined | Product>, { $$unset: undefined; nonexistent: string }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<undefined | Product>, { $$unset: undefined; nonexistent: undefined }>(PASSED);
 
     expect.safety.not.extends<UpdatePayload<undefined | Product>, { $$delete: true }>(PASSED);
-    expect.safety.extends<UpdatePayload<undefined | Product>, { $$delete: undefined }>(PASSED);
-    expect.safety.not.extends<UpdatePayload<undefined | Product>, { $$delete: true; name: string }>(PASSED);
-    expect.safety.not.extends<UpdatePayload<undefined | Product>, { $$delete: true; name: undefined }>(PASSED);
-    expect.safety.extends<UpdatePayload<undefined | Product>, { $$delete: undefined; name: string }>(PASSED);
-    expect.safety.extends<UpdatePayload<undefined | Product>, { $$delete: undefined; name: undefined }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<undefined | Product>, { $$delete: undefined }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<undefined | Product>, { $$delete: true; id: number }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<undefined | Product>, { $$delete: true; code: undefined }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<undefined | Product>, { $$delete: true; enabled: undefined }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<undefined | Product>, { $$delete: undefined; id: number }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<undefined | Product>, { $$delete: undefined; code: undefined }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<undefined | Product>, { $$delete: undefined; enabled: undefined }>(PASSED);
     expect.safety.not.extends<UpdatePayload<undefined | Product>, { $$delete: true; nonexistent: string }>(PASSED);
     expect.safety.not.extends<UpdatePayload<undefined | Product>, { $$delete: true; nonexistent: undefined }>(PASSED);
-    expect.safety.extends<UpdatePayload<undefined | Product>, { $$delete: undefined; nonexistent: string }>(PASSED);
-    expect.safety.extends<UpdatePayload<undefined | Product>, { $$delete: undefined; nonexistent: undefined }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<undefined | Product>, { $$delete: undefined; nonexistent: string }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<undefined | Product>, { $$delete: undefined; nonexistent: undefined }>(PASSED);
 
     expect.safety.not.extends<UpdatePayload<Product>, { category: { nonexistent: string } }>(PASSED);
     expect.safety.not.extends<UpdatePayload<Product>, { category: { nonexistent: undefined } }>(PASSED);
 
-    expect.safety.extends<UpdatePayload<Product>, { category: { $$set: Exclude<Product['category'], undefined> } }>(PASSED);
-    expect.safety.not.extends<UpdatePayload<Product>, { category: { $$set: Exclude<Product['category'], undefined>; id: number } }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { category: { $$set: Exclude<Product['category'], undefined>; id: undefined } }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { category: { $$set: Exclude<Product['category'], undefined>; nonexistent: string } }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { category: { $$set: Exclude<Product['category'], undefined>; nonexistent: undefined } }>(PASSED);
+    expect.safety.extends<UpdatePayload<Product>, { category: { $$set: Required<Product>['category'] } }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { category: { $$set: Required<Product>['category']; id: number } }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { category: { $$set: Required<Product>['category']; code: undefined } }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { category: { $$set: Required<Product>['category']; enabled: undefined } }>(PASSED);
+    expect.safety.extends<UpdatePayload<Product>, { category: { $$set: Required<Product>['category']; nonexistent: string } }>(PASSED);
+    expect.safety.extends<UpdatePayload<Product>, { category: { $$set: Required<Product>['category']; nonexistent: undefined } }>(PASSED);
 
     expect.safety.extends<UpdatePayload<Product>, { category: { $$unset: true } }>(PASSED);
     expect.safety.not.extends<UpdatePayload<Product>, { category: { $$unset: true; id: number } }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { category: { $$unset: true; id: undefined } }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { category: { $$unset: true; code: undefined } }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { category: { $$unset: true; enabled: undefined } }>(PASSED);
     expect.safety.extends<UpdatePayload<Product>, { category: { $$unset: true; nonexistent: string } }>(PASSED);
     expect.safety.extends<UpdatePayload<Product>, { category: { $$unset: true; nonexistent: undefined } }>(PASSED);
 
     expect.safety.extends<UpdatePayload<Product>, { category: { $$delete: true } }>(PASSED);
     expect.safety.not.extends<UpdatePayload<Product>, { category: { $$delete: true; id: number } }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { category: { $$delete: true; id: undefined } }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { category: { $$delete: true; code: undefined } }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { category: { $$delete: true; enabled: undefined } }>(PASSED);
     expect.safety.extends<UpdatePayload<Product>, { category: { $$delete: true; nonexistent: string } }>(PASSED);
     expect.safety.extends<UpdatePayload<Product>, { category: { $$delete: true; nonexistent: undefined } }>(PASSED);
 
-    expect.safety.extends<UpdatePayload<Product>, { category: { name: string } }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { category: { name: undefined } }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { category: { name: string; nonexistent: string } }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { category: { name: string; nonexistent: undefined } }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { category: { name: undefined; nonexistent: string } }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { category: { name: undefined; nonexistent: undefined } }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { id: { $$set: number; $$unset: true } }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { id: { $$set: number; $$unset: undefined } }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { id: { $$set: undefined; $$unset: true } }>(PASSED);
 
-    expect.safety.not.extends<UpdatePayload<Product>, { category: { name: { nonexistent: string } } }>(PASSED);
-    expect.safety.not.extends<UpdatePayload<Product>, { category: { name: { nonexistent: undefined } } }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { id: { $$set: number; $$delete: true } }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { id: { $$set: number; $$delete: undefined } }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { id: { $$set: undefined; $$delete: true } }>(PASSED);
 
-    expect.safety.extends<UpdatePayload<Product>, { category: { name: { $$set: string } } }>(PASSED);
-    expect.safety.not.extends<UpdatePayload<Product>, { category: { name: { $$set: undefined } } }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { category: { name: { $$set: string; nonexistent: string } } }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { category: { name: { $$set: string; nonexistent: undefined } } }>(PASSED);
-    expect.safety.not.extends<UpdatePayload<Product>, { category: { name: { $$set: undefined; nonexistent: string } } }>(PASSED);
-    expect.safety.not.extends<UpdatePayload<Product>, { category: { name: { $$set: undefined; nonexistent: undefined } } }>(PASSED);
-
-    expect.safety.extends<UpdatePayload<Product>, { category: { name: { $$unset: true } } }>(PASSED);
-    expect.safety.not.extends<UpdatePayload<Product>, { category: { name: { $$unset: undefined } } }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { category: { name: { $$unset: true; nonexistent: string } } }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { category: { name: { $$unset: true; nonexistent: undefined } } }>(PASSED);
-    expect.safety.not.extends<UpdatePayload<Product>, { category: { name: { $$unset: undefined; nonexistent: string } } }>(PASSED);
-    expect.safety.not.extends<UpdatePayload<Product>, { category: { name: { $$unset: undefined; nonexistent: undefined } } }>(PASSED);
-
-    expect.safety.extends<UpdatePayload<Product>, { category: { name: { $$delete: true } } }>(PASSED);
-    expect.safety.not.extends<UpdatePayload<Product>, { category: { name: { $$delete: undefined } } }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { category: { name: { $$delete: true; nonexistent: string } } }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { category: { name: { $$delete: true; nonexistent: undefined } } }>(PASSED);
-    expect.safety.not.extends<UpdatePayload<Product>, { category: { name: { $$delete: undefined; nonexistent: string } } }>(PASSED);
-    expect.safety.not.extends<UpdatePayload<Product>, { category: { name: { $$delete: undefined; nonexistent: undefined } } }>(PASSED);
-
-    expect.safety.extends<UpdatePayload<Product>, { category: { id: number } }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { category: { id: undefined } }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { category: { id: number; nonexistent: string } }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { category: { id: number; nonexistent: undefined } }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { category: { id: undefined; nonexistent: string } }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { category: { id: undefined; nonexistent: undefined } }>(PASSED);
-
-    expect.safety.not.extends<UpdatePayload<Product>, { category: { id: { nonexistent: string } } }>(PASSED);
-    expect.safety.not.extends<UpdatePayload<Product>, { category: { id: { nonexistent: undefined } } }>(PASSED);
-
-    expect.safety.extends<UpdatePayload<Product>, { category: { id: { $$set: number } } }>(PASSED);
-    expect.safety.not.extends<UpdatePayload<Product>, { category: { id: { $$set: undefined } } }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { category: { id: { $$set: number; nonexistent: string } } }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { category: { id: { $$set: number; nonexistent: undefined } } }>(PASSED);
-    expect.safety.not.extends<UpdatePayload<Product>, { category: { id: { $$set: undefined; nonexistent: string } } }>(PASSED);
-    expect.safety.not.extends<UpdatePayload<Product>, { category: { id: { $$set: undefined; nonexistent: undefined } } }>(PASSED);
-
-    expect.safety.not.extends<UpdatePayload<Product>, { category: { id: { $$unset: true } } }>(PASSED);
-    expect.safety.not.extends<UpdatePayload<Product>, { category: { id: { $$unset: undefined } } }>(PASSED);
-    expect.safety.not.extends<UpdatePayload<Product>, { category: { id: { $$unset: true; nonexistent: string } } }>(PASSED);
-    expect.safety.not.extends<UpdatePayload<Product>, { category: { id: { $$unset: true; nonexistent: undefined } } }>(PASSED);
-    expect.safety.not.extends<UpdatePayload<Product>, { category: { id: { $$unset: undefined; nonexistent: string } } }>(PASSED);
-    expect.safety.not.extends<UpdatePayload<Product>, { category: { id: { $$unset: undefined; nonexistent: undefined } } }>(PASSED);
-
-    expect.safety.not.extends<UpdatePayload<Product>, { category: { id: { $$delete: true } } }>(PASSED);
-    expect.safety.not.extends<UpdatePayload<Product>, { category: { id: { $$delete: undefined } } }>(PASSED);
-    expect.safety.not.extends<UpdatePayload<Product>, { category: { id: { $$delete: true; nonexistent: string } } }>(PASSED);
-    expect.safety.not.extends<UpdatePayload<Product>, { category: { id: { $$delete: true; nonexistent: undefined } } }>(PASSED);
-    expect.safety.not.extends<UpdatePayload<Product>, { category: { id: { $$delete: undefined; nonexistent: string } } }>(PASSED);
-    expect.safety.not.extends<UpdatePayload<Product>, { category: { id: { $$delete: undefined; nonexistent: undefined } } }>(PASSED);
-
-    expect.safety.not.extends<UpdatePayload<Product>, { category: { name: { $$set: string; $$unset: true } } }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { category: { name: { $$set: string; $$unset: undefined } } }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { category: { name: { $$set: undefined; $$unset: true } } }>(PASSED);
-
-    expect.safety.not.extends<UpdatePayload<Product>, { category: { name: { $$set: string; $$delete: true } } }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { category: { name: { $$set: string; $$delete: undefined } } }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { category: { name: { $$set: undefined; $$delete: true } } }>(PASSED);
-
-    expect.safety.not.extends<UpdatePayload<Product>, { category: { name: { $$unset: true; $$delete: true } } }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { category: { name: { $$unset: true; $$delete: undefined } } }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { category: { name: { $$unset: undefined; $$delete: true } } }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { id: { $$unset: true; $$delete: true } }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { id: { $$unset: true; $$delete: undefined } }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { id: { $$unset: undefined; $$delete: true } }>(PASSED);
 
     expect.safety.extends<UpdatePayload<Product>, { tags: { $$set: string[] } }>(PASSED);
     expect.safety.extends<UpdatePayload<Product>, { tags: { $$set: { [key: number]: string } } }>(PASSED);

@@ -69,9 +69,7 @@ import { expect, PASSED } from './tools/noop';
   type FormData = SchemaDataType<typeof myForm>;
   type FormContext = SchemaContextType<typeof myForm>;
 
-  expect.equal<FormData, {
-    name: string;
-  }>(PASSED);
+  expect.equal<FormData, { name: string }>(PASSED);
 
   expect.equal<FormContext, Context>(PASSED);
 }

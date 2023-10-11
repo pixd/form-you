@@ -16,8 +16,11 @@
     "space-in-parens": ["error", "never"],
     "@typescript-eslint/no-this-alias": "warn",
     "@typescript-eslint/no-unsafe-argument": "warn",
+    "@typescript-eslint/no-unsafe-call": "warn",
     "@typescript-eslint/no-dynamic-delete": "off",
-    "no-unnecessary-type-constraint": "off"
+    "no-unnecessary-type-constraint": "off",
+    // It seems this rule causes bugs
+    "@typescript-eslint/no-confusing-void-expression": "off"
   },
   "overrides": [
     {

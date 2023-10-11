@@ -108,9 +108,9 @@ export function update(
     else if (updatePayload.$$delete) {
       throw new Error('$$delete instruction can not be used in update method');
     }
-    else if (updatePayload.$$prepend) {
+    else if (updatePayload.$$prepend !== undefined) {
       if (Array.isArray(data)) {
-        return [].concat(updatePayload.$$prepend).concat(data as any);
+        return [...updatePayload.$$prepend, ...data];
       }
       else {
         return [...updatePayload.$$prepend];
@@ -118,7 +118,7 @@ export function update(
     }
     else if (updatePayload.$$append !== undefined) {
       if (Array.isArray(data)) {
-        return [].concat(data as any).concat(updatePayload.$$append);
+        return [...updatePayload.$$append, ...data];
       }
       else {
         return [...updatePayload.$$append];
@@ -126,10 +126,9 @@ export function update(
     }
     else if (updatePayload.$$exclude !== undefined) {
       if (Array.isArray(data)) {
-        const keys = [].concat(updatePayload.$$exclude);
         const exclude = Symbol();
         const nextArray = [...data];
-        keys.forEach((key) => {
+        updatePayload.$$exclude.forEach((key) => {
           const index = Number(key);
           nextArray[index] = exclude;
         });
@@ -141,7 +140,7 @@ export function update(
     }
     else if (updatePayload.$$excludeLeft !== undefined) {
       if (Array.isArray(data)) {
-        return length(data, updatePayload.$$excludeLeft, updatePayload.skip);
+        return exclude(data, updatePayload.$$excludeLeft, updatePayload.skip);
       }
       else {
         return data;
@@ -149,7 +148,7 @@ export function update(
     }
     else if (updatePayload.$$excludeRight !== undefined) {
       if (Array.isArray(data)) {
-        return length(data, -updatePayload.$$excludeRight, updatePayload.skip);
+        return exclude(data, -updatePayload.$$excludeRight, updatePayload.skip);
       }
       else {
         return data;
@@ -157,10 +156,9 @@ export function update(
     }
     else if (updatePayload.$$extract !== undefined) {
       if (Array.isArray(data)) {
-        const keys = [].concat(updatePayload.$$extract);
         const extract = Symbol();
         const nextArray = [...data];
-        keys.forEach((key) => {
+        updatePayload.$$extract.forEach((key) => {
           const index = Number(key);
           nextArray[index] = { extract: extract, value: data[index] };
         });
@@ -169,7 +167,7 @@ export function update(
           .map((element) => element.value);
       }
       else {
-        return [];
+        return data;
       }
     }
     else if (updatePayload.$$extractLeft !== undefined) {
@@ -177,7 +175,7 @@ export function update(
         return extract(data, updatePayload.$$extractLeft, updatePayload.skip);
       }
       else {
-        return [];
+        return data;
       }
     }
     else if (updatePayload.$$extractRight !== undefined) {
@@ -185,7 +183,7 @@ export function update(
         return extract(data, -updatePayload.$$extractRight, updatePayload.skip);
       }
       else {
-        return [];
+        return data;
       }
     }
     else if (updatePayload.$$move !== undefined) {
@@ -215,20 +213,26 @@ export function update(
       }
     }
     else if (updatePayload.$$merge !== undefined) {
-      return Object.keys(updatePayload)
-        .filter((key) => (String(Number(key)) === key && Number(key) >= 0))
-        .reduce((data, key) => {
-          if (checkUnsetInstruction(updatePayload[key])) {
-            data[key] = undefined;
-          }
-          else if (checkDeleteInstruction(updatePayload[key])) {
-            delete data[key];
-          }
-          else {
-            data[key] = update(data[key], updatePayload[key]);
-          }
-          return data;
-        }, Array.isArray(data) ? [...data] : []);
+      if (Array.isArray(data)) {
+        return Object.keys(updatePayload.$$merge)
+          .filter((key) => (String(Number(key)) === key && Number(key) >= 0))
+          .map((key) => Number(key))
+          .reduce((data, key) => {
+            if (checkUnsetInstruction(updatePayload.$$merge[key])) {
+              data[key] = undefined;
+            }
+            else if (checkDeleteInstruction(updatePayload.$$merge[key])) {
+              delete data[key];
+            }
+            else {
+              data[key] = update(data[key], updatePayload.$$merge[key]);
+            }
+            return data;
+          }, [...data]);
+      }
+      else {
+        return data;
+      }
     }
     else if (updatePayload.$$apply !== undefined) {
       if (Array.isArray(data)) {
@@ -237,7 +241,21 @@ export function update(
         });
       }
       else {
-        return [];
+        return data;
+      }
+    }
+    else if (updatePayload.$$replace !== undefined) {
+      if (Array.isArray(data)) {
+        return Object.keys(updatePayload.$$replace)
+          .filter((key) => (String(Number(key)) === key && Number(key) >= 0))
+          .map((key) => Number(key))
+          .reduce((data, key) => {
+            data[key] = updatePayload.$$replace[key];
+            return data;
+          }, [...data]);
+      }
+      else {
+        return data;
       }
     }
     else if (updatePayload.$$reset !== undefined) {
@@ -245,23 +263,38 @@ export function update(
         return data.map((_) => updatePayload.$$reset);
       }
       else {
-        return [];
+        return data;
       }
     }
     else {
-      return Object.keys(updatePayload)
-        .reduce((data, key) => {
-          if (checkUnsetInstruction(updatePayload[key])) {
-            data[key] = undefined;
-          }
-          else if (checkDeleteInstruction(updatePayload[key])) {
-            delete data[key];
-          }
-          else {
-            data[key] = update(data[key], updatePayload[key]);
-          }
-          return data;
-        }, data instanceof Object ? { ...data } : {});
+      if (Array.isArray(data)) {
+        return data;
+      }
+      else if (data && typeof data === 'object') {
+        return Object.keys(updatePayload)
+          .reduce((data, key) => {
+            if (checkUnsetInstruction(updatePayload[key])) {
+              data[key] = undefined;
+            }
+            else if (checkDeleteInstruction(updatePayload[key])) {
+              delete data[key];
+            }
+            else {
+              if (updatePayload[key] && typeof updatePayload[key] === 'object') {
+                if (key in data) {
+                  data[key] = update(data[key], updatePayload[key]);
+                }
+              }
+              else {
+                data[key] = update(data[key], updatePayload[key]);
+              }
+            }
+            return data;
+          }, { ...data });
+      }
+      else {
+        return data;
+      }
     }
   }
   else {
@@ -277,7 +310,7 @@ function checkDeleteInstruction(instruction: any): boolean {
   return instruction && typeof instruction === 'object' && instruction.$$delete;
 }
 
-function length<T>(
+function exclude<T>(
   data: T[],
   length: number,
   skip: number,

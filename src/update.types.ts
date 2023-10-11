@@ -3,6 +3,7 @@ import { AnyPath, NodeValue, PossiblePath, PossibleValue } from './path.types';
 type Controls = {
   $$set?: never;
   $$unset?: never;
+  $$delete?: never;
   $$append?: never;
   $$prepend?: never;
   $$exclude?: never;
@@ -15,6 +16,7 @@ type Controls = {
   $$swap?: never;
   $$merge?: never;
   $$apply?: never;
+  $$replace?: never;
   $$reset?: never;
 
   skip?: never;
@@ -56,19 +58,20 @@ export type UpdatePayload<
   TData extends (infer I)[]
     ?
       | I[]
+      | PreventControls<{ [key in number]: I }> & { [ket in keyof I]?: never }
       | PreventControls<{ $$append: I[] }>
       | PreventControls<{ $$prepend: I[] }>
-      | PreventControls<{ $$exclude: number | number[] }>
+      | PreventControls<{ $$exclude: number[] }>
       | PreventControls<{ $$excludeLeft: number; skip?: undefined | null | number }>
       | PreventControls<{ $$excludeRight: number; skip?: undefined | null | number }>
-      | PreventControls<{ $$extract: number | number[] }>
+      | PreventControls<{ $$extract: number[] }>
       | PreventControls<{ $$extractLeft: number; skip?: undefined | null | number }>
       | PreventControls<{ $$extractRight: number; skip?: undefined | null | number }>
       | PreventControls<{ $$move: [number, number] }>
       | PreventControls<{ $$swap: [number, number] }>
-      | PreventControls<{ $$merge: { [key: number]: UpdatePayload<I> } }>
+      | PreventControls<{ $$merge: { [key: number]: UpdatePayload<I> } & { [ket in keyof I]?: never } }>
       | PreventControls<{ $$apply: UpdatePayload<I> }>
-      | PreventControls<{ $$set: { [key: number]: I } }>
+      | PreventControls<{ $$replace: { [key: number]: I } & { [ket in keyof I]?: never } }>
       | PreventControls<{ $$reset: I }>
     : TData extends Record<string, any>
       ? { [TKey in keyof TData]?: undefined extends TData[TKey]

@@ -251,33 +251,21 @@ import { expect, PASSED } from './tools/noop';
     expect.safety.not.extends<UpdatePayload<Product>, { tags: { $$append: Partial<Tag>[] } }>(PASSED);
     expect.safety.not.extends<UpdatePayload<Product>, { tags: { $$append: Tag } }>(PASSED);
     expect.safety.not.extends<UpdatePayload<Product>, { tags: { $$append: number[] } }>(PASSED);
+    expect.safety.extends<UpdatePayload<Product>, { tags: { $$append: Tag[]; skip: undefined | null | number } }>(PASSED);
 
     expect.safety.extends<UpdatePayload<Product>, { tags: { $$prepend: Tag[] } }>(PASSED);
     expect.safety.not.extends<UpdatePayload<Product>, { tags: { $$prepend: Partial<Tag>[] } }>(PASSED);
     expect.safety.not.extends<UpdatePayload<Product>, { tags: { $$prepend: Tag } }>(PASSED);
     expect.safety.not.extends<UpdatePayload<Product>, { tags: { $$prepend: number[] } }>(PASSED);
+    expect.safety.extends<UpdatePayload<Product>, { tags: { $$prepend: Tag[]; skip: undefined | null | number } }>(PASSED);
 
     expect.safety.extends<UpdatePayload<Product>, { tags: { $$exclude: number[] } }>(PASSED);
-    expect.safety.not.extends<UpdatePayload<Product>, { tags: { $$exclude: number } }>(PASSED);
-
-    expect.safety.extends<UpdatePayload<Product>, { tags: { $$excludeLeft: number } }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { tags: { $$excludeLeft: number; skip: undefined } }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { tags: { $$excludeLeft: number; skip: number } }>(PASSED);
-
-    expect.safety.extends<UpdatePayload<Product>, { tags: { $$excludeRight: number } }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { tags: { $$excludeRight: number; skip: undefined } }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { tags: { $$excludeRight: number; skip: number } }>(PASSED);
+    expect.safety.extends<UpdatePayload<Product>, { tags: { $$exclude: number } }>(PASSED);
+    expect.safety.extends<UpdatePayload<Product>, { tags: { $$exclude: number; skip: undefined | null | number } }>(PASSED);
 
     expect.safety.extends<UpdatePayload<Product>, { tags: { $$extract: number[] } }>(PASSED);
-    expect.safety.not.extends<UpdatePayload<Product>, { tags: { $$extract: number } }>(PASSED);
-
-    expect.safety.extends<UpdatePayload<Product>, { tags: { $$extractLeft: number } }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { tags: { $$extractLeft: number; skip: undefined } }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { tags: { $$extractLeft: number; skip: number } }>(PASSED);
-
-    expect.safety.extends<UpdatePayload<Product>, { tags: { $$extractRight: number } }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { tags: { $$extractRight: number; skip: undefined } }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { tags: { $$extractRight: number; skip: number } }>(PASSED);
+    expect.safety.extends<UpdatePayload<Product>, { tags: { $$extract: number } }>(PASSED);
+    expect.safety.extends<UpdatePayload<Product>, { tags: { $$extract: number; skip: undefined | null | number } }>(PASSED);
 
     expect.safety.extends<UpdatePayload<Product>, { tags: { $$move: [number, number] } }>(PASSED);
 
@@ -287,19 +275,19 @@ import { expect, PASSED } from './tools/noop';
     expect.safety.extends<UpdatePayload<Product>, { tags: { $$merge: { [key: number]: Partial<Tag> } } }>(PASSED);
     expect.safety.not.extends<UpdatePayload<Product>, { tags: { $$merge: Tag } }>(PASSED);
     expect.safety.not.extends<UpdatePayload<Product>, { tags: { $$merge: Partial<Tag> } }>(PASSED);
+    expect.safety.extends<UpdatePayload<Product>, { tags: { $$merge: Tag[] } }>(PASSED);
+    expect.safety.extends<UpdatePayload<Product>, { tags: { $$merge: Partial<Tag>[] } }>(PASSED);
+    expect.safety.extends<UpdatePayload<Product>, { tags: { $$merge: Tag[]; at: undefined | null | number } }>(PASSED);
+    expect.safety.extends<UpdatePayload<Product>, { tags: { $$merge: Partial<Tag>[]; at: undefined | null | number } }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { tags: { $$merge: undefined } }>(PASSED);
 
-    expect.safety.extends<UpdatePayload<Product>, { tags: { $$apply: Tag } }>(PASSED);
-    expect.safety.extends<UpdatePayload<Product>, { tags: { $$apply: Partial<Tag> } }>(PASSED);
-
-    expect.safety.extends<UpdatePayload<Product>, { tags: { $$replace: Tag[] } }>(PASSED);
-    expect.safety.not.extends<UpdatePayload<Product>, { tags: { $$replace: Partial<Tag>[] } }>(PASSED);
-    expect.safety.not.extends<UpdatePayload<Product>, { tags: { $$replace: Tag } }>(PASSED);
-    expect.safety.not.extends<UpdatePayload<Product>, { tags: { $$replace: Partial<Tag> } }>(PASSED);
     expect.safety.extends<UpdatePayload<Product>, { tags: { $$replace: { [key: number]: Tag } } }>(PASSED);
     expect.safety.not.extends<UpdatePayload<Product>, { tags: { $$replace: { [key: number]: Partial<Tag> } } }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { tags: { $$replace: Tag } }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { tags: { $$replace: Partial<Tag> } }>(PASSED);
+    expect.safety.extends<UpdatePayload<Product>, { tags: { $$replace: Tag[] } }>(PASSED);
+    expect.safety.not.extends<UpdatePayload<Product>, { tags: { $$replace: Partial<Tag>[] } }>(PASSED);
+    expect.safety.extends<UpdatePayload<Product>, { tags: { $$replace: Tag[]; at: undefined | null | number } }>(PASSED);
     expect.safety.not.extends<UpdatePayload<Product>, { tags: { $$replace: undefined } }>(PASSED);
-
-    expect.safety.extends<UpdatePayload<Product>, { tags: { $$reset: Tag } }>(PASSED);
-    expect.safety.not.extends<UpdatePayload<Product>, { tags: { $$reset: Partial<Tag> } }>(PASSED);
   }
 }

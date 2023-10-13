@@ -4,22 +4,20 @@ type Controls = {
   $$set?: never;
   $$unset?: never;
   $$delete?: never;
+
   $$append?: never;
   $$prepend?: never;
   $$exclude?: never;
-  $$excludeLeft?: never;
-  $$excludeRight?: never;
   $$extract?: never;
-  $$extractLeft?: never;
-  $$extractRight?: never;
   $$move?: never;
   $$swap?: never;
   $$merge?: never;
-  $$apply?: never;
+  $$mergeAll?: never;
   $$replace?: never;
-  $$reset?: never;
+  $$replaceAll?: never;
 
   skip?: never;
+  at?: never;
 
   [key: number]: never;
 };
@@ -59,20 +57,20 @@ export type UpdatePayload<
     ?
       | I[]
       | PreventControls<{ [key in number]: I }> & { [ket in keyof I]?: never }
-      | PreventControls<{ $$append: I[] }>
-      | PreventControls<{ $$prepend: I[] }>
+      | PreventControls<{ $$append: I[]; skip?: undefined | null | number }>
+      | PreventControls<{ $$prepend: I[]; skip?: undefined | null | number }>
       | PreventControls<{ $$exclude: number[] }>
-      | PreventControls<{ $$excludeLeft: number; skip?: undefined | null | number }>
-      | PreventControls<{ $$excludeRight: number; skip?: undefined | null | number }>
+      | PreventControls<{ $$exclude: number; skip?: undefined | null | number }>
       | PreventControls<{ $$extract: number[] }>
-      | PreventControls<{ $$extractLeft: number; skip?: undefined | null | number }>
-      | PreventControls<{ $$extractRight: number; skip?: undefined | null | number }>
+      | PreventControls<{ $$extract: number; skip?: undefined | null | number }>
       | PreventControls<{ $$move: [number, number] }>
       | PreventControls<{ $$swap: [number, number] }>
       | PreventControls<{ $$merge: { [key: number]: UpdatePayload<I> } & { [ket in keyof I]?: never } }>
-      | PreventControls<{ $$apply: UpdatePayload<I> }>
+      | PreventControls<{ $$merge: UpdatePayload<I>[]; at?: undefined | null | number }>
+      | PreventControls<{ $$mergeAll: UpdatePayload<I> }>
       | PreventControls<{ $$replace: { [key: number]: I } & { [ket in keyof I]?: never } }>
-      | PreventControls<{ $$reset: I }>
+      | PreventControls<{ $$replace: I[]; at?: undefined | null | number }>
+      | PreventControls<{ $$replaceAll: I }>
     : TData extends Record<string, any>
       ? { [TKey in keyof TData]?: undefined extends TData[TKey]
           ? Unset<TData[TKey]> | Delete<TData[TKey]> | UpdatePayload<TData[TKey]>

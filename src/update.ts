@@ -110,45 +110,46 @@ export function update(
     }
     else if (updatePayload.$$prepend !== undefined) {
       if (Array.isArray(data)) {
-        return [...updatePayload.$$prepend, ...data];
+        const skip = Math.max(0, updatePayload.skip ?? 0);
+        const nextData = [...data];
+        nextData.splice(
+          // Yes, we know about this corner case, these two values give the same:
+          // `skip` and `Math.max(0, skip)`
+          Math.max(0, skip),
+          0,
+          ...updatePayload.$$prepend,
+        );
+        return nextData;
       }
       else {
-        return [...updatePayload.$$prepend];
+        return data;
       }
     }
     else if (updatePayload.$$append !== undefined) {
       if (Array.isArray(data)) {
-        return [...updatePayload.$$append, ...data];
+        const skip = Math.max(0, updatePayload.skip ?? 0);
+        const nextData = [...data];
+        nextData.splice(Math.max(0, data.length - skip), 0, ...updatePayload.$$append);
+        return nextData;
       }
       else {
-        return [...updatePayload.$$append];
+        return data;
       }
     }
     else if (updatePayload.$$exclude !== undefined) {
       if (Array.isArray(data)) {
-        const exclude = Symbol();
-        const nextArray = [...data];
-        updatePayload.$$exclude.forEach((key) => {
-          const index = Number(key);
-          nextArray[index] = exclude;
-        });
-        return nextArray.filter((element) => element !== exclude);
-      }
-      else {
-        return data;
-      }
-    }
-    else if (updatePayload.$$excludeLeft !== undefined) {
-      if (Array.isArray(data)) {
-        return exclude(data, updatePayload.$$excludeLeft, updatePayload.skip);
-      }
-      else {
-        return data;
-      }
-    }
-    else if (updatePayload.$$excludeRight !== undefined) {
-      if (Array.isArray(data)) {
-        return exclude(data, -updatePayload.$$excludeRight, updatePayload.skip);
+        if (Array.isArray(updatePayload.$$exclude)) {
+          const exclude = Symbol();
+          const nextArray = [...data];
+          updatePayload.$$exclude.forEach((key) => {
+            const index = Number(key);
+            nextArray[index] = exclude;
+          });
+          return nextArray.filter((element) => element !== exclude);
+        }
+        else {
+          return exclude(data, updatePayload.$$exclude, updatePayload.skip);
+        }
       }
       else {
         return data;
@@ -156,31 +157,20 @@ export function update(
     }
     else if (updatePayload.$$extract !== undefined) {
       if (Array.isArray(data)) {
-        const extract = Symbol();
-        const nextArray = [...data];
-        updatePayload.$$extract.forEach((key) => {
-          const index = Number(key);
-          nextArray[index] = { extract: extract, value: data[index] };
-        });
-        return nextArray
-          .filter((element) => (element && element.extract === extract))
-          .map((element) => element.value);
-      }
-      else {
-        return data;
-      }
-    }
-    else if (updatePayload.$$extractLeft !== undefined) {
-      if (Array.isArray(data)) {
-        return extract(data, updatePayload.$$extractLeft, updatePayload.skip);
-      }
-      else {
-        return data;
-      }
-    }
-    else if (updatePayload.$$extractRight !== undefined) {
-      if (Array.isArray(data)) {
-        return extract(data, -updatePayload.$$extractRight, updatePayload.skip);
+        if (Array.isArray(updatePayload.$$extract)) {
+          const extract = Symbol();
+          const nextArray = [...data];
+          updatePayload.$$extract.forEach((key) => {
+            const index = Number(key);
+            nextArray[index] = { extract: extract, value: data[index] };
+          });
+          return nextArray
+            .filter((element) => (element && element.extract === extract))
+            .map((element) => element.value);
+        }
+        else {
+          return extract(data, updatePayload.$$extract, updatePayload.skip);
+        }
       }
       else {
         return data;
@@ -214,30 +204,58 @@ export function update(
     }
     else if (updatePayload.$$merge !== undefined) {
       if (Array.isArray(data)) {
-        return Object.keys(updatePayload.$$merge)
-          .filter((key) => (String(Number(key)) === key && Number(key) >= 0))
-          .map((key) => Number(key))
-          .reduce((data, key) => {
-            if (checkUnsetInstruction(updatePayload.$$merge[key])) {
-              data[key] = undefined;
-            }
-            else if (checkDeleteInstruction(updatePayload.$$merge[key])) {
-              delete data[key];
+        if (Array.isArray(updatePayload.$$merge)) {
+          let merge = updatePayload.$$merge;
+
+          const at = updatePayload.at ?? 0;
+          let startIndex = at >= 0 ? at : data.length + at;
+          if (startIndex < 0) {
+            merge = merge.slice(-startIndex);
+            startIndex = 0;
+          }
+
+          const nextData = [...data];
+
+          merge.some((mergeItemInstruction, index) => {
+            const dataIndex = startIndex + index;
+            if (dataIndex > nextData.length - 1) {
+              return true;
             }
             else {
-              data[key] = update(data[key], updatePayload.$$merge[key]);
+              if (shouldGoFurther(mergeItemInstruction, nextData, dataIndex)) {
+                nextData[dataIndex] = update(nextData[dataIndex], mergeItemInstruction);
+              }
+              return false;
             }
-            return data;
-          }, [...data]);
+          });
+
+          return nextData;
+        }
+        else {
+          return Object.keys(updatePayload.$$merge)
+            .filter((index) => (String(Number(index)) === index && Number(index) >= 0))
+            .map((index) => Number(index))
+            .reduce((data, index) => {
+              if (data.length - 1 < index) {
+                return data;
+              }
+              else {
+                if (shouldGoFurther(updatePayload.$$merge[index], data, index)) {
+                  data[index] = update(data[index], updatePayload.$$merge[index]);
+                }
+                return data;
+              }
+            }, [...data]);
+        }
       }
       else {
         return data;
       }
     }
-    else if (updatePayload.$$apply !== undefined) {
+    else if (updatePayload.$$mergeAll !== undefined) {
       if (Array.isArray(data)) {
         return data.map((item) => {
-          return update(item, updatePayload.$$apply);
+          return update(item, updatePayload.$$mergeAll);
         });
       }
       else {
@@ -246,21 +264,53 @@ export function update(
     }
     else if (updatePayload.$$replace !== undefined) {
       if (Array.isArray(data)) {
-        return Object.keys(updatePayload.$$replace)
-          .filter((key) => (String(Number(key)) === key && Number(key) >= 0))
-          .map((key) => Number(key))
-          .reduce((data, key) => {
-            data[key] = updatePayload.$$replace[key];
-            return data;
-          }, [...data]);
+        if (Array.isArray(updatePayload.$$merge)) {
+          let merge = updatePayload.$$merge;
+
+          const at = updatePayload.at ?? 0;
+          let startIndex = at >= 0 ? at : data.length + at;
+          if (startIndex < 0) {
+            merge = merge.slice(-startIndex);
+            startIndex = 0;
+          }
+
+          const nextData = [...data];
+
+          merge.some((mergeItemInstruction, index) => {
+            const dataIndex = startIndex + index;
+            if (dataIndex > nextData.length - 1) {
+              return true;
+            }
+            else {
+              nextData[dataIndex] = mergeItemInstruction;
+              return false;
+            }
+          });
+
+          return nextData;
+        }
+        else {
+          return Object.keys(updatePayload.$$replace)
+            .filter((index) => (String(Number(index)) === index && Number(index) >= 0))
+            .map((index) => Number(index))
+            .reduce((data, index) => {
+              if (data.length - 1 < index) {
+                return data;
+              }
+              else {
+                data[index] = updatePayload.$$replace[index];
+                return data;
+              }
+            }, [...data]);
+        }
       }
       else {
         return data;
       }
     }
-    else if (updatePayload.$$reset !== undefined) {
+    else if (updatePayload.$$replaceAll !== undefined) {
       if (Array.isArray(data)) {
-        return data.map((_) => updatePayload.$$reset);
+        return data.map((_) => updatePayload.$$replaceAll);
       }
       else {
         return data;
@@ -273,13 +323,7 @@ export function update(
       else if (data && typeof data === 'object') {
         return Object.keys(updatePayload)
           .reduce((data, key) => {
-            if (checkUnsetInstruction(updatePayload[key])) {
-              data[key] = undefined;
-            }
-            else if (checkDeleteInstruction(updatePayload[key])) {
-              delete data[key];
-            }
-            else {
+            if (shouldGoFurther(updatePayload[key], data, key)) {
               if (updatePayload[key] && typeof updatePayload[key] === 'object') {
                 if (key in data) {
                   data[key] = update(data[key], updatePayload[key]);
@@ -302,124 +346,117 @@ export function update(
   }
 }
 
-function checkUnsetInstruction(instruction: any): boolean {
+function checkUnsetInstruction(
+  instruction: any,
+): boolean {
   return instruction && typeof instruction === 'object' && instruction.$$unset;
 }
 
-function checkDeleteInstruction(instruction: any): boolean {
+function checkDeleteInstruction(
+  instruction: any,
+): boolean {
   return instruction && typeof instruction === 'object' && instruction.$$delete;
+}
+
+function getStartEndIndex<T>(
+  dataLength: number,
+  length: number,
+  skip: undefined | number,
+  all: T[],
+  nothing: T[],
+): T[] | { start: number; end: number } {
+  skip = skip ?? 0;
+
+  if (length === 0) {
+    return nothing;
+  }
+  else {
+    let startIndex: number;
+    let endIndex: number;
+
+    if (length < 0) {
+      startIndex = dataLength + length - skip;
+      endIndex = dataLength - skip - 1;
+    }
+    else {
+      startIndex = skip;
+      endIndex = skip + length - 1;
+    }
+
+    if (Number.isNaN(startIndex) || Number.isNaN(endIndex)) {
+      return all;
+    }
+    else if (startIndex > dataLength - 1 || endIndex < 0) {
+      return nothing;
+    }
+    else {
+      startIndex = Math.max(0, startIndex);
+      endIndex = Math.min(dataLength - 1, endIndex);
+
+      return { start: startIndex, end: endIndex };
+    }
+  }
 }
 
 function exclude<T>(
   data: T[],
   length: number,
-  skip: number,
+  skip: undefined | number,
 ): T[] {
-  length = length || 0;
-  skip = skip || 0;
+  skip = skip ?? 0;
 
-  if (length === 0) {
-    return data;
-  }
-  else if (length < 0) {
-    if (length === -Infinity) {
-      if (skip === 0) {
-        return [];
-      }
-      else {
-        return data.slice(-skip);
-      }
-    }
-    else {
-      if (skip === 0) {
-        return data.slice(length);
-      }
-      else {
-        return data.slice(-skip + length, -skip);
-      }
-    }
+  const nextData = [...data];
+
+  const startEndIndex = getStartEndIndex(data.length, length, skip, [], nextData);
+
+  if (Array.isArray(startEndIndex)) {
+    return startEndIndex;
   }
   else {
-    if (length === Infinity) {
-      if (skip === 0) {
-        return [];
-      }
-      else {
-        return data.slice(0, skip);
-      }
-    }
-    else {
-      if (skip === 0) {
-        return data.slice(length);
-      }
-      else {
-        return data.slice(skip, skip + length);
-      }
-    }
+    nextData.splice(startEndIndex.start, startEndIndex.end - startEndIndex.start + 1);
+    return nextData;
   }
 }
 
 function extract<T>(
   data: T[],
   length: number,
-  skip: number,
+  skip: undefined | number,
 ): any[] {
-  length = length || 0;
-  skip = skip || 0;
+  skip = skip ?? 0;
 
-  if (length === 0) {
-    return [];
-  }
-  else if (length < 0) {
-    if (length === -Infinity) {
-      if (skip === 0) {
-        return [...data];
-      }
-      else {
-        return data.slice(0, -skip);
-      }
-    }
-    else {
-      if (skip === 0) {
-        return data.slice(length);
-      }
-      else {
-        return data.slice(-skip + length, -skip);
-      }
-    }
+  const nextData = [...data];
+
+  const startEndIndex = getStartEndIndex(data.length, length, skip, nextData, []);
+
+  if (Array.isArray(startEndIndex)) {
+    return startEndIndex;
   }
   else {
-    if (length === Infinity) {
-      if (skip === 0) {
-        return [...data];
-      }
-      else {
-        return data.slice(skip);
-      }
-    }
-    else {
-      if (skip === 0) {
-        return data.slice(0, length);
-      }
-      else {
-        return data.slice(skip, skip + length);
-      }
-    }
+    return nextData.slice(startEndIndex.start, startEndIndex.end + 1);
   }
 }
 
-export type FormUpdateInstruction<
-  TFormState extends Record<string, any> = Record<string, any>,
-> = (
-  | RootPathUpdateInstruction<TFormState>
-  | CommonPathUpdateInstruction<TFormState>
-  | AnyPathUpdateInstruction<TFormState>
-) & {
-  meta?: Record<string, any>;
-};
-
-export type UpdateForm<
-  TFormState extends Record<string, any> = Record<string, any>,
-> = {
-  (state: TFormState, update: FormUpdateInstruction<TFormState>): TFormState;
-};
+function shouldGoFurther(
+  instruction: any,
+  data: Record<string, any>,
+  key: number | string,
+  defaultValue?: { default?: any },
+) {
+  if (checkUnsetInstruction(instruction)) {
+    data[key] = undefined;
+    return false;
+  }
+  else if (checkDeleteInstruction(instruction)) {
+    if (defaultValue && 'default' in defaultValue) {
+      data[key] = defaultValue.default;
+    }
+    else {
+      delete data[key];
+    }
+    return false;
+  }
+  else {
+    return true;
+  }
+}

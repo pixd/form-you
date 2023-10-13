@@ -153,7 +153,7 @@ describe('update method', () => {
     });
   });
 
-  it('use $$set command to update values with undefined', () => {
+  it('use $$set command to update undefined capable values with undefined', () => {
     const user = {
       nick: 'Antonio',
       bonus: 10,
@@ -187,7 +187,7 @@ describe('update method', () => {
     });
   });
 
-  it('use $$delete command to delete optional values', () => {
+  it('use $$delete command to remove optional values', () => {
     const user = {
       nick: 'Antonio',
       bonus: 10,
@@ -201,6 +201,1594 @@ describe('update method', () => {
     expect(nextUser).toStrictEqual({
       nick: 'Antonio',
     });
+  });
+
+  it('use $$append command to add elements', () => {
+    const user = {
+      name: 'Antonio',
+      bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+    };
+
+    {
+      {
+        const nextUser = update(user, {
+          bonus: {
+            $$append: [],
+          },
+        });
+
+        expect(nextUser).toStrictEqual({
+          name: 'Antonio',
+          bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+        });
+      }
+    }
+
+    {
+      {
+        const nextUser = update(user, {
+          bonus: {
+            $$append: [100, 101],
+          },
+        });
+
+        expect(nextUser).toStrictEqual({
+          name: 'Antonio',
+          bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 100, 101],
+        });
+      }
+    }
+
+    {
+      {
+        const nextUser = update(user, {
+          bonus: {
+            $$append: [100, 101],
+            skip: 0,
+          },
+        });
+
+        expect(nextUser).toStrictEqual({
+          name: 'Antonio',
+          bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 100, 101],
+        });
+      }
+    }
+
+    {
+      {
+        const nextUser = update(user, {
+          bonus: {
+            $$append: [100, 101],
+            skip: 2,
+          },
+        });
+
+        expect(nextUser).toStrictEqual({
+          name: 'Antonio',
+          bonus: [0, 1, 2, 3, 4, 5, 6, 7, 100, 101, 8, 9],
+        });
+      }
+    }
+
+    {
+      {
+        const nextUser = update(user, {
+          bonus: {
+            $$append: [100, 101],
+            skip: 9,
+          },
+        });
+
+        expect(nextUser).toStrictEqual({
+          name: 'Antonio',
+          bonus: [0, 100, 101, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+        });
+      }
+    }
+
+    {
+      {
+        const nextUser = update(user, {
+          bonus: {
+            $$append: [100, 101],
+            skip: 10,
+          },
+        });
+
+        expect(nextUser).toStrictEqual({
+          name: 'Antonio',
+          bonus: [100, 101, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+        });
+      }
+    }
+
+    {
+      {
+        const nextUser = update(user, {
+          bonus: {
+            $$append: [100, 101],
+            skip: 11,
+          },
+        });
+
+        expect(nextUser).toStrictEqual({
+          name: 'Antonio',
+          bonus: [100, 101, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+        });
+      }
+    }
+
+    {
+      {
+        const nextUser = update(user, {
+          bonus: {
+            $$append: [100, 101],
+            skip: 12,
+          },
+        });
+
+        expect(nextUser).toStrictEqual({
+          name: 'Antonio',
+          bonus: [100, 101, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+        });
+      }
+    }
+
+    {
+      {
+        const nextUser = update(user, {
+          bonus: {
+            $$append: [100, 101],
+            skip: 13,
+          },
+        });
+
+        expect(nextUser).toStrictEqual({
+          name: 'Antonio',
+          bonus: [100, 101, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+        });
+      }
+    }
+
+    {
+      {
+        const nextUser = update(user, {
+          bonus: {
+            $$append: [100, 101],
+            skip: Infinity,
+          },
+        });
+
+        expect(nextUser).toStrictEqual({
+          name: 'Antonio',
+          bonus: [100, 101, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+        });
+      }
+    }
+
+    {
+      const checkEqual = (skip: number) => {
+        expect(update(user, {
+          bonus: {
+            $$append: [100, 101],
+            skip,
+          },
+        })).toStrictEqual(update(user, {
+          bonus: {
+            $$append: [100, 101],
+            skip: 0,
+          },
+        }));
+      };
+
+      checkEqual(-2);
+      checkEqual(-9);
+      checkEqual(-10);
+      checkEqual(-11);
+      checkEqual(-12);
+      checkEqual(-13);
+      checkEqual(-Infinity);
+    }
+  });
+
+  it('use $$prepend command to add elements', () => {
+    const user = {
+      name: 'Antonio',
+      bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+    };
+
+    {
+      {
+        const nextUser = update(user, {
+          bonus: {
+            $$prepend: [],
+          },
+        });
+
+        expect(nextUser).toStrictEqual({
+          name: 'Antonio',
+          bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+        });
+      }
+    }
+
+    {
+      {
+        const nextUser = update(user, {
+          bonus: {
+            $$prepend: [100, 101],
+          },
+        });
+
+        expect(nextUser).toStrictEqual({
+          name: 'Antonio',
+          bonus: [100, 101, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+        });
+      }
+    }
+
+    {
+      {
+        const nextUser = update(user, {
+          bonus: {
+            $$prepend: [100, 101],
+            skip: 0,
+          },
+        });
+
+        expect(nextUser).toStrictEqual({
+          name: 'Antonio',
+          bonus: [100, 101, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+        });
+      }
+    }
+
+    {
+      {
+        const nextUser = update(user, {
+          bonus: {
+            $$prepend: [100, 101],
+            skip: 2,
+          },
+        });
+
+        expect(nextUser).toStrictEqual({
+          name: 'Antonio',
+          bonus: [0, 1, 100, 101, 2, 3, 4, 5, 6, 7, 8, 9],
+        });
+      }
+    }
+
+    {
+      {
+        const nextUser = update(user, {
+          bonus: {
+            $$prepend: [100, 101],
+            skip: 9,
+          },
+        });
+
+        expect(nextUser).toStrictEqual({
+          name: 'Antonio',
+          bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 100, 101, 9],
+        });
+      }
+    }
+
+    {
+      {
+        const nextUser = update(user, {
+          bonus: {
+            $$prepend: [100, 101],
+            skip: 10,
+          },
+        });
+
+        expect(nextUser).toStrictEqual({
+          name: 'Antonio',
+          bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 100, 101],
+        });
+      }
+    }
+
+    {
+      {
+        const nextUser = update(user, {
+          bonus: {
+            $$prepend: [100, 101],
+            skip: 11,
+          },
+        });
+
+        expect(nextUser).toStrictEqual({
+          name: 'Antonio',
+          bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 100, 101],
+        });
+      }
+    }
+
+    {
+      {
+        const nextUser = update(user, {
+          bonus: {
+            $$prepend: [100, 101],
+            skip: 12,
+          },
+        });
+
+        expect(nextUser).toStrictEqual({
+          name: 'Antonio',
+          bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 100, 101],
+        });
+      }
+    }
+
+    {
+      {
+        const nextUser = update(user, {
+          bonus: {
+            $$prepend: [100, 101],
+            skip: 13,
+          },
+        });
+
+        expect(nextUser).toStrictEqual({
+          name: 'Antonio',
+          bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 100, 101],
+        });
+      }
+    }
+
+    {
+      {
+        const nextUser = update(user, {
+          bonus: {
+            $$prepend: [100, 101],
+            skip: Infinity,
+          },
+        });
+
+        expect(nextUser).toStrictEqual({
+          name: 'Antonio',
+          bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 100, 101],
+        });
+      }
+    }
+
+    {
+      const checkEqual = (skip: number) => {
+        expect(update(user, {
+          bonus: {
+            $$prepend: [100, 101],
+            skip,
+          },
+        })).toStrictEqual(update(user, {
+          bonus: {
+            $$prepend: [100, 101],
+            skip: 0,
+          },
+        }));
+      };
+
+      checkEqual(-2);
+      checkEqual(-9);
+      checkEqual(-10);
+      checkEqual(-11);
+      checkEqual(-12);
+      checkEqual(-13);
+      checkEqual(-Infinity);
+    }
+  });
+
+  it('use $$exclude command to remove array elements', () => {
+    const user = {
+      name: 'Antonio',
+      bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+    };
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$exclude: [],
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$exclude: [0, 2, 4],
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [1, 3, 5, 6, 7, 8, 9],
+      });
+    }
+  });
+
+  it('use $$exclude-skip command to remove array elements', () => {
+    const user = {
+      name: 'Antonio',
+      bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+    };
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$exclude: 0,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$exclude: 0,
+          skip: -Infinity,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$exclude: 0,
+          skip: Infinity,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$exclude: 2,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [2, 3, 4, 5, 6, 7, 8, 9],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$exclude: 2,
+          skip: -Infinity,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$exclude: 2,
+          skip: -3,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$exclude: 2,
+          skip: -2,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$exclude: 2,
+          skip: -1,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$exclude: 2,
+          skip: 0,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [2, 3, 4, 5, 6, 7, 8, 9],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$exclude: 2,
+          skip: 2,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [0, 1, 4, 5, 6, 7, 8, 9],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$exclude: 2,
+          skip: 7,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [0, 1, 2, 3, 4, 5, 6, 9],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$exclude: 2,
+          skip: 8,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [0, 1, 2, 3, 4, 5, 6, 7],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$exclude: 2,
+          skip: 9,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$exclude: 2,
+          skip: 10,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$exclude: 2,
+          skip: 11,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$exclude: 2,
+          skip: Infinity,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$exclude: Infinity,
+          skip: -Infinity,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$exclude: Infinity,
+          skip: 0,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$exclude: Infinity,
+          skip: Infinity,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$exclude: -2,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [0, 1, 2, 3, 4, 5, 6, 7],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$exclude: -2,
+          skip: -Infinity,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$exclude: -2,
+          skip: -3,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$exclude: -2,
+          skip: -2,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$exclude: -2,
+          skip: -1,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$exclude: -2,
+          skip: 0,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [0, 1, 2, 3, 4, 5, 6, 7],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$exclude: -2,
+          skip: 2,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [0, 1, 2, 3, 4, 5, 8, 9],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$exclude: -2,
+          skip: 7,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [0, 3, 4, 5, 6, 7, 8, 9],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$exclude: -2,
+          skip: 8,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [2, 3, 4, 5, 6, 7, 8, 9],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$exclude: -2,
+          skip: 9,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$exclude: -2,
+          skip: 10,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$exclude: -2,
+          skip: 11,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$exclude: -2,
+          skip: Infinity,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$exclude: -Infinity,
+          skip: -Infinity,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$exclude: -Infinity,
+          skip: 0,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$exclude: -Infinity,
+          skip: Infinity,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+      });
+    }
+  });
+
+  it('remains the scalars or objects the same with $$exclude command', () => {
+    {
+      const user = {
+        name: 'Antonio',
+        bonus: undefined,
+      };
+
+      const nextUser = update(user, {
+        // @ts-expect-error
+        bonus: {
+          $$exclude: [0],
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: undefined,
+      });
+    }
+
+    {
+      const user = {
+        name: 'Antonio',
+        bonus: null,
+      };
+
+      const nextUser = update(user, {
+        // @ts-expect-error
+        bonus: {
+          $$exclude: [0],
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: null,
+      });
+    }
+
+    {
+      const user = {
+        name: 'Antonio',
+        bonus: 10,
+      };
+
+      const nextUser = update(user, {
+        // @ts-expect-error
+        bonus: {
+          $$exclude: [0],
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: 10,
+      });
+    }
+
+    {
+      const user = {
+        name: 'Antonio',
+        bonus: { value: 10 },
+      };
+
+      const nextUser = update(user, {
+        bonus: {
+          // @ts-expect-error
+          $$exclude: [0],
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: { value: 10 },
+      });
+    }
+  });
+
+  it('use $$extract command to remove array elements', () => {
+    const user = {
+      name: 'Antonio',
+      bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+    };
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$extract: [],
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$extract: [0, 2, 4],
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [0, 2, 4],
+      });
+    }
+  });
+
+  it('use $$extract-skip command to remove array elements', () => {
+    const user = {
+      name: 'Antonio',
+      bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+    };
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$extract: 0,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$extract: 0,
+          skip: -Infinity,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$extract: 0,
+          skip: Infinity,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$extract: 2,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [0, 1],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$extract: 2,
+          skip: -Infinity,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$extract: 2,
+          skip: -3,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$extract: 2,
+          skip: -2,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$extract: 2,
+          skip: -1,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [0],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$extract: 2,
+          skip: 0,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [0, 1],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$extract: 2,
+          skip: 2,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [2, 3],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$extract: 2,
+          skip: 7,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [7, 8],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$extract: 2,
+          skip: 8,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [8, 9],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$extract: 2,
+          skip: 9,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [9],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$extract: 2,
+          skip: 10,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$extract: 2,
+          skip: 11,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$extract: 2,
+          skip: Infinity,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$extract: Infinity,
+          skip: -Infinity,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$extract: Infinity,
+          skip: 0,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$extract: Infinity,
+          skip: Infinity,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$extract: -2,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [8, 9],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$extract: -2,
+          skip: -Infinity,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$extract: -2,
+          skip: -3,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$extract: -2,
+          skip: -2,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$extract: -2,
+          skip: -1,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [9],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$extract: -2,
+          skip: 0,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [8, 9],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$extract: -2,
+          skip: 2,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [6, 7],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$extract: -2,
+          skip: 7,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [1, 2],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$extract: -2,
+          skip: 8,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [0, 1],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$extract: -2,
+          skip: 9,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [0],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$extract: -2,
+          skip: 10,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$extract: -2,
+          skip: 11,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$extract: -2,
+          skip: Infinity,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$extract: -Infinity,
+          skip: -Infinity,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$extract: -Infinity,
+          skip: 0,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$extract: -Infinity,
+          skip: Infinity,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [],
+      });
+    }
+  });
+
+  it('remains the scalars or objects the same with $$extract command', () => {
+    {
+      const user = {
+        name: 'Antonio',
+        bonus: undefined,
+      };
+
+      const nextUser = update(user, {
+        // @ts-expect-error
+        bonus: {
+          $$extract: [0],
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: undefined,
+      });
+    }
+
+    {
+      const user = {
+        name: 'Antonio',
+        bonus: null,
+      };
+
+      const nextUser = update(user, {
+        // @ts-expect-error
+        bonus: {
+          $$extract: [0],
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: null,
+      });
+    }
+
+    {
+      const user = {
+        name: 'Antonio',
+        bonus: 10,
+      };
+
+      const nextUser = update(user, {
+        // @ts-expect-error
+        bonus: {
+          $$extract: [0],
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: 10,
+      });
+    }
+
+    {
+      const user = {
+        name: 'Antonio',
+        bonus: { value: 10 },
+      };
+
+      const nextUser = update(user, {
+        bonus: {
+          // @ts-expect-error
+          $$extract: [0],
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: { value: 10 },
+      });
+    }
   });
 
   it('use $$merge command to update arrays', () => {
@@ -469,7 +2057,7 @@ describe('update method', () => {
     }
   });
 
-  it('use $$apply command to update arrays', () => {
+  it('use $$mergeAll command to update arrays', () => {
     const user = {
       nick: 'Antonio',
       bonus: [
@@ -480,7 +2068,7 @@ describe('update method', () => {
 
     const nextUser = update(user, {
       bonus: {
-        $$apply: { value: 20 },
+        $$mergeAll: { value: 20 },
       },
     });
 
@@ -493,7 +2081,7 @@ describe('update method', () => {
     });
   });
 
-  it('use $$apply command to update nested arrays', () => {
+  it('use $$mergeAll command to update nested arrays', () => {
     const user = {
       nick: 'Antonio',
       friends: [
@@ -516,9 +2104,9 @@ describe('update method', () => {
 
     const nextUser = update(user, {
       friends: {
-        $$apply: {
+        $$mergeAll: {
           bonus: {
-            $$apply: { value: 25 },
+            $$mergeAll: { value: 25 },
           },
         },
       },
@@ -545,7 +2133,7 @@ describe('update method', () => {
     });
   });
 
-  it('remains the scalars or objects the same with $$apply command', () => {
+  it('remains the scalars or objects the same with $$mergeAll command', () => {
     {
       const user = {
         nick: 'Antonio',
@@ -555,7 +2143,7 @@ describe('update method', () => {
       const nextUser = update(user, {
         // @ts-expect-error
         bonus: {
-          $$apply: { value: 20 },
+          $$mergeAll: { value: 20 },
         },
       });
 
@@ -574,7 +2162,7 @@ describe('update method', () => {
       const nextUser = update(user, {
         // @ts-expect-error
         bonus: {
-          $$apply: { value: 20 },
+          $$mergeAll: { value: 20 },
         },
       });
 
@@ -593,7 +2181,7 @@ describe('update method', () => {
       const nextUser = update(user, {
         // @ts-expect-error
         bonus: {
-          $$apply: { value: 20 },
+          $$mergeAll: { value: 20 },
         },
       });
 
@@ -612,7 +2200,7 @@ describe('update method', () => {
       const nextUser = update(user, {
         bonus: {
           // @ts-expect-error
-          $$apply: { value: 20 },
+          $$mergeAll: { value: 20 },
         },
       });
 
@@ -633,7 +2221,7 @@ describe('update method', () => {
 
       const nextUser = update(user, {
         bonus: {
-          $$apply: { value: 20 },
+          $$mergeAll: { value: 20 },
         },
       });
 
@@ -657,7 +2245,7 @@ describe('update method', () => {
 
       const nextUser = update(user, {
         bonus: {
-          $$apply: { value: 20 },
+          $$mergeAll: { value: 20 },
         },
       });
 
@@ -681,7 +2269,7 @@ describe('update method', () => {
 
       const nextUser = update(user, {
         bonus: {
-          $$apply: { value: 20 },
+          $$mergeAll: { value: 20 },
         },
       });
 
@@ -692,7 +2280,6 @@ describe('update method', () => {
           'removed',
         ],
       });
-
     }
   });
 
@@ -810,7 +2397,7 @@ describe('update method', () => {
     }
   });
 
-  it('use $$reset command to update arrays', () => {
+  it('use $$replaceAll command to update arrays', () => {
     const user = {
       nick: 'Antonio',
       bonus: [
@@ -821,7 +2408,7 @@ describe('update method', () => {
 
     const nextUser = update(user, {
       bonus: {
-        $$reset: { num: 0, value: 0 },
+        $$replaceAll: { num: 0, value: 0 },
       },
     });
 
@@ -834,7 +2421,7 @@ describe('update method', () => {
     });
   });
 
-  it('replace the scalars with new value with $$reset command', () => {
+  it('replace the scalars with new value with $$replaceAll command', () => {
     {
       const user = {
         nick: 'Antonio',
@@ -846,7 +2433,7 @@ describe('update method', () => {
 
       const nextUser = update(user, {
         bonus: {
-          $$reset: { num: 0, value: 0 },
+          $$replaceAll: { num: 0, value: 0 },
         },
       });
 
@@ -870,7 +2457,7 @@ describe('update method', () => {
 
       const nextUser = update(user, {
         bonus: {
-          $$reset: { num: 0, value: 0 },
+          $$replaceAll: { num: 0, value: 0 },
         },
       });
 
@@ -894,7 +2481,7 @@ describe('update method', () => {
 
       const nextUser = update(user, {
         bonus: {
-          $$reset: { num: 0, value: 0 },
+          $$replaceAll: { num: 0, value: 0 },
         },
       });
 

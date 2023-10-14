@@ -1791,6 +1791,140 @@ describe('update method', () => {
     }
   });
 
+  it('use $$move command to update arrays', () => {
+    {
+      const user = {
+        name: 'Antonio',
+        bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+      };
+
+      const nextUser = update(user, {
+        bonus: {
+          $$move: [1, 2],
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [0, 2, 1, 3, 4, 5, 6, 7, 8, 9],
+      });
+    }
+
+    const testData = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+    function test(move: [number, number], expectData: number[]) {
+      expect(update(testData, { $$move: move })).toStrictEqual(expectData);
+    }
+
+    test([0, 0], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    test([0, 1], [1, 0, 2, 3, 4, 5, 6, 7, 8, 9]);
+    test([0, 8], [1, 2, 3, 4, 5, 6, 7, 8, 0, 9]);
+    test([0, 9], [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]);
+    test([0, 10], [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]);
+    test([0, 11], [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]);
+
+    test([0, -1], [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]);
+    test([0, -2], [1, 2, 3, 4, 5, 6, 7, 8, 0, 9]);
+    test([0, -9], [1, 0, 2, 3, 4, 5, 6, 7, 8, 9]);
+    test([0, -10], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    test([0, -11], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    test([0, -12], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+
+    test([4, 0], [4, 0, 1, 2, 3, 5, 6, 7, 8, 9]);
+    test([4, 1], [0, 4, 1, 2, 3, 5, 6, 7, 8, 9]);
+    test([4, 3], [0, 1, 2, 4, 3, 5, 6, 7, 8, 9]);
+    test([4, 4], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    test([4, 5], [0, 1, 2, 3, 5, 4, 6, 7, 8, 9]);
+    test([4, 8], [0, 1, 2, 3, 5, 6, 7, 8, 4, 9]);
+    test([4, 9], [0, 1, 2, 3, 5, 6, 7, 8, 9, 4]);
+    test([4, 10], [0, 1, 2, 3, 5, 6, 7, 8, 9, 4]);
+    test([4, 11], [0, 1, 2, 3, 5, 6, 7, 8, 9, 4]);
+
+    test([4, -1], [0, 1, 2, 3, 5, 6, 7, 8, 9, 4]);
+    test([4, -2], [0, 1, 2, 3, 5, 6, 7, 8, 4, 9]);
+    test([4, -5], [0, 1, 2, 3, 5, 4, 6, 7, 8, 9]);
+    test([4, -6], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    test([4, -7], [0, 1, 2, 4, 3, 5, 6, 7, 8, 9]);
+    test([4, -9], [0, 4, 1, 2, 3, 5, 6, 7, 8, 9]);
+    test([4, -10], [4, 0, 1, 2, 3, 5, 6, 7, 8, 9]);
+    test([4, -11], [4, 0, 1, 2, 3, 5, 6, 7, 8, 9]);
+    test([4, -12], [4, 0, 1, 2, 3, 5, 6, 7, 8, 9]);
+
+    test([9, 0], [9, 0, 1, 2, 3, 4, 5, 6, 7, 8]);
+    test([9, 1], [0, 9, 1, 2, 3, 4, 5, 6, 7, 8]);
+    test([9, 8], [0, 1, 2, 3, 4, 5, 6, 7, 9, 8]);
+    test([9, 9], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    test([9, 10], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    test([9, 11], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+
+    test([9, -1], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    test([9, -2], [0, 1, 2, 3, 4, 5, 6, 7, 9, 8]);
+    test([9, -9], [0, 9, 1, 2, 3, 4, 5, 6, 7, 8]);
+    test([9, -10], [9, 0, 1, 2, 3, 4, 5, 6, 7, 8]);
+    test([9, -11], [9, 0, 1, 2, 3, 4, 5, 6, 7, 8]);
+    test([9, -12], [9, 0, 1, 2, 3, 4, 5, 6, 7, 8]);
+
+    test([-1, 0], [9, 0, 1, 2, 3, 4, 5, 6, 7, 8]);
+    test([-1, 1], [0, 9, 1, 2, 3, 4, 5, 6, 7, 8]);
+    test([-1, 8], [0, 1, 2, 3, 4, 5, 6, 7, 9, 8]);
+    test([-1, 9], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    test([-1, 10], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    test([-1, 11], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+
+    test([-1, -1], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    test([-1, -2], [0, 1, 2, 3, 4, 5, 6, 7, 9, 8]);
+    test([-1, -9], [0, 9, 1, 2, 3, 4, 5, 6, 7, 8]);
+    test([-1, -10], [9, 0, 1, 2, 3, 4, 5, 6, 7, 8]);
+    test([-1, -11], [9, 0, 1, 2, 3, 4, 5, 6, 7, 8]);
+    test([-1, -12], [9, 0, 1, 2, 3, 4, 5, 6, 7, 8]);
+
+    test([-5, 0], [5, 0, 1, 2, 3, 4, 6, 7, 8, 9]);
+    test([-5, 1], [0, 5, 1, 2, 3, 4, 6, 7, 8, 9]);
+    test([-5, 4], [0, 1, 2, 3, 5, 4, 6, 7, 8, 9]);
+    test([-5, 5], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    test([-5, 6], [0, 1, 2, 3, 4, 6, 5, 7, 8, 9]);
+    test([-5, 8], [0, 1, 2, 3, 4, 6, 7, 8, 5, 9]);
+    test([-5, 9], [0, 1, 2, 3, 4, 6, 7, 8, 9, 5]);
+    test([-5, 10], [0, 1, 2, 3, 4, 6, 7, 8, 9, 5]);
+    test([-5, 11], [0, 1, 2, 3, 4, 6, 7, 8, 9, 5]);
+
+    test([-5, -1], [0, 1, 2, 3, 4, 6, 7, 8, 9, 5]);
+    test([-5, -2], [0, 1, 2, 3, 4, 6, 7, 8, 5, 9]);
+    test([-5, -4], [0, 1, 2, 3, 4, 6, 5, 7, 8, 9]);
+    test([-5, -5], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    test([-5, -6], [0, 1, 2, 3, 5, 4, 6, 7, 8, 9]);
+    test([-5, -9], [0, 5, 1, 2, 3, 4, 6, 7, 8, 9]);
+    test([-5, -10], [5, 0, 1, 2, 3, 4, 6, 7, 8, 9]);
+    test([-5, -11], [5, 0, 1, 2, 3, 4, 6, 7, 8, 9]);
+    test([-5, -12], [5, 0, 1, 2, 3, 4, 6, 7, 8, 9]);
+
+    test([-10, -1], [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]);
+    test([-10, -2], [1, 2, 3, 4, 5, 6, 7, 8, 0, 9]);
+    test([-10, -9], [1, 0, 2, 3, 4, 5, 6, 7, 8, 9]);
+    test([-10, -10], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    test([-10, -11], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    test([-10, -12], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+
+    test([-10, 0], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    test([-10, 1], [1, 0, 2, 3, 4, 5, 6, 7, 8, 9]);
+    test([-10, 8], [1, 2, 3, 4, 5, 6, 7, 8, 0, 9]);
+    test([-10, 9], [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]);
+    test([-10, 10], [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]);
+    test([-10, 11], [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]);
+
+    // {
+    //   const nextUser = update(user, {
+    //     bonus: {
+    //       $$move: [-2, 0],
+    //     },
+    //   });
+    //
+    //   expect(nextUser).toStrictEqual({
+    //     name: 'Antonio',
+    //     bonus: [8, 0, 1, 2, 3, 4, 5, 6, 7, 9],
+    //   });
+    // }
+  });
+
   it('use $$merge command to update arrays', () => {
     const user = {
       nick: 'Antonio',
@@ -1877,6 +2011,237 @@ describe('update method', () => {
         },
       ],
     });
+  });
+
+  it('use $$merge-at command to update arrays', () => {
+    const user = {
+      nick: 'Antonio',
+      bonus: [
+        { num: 1, value: 10 },
+        { num: 2, value: 20 },
+        { num: 3, value: 30 },
+        { num: 4, value: 40 },
+      ],
+    };
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$merge: [
+            { value: 15 },
+            { value: 25 },
+          ],
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: [
+          { num: 1, value: 15 },
+          { num: 2, value: 25 },
+          { num: 3, value: 30 },
+          { num: 4, value: 40 },
+        ],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$merge: [
+            { value: 15 },
+            { value: 25 },
+          ],
+          at: 0,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: [
+          { num: 1, value: 15 },
+          { num: 2, value: 25 },
+          { num: 3, value: 30 },
+          { num: 4, value: 40 },
+        ],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$merge: [
+            { value: 15 },
+            { value: 25 },
+          ],
+          at: 1,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: [
+          { num: 1, value: 10 },
+          { num: 2, value: 15 },
+          { num: 3, value: 25 },
+          { num: 4, value: 40 },
+        ],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$merge: [
+            { value: 15 },
+            { value: 25 },
+          ],
+          at: 3,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: [
+          { num: 1, value: 10 },
+          { num: 2, value: 20 },
+          { num: 3, value: 30 },
+          { num: 4, value: 15 },
+        ],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$merge: [
+            { value: 15 },
+            { value: 25 },
+          ],
+          at: 4,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: [
+          { num: 1, value: 10 },
+          { num: 2, value: 20 },
+          { num: 3, value: 30 },
+          { num: 4, value: 40 },
+        ],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$merge: [
+            { value: 15 },
+            { value: 25 },
+          ],
+          at: -1,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: [
+          { num: 1, value: 10 },
+          { num: 2, value: 20 },
+          { num: 3, value: 30 },
+          { num: 4, value: 15 },
+        ],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$merge: [
+            { value: 15 },
+            { value: 25 },
+          ],
+          at: -2,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: [
+          { num: 1, value: 10 },
+          { num: 2, value: 20 },
+          { num: 3, value: 15 },
+          { num: 4, value: 25 },
+        ],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$merge: [
+            { value: 15 },
+            { value: 25 },
+          ],
+          at: -3,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: [
+          { num: 1, value: 10 },
+          { num: 2, value: 15 },
+          { num: 3, value: 25 },
+          { num: 4, value: 40 },
+        ],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$merge: [
+            { value: 15 },
+            { value: 25 },
+          ],
+          at: -5,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: [
+          { num: 1, value: 25 },
+          { num: 2, value: 20 },
+          { num: 3, value: 30 },
+          { num: 4, value: 40 },
+        ],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$merge: [
+            { value: 15 },
+            { value: 25 },
+          ],
+          at: -6,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: [
+          { num: 1, value: 10 },
+          { num: 2, value: 20 },
+          { num: 3, value: 30 },
+          { num: 4, value: 40 },
+        ],
+      });
+    }
   });
 
   it('remains the scalars or objects the same with $$merge command', () => {
@@ -2309,6 +2674,237 @@ describe('update method', () => {
         { num: 2, value: 15 },
       ],
     });
+  });
+
+  it('use $$replace-at command to update arrays', () => {
+    const user = {
+      nick: 'Antonio',
+      bonus: [
+        { num: 1, value: 10 },
+        { num: 2, value: 20 },
+        { num: 3, value: 30 },
+        { num: 4, value: 40 },
+      ],
+    };
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$replace: [
+            { num: 15, value: 15 },
+            { num: 25, value: 25 },
+          ],
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: [
+          { num: 15, value: 15 },
+          { num: 25, value: 25 },
+          { num: 3, value: 30 },
+          { num: 4, value: 40 },
+        ],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$replace: [
+            { num: 15, value: 15 },
+            { num: 25, value: 25 },
+          ],
+          at: 0,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: [
+          { num: 15, value: 15 },
+          { num: 25, value: 25 },
+          { num: 3, value: 30 },
+          { num: 4, value: 40 },
+        ],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$replace: [
+            { num: 15, value: 15 },
+            { num: 25, value: 25 },
+          ],
+          at: 1,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: [
+          { num: 1, value: 10 },
+          { num: 15, value: 15 },
+          { num: 25, value: 25 },
+          { num: 4, value: 40 },
+        ],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$replace: [
+            { num: 15, value: 15 },
+            { num: 25, value: 25 },
+          ],
+          at: 3,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: [
+          { num: 1, value: 10 },
+          { num: 2, value: 20 },
+          { num: 3, value: 30 },
+          { num: 15, value: 15 },
+        ],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$replace: [
+            { num: 15, value: 15 },
+            { num: 25, value: 25 },
+          ],
+          at: 4,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: [
+          { num: 1, value: 10 },
+          { num: 2, value: 20 },
+          { num: 3, value: 30 },
+          { num: 4, value: 40 },
+        ],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$replace: [
+            { num: 15, value: 15 },
+            { num: 25, value: 25 },
+          ],
+          at: -1,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: [
+          { num: 1, value: 10 },
+          { num: 2, value: 20 },
+          { num: 3, value: 30 },
+          { num: 15, value: 15 },
+        ],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$replace: [
+            { num: 15, value: 15 },
+            { num: 25, value: 25 },
+          ],
+          at: -2,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: [
+          { num: 1, value: 10 },
+          { num: 2, value: 20 },
+          { num: 15, value: 15 },
+          { num: 25, value: 25 },
+        ],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$replace: [
+            { num: 15, value: 15 },
+            { num: 25, value: 25 },
+          ],
+          at: -3,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: [
+          { num: 1, value: 10 },
+          { num: 15, value: 15 },
+          { num: 25, value: 25 },
+          { num: 4, value: 40 },
+        ],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$replace: [
+            { num: 15, value: 15 },
+            { num: 25, value: 25 },
+          ],
+          at: -5,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: [
+          { num: 25, value: 25 },
+          { num: 2, value: 20 },
+          { num: 3, value: 30 },
+          { num: 4, value: 40 },
+        ],
+      });
+    }
+
+    {
+      const nextUser = update(user, {
+        bonus: {
+          $$replace: [
+            { num: 15, value: 15 },
+            { num: 25, value: 25 },
+          ],
+          at: -6,
+        },
+      });
+
+      expect(nextUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: [
+          { num: 1, value: 10 },
+          { num: 2, value: 20 },
+          { num: 3, value: 30 },
+          { num: 4, value: 40 },
+        ],
+      });
+    }
   });
 
   it('replace the scalars with new value with $$replace command', () => {

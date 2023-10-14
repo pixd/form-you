@@ -178,11 +178,25 @@ export function update(
     }
     else if (updatePayload.$$move !== undefined) {
       if (Array.isArray(data)) {
+        let aIndex = updatePayload.$$move[0];
+        let bIndex = updatePayload.$$move[1];
+
+        if (aIndex < 0) {
+          aIndex = Math.max(0, data.length + aIndex);
+        }
+        else {
+          aIndex = Math.min(data.length - 1, aIndex);
+        }
+
+        if (bIndex < 0) {
+          bIndex = Math.max(0, data.length + bIndex);
+        }
+        else {
+          bIndex = Math.min(data.length - 1, bIndex);
+        }
+
         const nextArray = [...data];
-        const aIndex = Number(updatePayload.$$move[0]);
-        const bIndex = Number(updatePayload.$$move[1]);
-        const moved = nextArray.splice(aIndex, 1)[0];
-        nextArray.splice(bIndex, 0, moved);
+        nextArray.splice(bIndex, 0, nextArray.splice(aIndex, 1)[0]);
         return nextArray;
       }
       else {
@@ -192,8 +206,8 @@ export function update(
     else if (updatePayload.$$swap !== undefined) {
       if (Array.isArray(data)) {
         const nextArray = [...data];
-        const aIndex = Number(updatePayload.$$swap[0]);
-        const bIndex = Number(updatePayload.$$swap[1]);
+        const aIndex = updatePayload.$$swap[0];
+        const bIndex = updatePayload.$$swap[1];
         nextArray[aIndex] = data[bIndex];
         nextArray[bIndex] = data[aIndex];
         return nextArray;
@@ -264,8 +278,8 @@ export function update(
     }
     else if (updatePayload.$$replace !== undefined) {
       if (Array.isArray(data)) {
-        if (Array.isArray(updatePayload.$$merge)) {
-          let merge = updatePayload.$$merge;
+        if (Array.isArray(updatePayload.$$replace)) {
+          let merge = updatePayload.$$replace;
 
           const at = updatePayload.at ?? 0;
           let startIndex = at >= 0 ? at : data.length + at;

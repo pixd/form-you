@@ -210,161 +210,15 @@ describe('update method', () => {
     };
 
     {
-      {
-        const nextUser = update(user, {
-          bonus: {
-            $$append: [],
-          },
-        });
+      expect(update(user, { bonus: { $$append: [] } })).toStrictEqual({
+        name: 'Antonio',
+        bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+      });
 
-        expect(nextUser).toStrictEqual({
-          name: 'Antonio',
-          bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-        });
-      }
-    }
-
-    {
-      {
-        const nextUser = update(user, {
-          bonus: {
-            $$append: [100, 101],
-          },
-        });
-
-        expect(nextUser).toStrictEqual({
-          name: 'Antonio',
-          bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 100, 101],
-        });
-      }
-    }
-
-    {
-      {
-        const nextUser = update(user, {
-          bonus: {
-            $$append: [100, 101],
-            skip: 0,
-          },
-        });
-
-        expect(nextUser).toStrictEqual({
-          name: 'Antonio',
-          bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 100, 101],
-        });
-      }
-    }
-
-    {
-      {
-        const nextUser = update(user, {
-          bonus: {
-            $$append: [100, 101],
-            skip: 2,
-          },
-        });
-
-        expect(nextUser).toStrictEqual({
-          name: 'Antonio',
-          bonus: [0, 1, 2, 3, 4, 5, 6, 7, 100, 101, 8, 9],
-        });
-      }
-    }
-
-    {
-      {
-        const nextUser = update(user, {
-          bonus: {
-            $$append: [100, 101],
-            skip: 9,
-          },
-        });
-
-        expect(nextUser).toStrictEqual({
-          name: 'Antonio',
-          bonus: [0, 100, 101, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-        });
-      }
-    }
-
-    {
-      {
-        const nextUser = update(user, {
-          bonus: {
-            $$append: [100, 101],
-            skip: 10,
-          },
-        });
-
-        expect(nextUser).toStrictEqual({
-          name: 'Antonio',
-          bonus: [100, 101, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-        });
-      }
-    }
-
-    {
-      {
-        const nextUser = update(user, {
-          bonus: {
-            $$append: [100, 101],
-            skip: 11,
-          },
-        });
-
-        expect(nextUser).toStrictEqual({
-          name: 'Antonio',
-          bonus: [100, 101, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-        });
-      }
-    }
-
-    {
-      {
-        const nextUser = update(user, {
-          bonus: {
-            $$append: [100, 101],
-            skip: 12,
-          },
-        });
-
-        expect(nextUser).toStrictEqual({
-          name: 'Antonio',
-          bonus: [100, 101, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-        });
-      }
-    }
-
-    {
-      {
-        const nextUser = update(user, {
-          bonus: {
-            $$append: [100, 101],
-            skip: 13,
-          },
-        });
-
-        expect(nextUser).toStrictEqual({
-          name: 'Antonio',
-          bonus: [100, 101, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-        });
-      }
-    }
-
-    {
-      {
-        const nextUser = update(user, {
-          bonus: {
-            $$append: [100, 101],
-            skip: Infinity,
-          },
-        });
-
-        expect(nextUser).toStrictEqual({
-          name: 'Antonio',
-          bonus: [100, 101, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-        });
-      }
+      expect(update(user, { bonus: { $$append: [100, 101] } })).toStrictEqual({
+        name: 'Antonio',
+        bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 100, 101],
+      });
     }
 
     {
@@ -390,6 +244,20 @@ describe('update method', () => {
       checkEqual(-13);
       checkEqual(-Infinity);
     }
+
+    const testData = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+    function test(append: number[], skip: number, expectData: number[]) {
+      expect(update(testData, { $$append: append, skip })).toStrictEqual(expectData);
+    }
+
+    test([100, 101], 0, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 100, 101]);
+    test([100, 101], 2, [0, 1, 2, 3, 4, 5, 6, 7, 100, 101, 8, 9]);
+    test([100, 101], 9, [0, 100, 101, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    test([100, 101], 10, [100, 101, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    test([100, 101], 11, [100, 101, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    test([100, 101], 12, [100, 101, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    test([100, 101], 13, [100, 101, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    test([100, 101], Infinity, [100, 101, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
   });
 
   it('use $$prepend command to add elements', () => {
@@ -399,161 +267,15 @@ describe('update method', () => {
     };
 
     {
-      {
-        const nextUser = update(user, {
-          bonus: {
-            $$prepend: [],
-          },
-        });
+      expect(update(user, { bonus: { $$prepend: [] } })).toStrictEqual({
+        name: 'Antonio',
+        bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+      });
 
-        expect(nextUser).toStrictEqual({
-          name: 'Antonio',
-          bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-        });
-      }
-    }
-
-    {
-      {
-        const nextUser = update(user, {
-          bonus: {
-            $$prepend: [100, 101],
-          },
-        });
-
-        expect(nextUser).toStrictEqual({
-          name: 'Antonio',
-          bonus: [100, 101, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-        });
-      }
-    }
-
-    {
-      {
-        const nextUser = update(user, {
-          bonus: {
-            $$prepend: [100, 101],
-            skip: 0,
-          },
-        });
-
-        expect(nextUser).toStrictEqual({
-          name: 'Antonio',
-          bonus: [100, 101, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-        });
-      }
-    }
-
-    {
-      {
-        const nextUser = update(user, {
-          bonus: {
-            $$prepend: [100, 101],
-            skip: 2,
-          },
-        });
-
-        expect(nextUser).toStrictEqual({
-          name: 'Antonio',
-          bonus: [0, 1, 100, 101, 2, 3, 4, 5, 6, 7, 8, 9],
-        });
-      }
-    }
-
-    {
-      {
-        const nextUser = update(user, {
-          bonus: {
-            $$prepend: [100, 101],
-            skip: 9,
-          },
-        });
-
-        expect(nextUser).toStrictEqual({
-          name: 'Antonio',
-          bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 100, 101, 9],
-        });
-      }
-    }
-
-    {
-      {
-        const nextUser = update(user, {
-          bonus: {
-            $$prepend: [100, 101],
-            skip: 10,
-          },
-        });
-
-        expect(nextUser).toStrictEqual({
-          name: 'Antonio',
-          bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 100, 101],
-        });
-      }
-    }
-
-    {
-      {
-        const nextUser = update(user, {
-          bonus: {
-            $$prepend: [100, 101],
-            skip: 11,
-          },
-        });
-
-        expect(nextUser).toStrictEqual({
-          name: 'Antonio',
-          bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 100, 101],
-        });
-      }
-    }
-
-    {
-      {
-        const nextUser = update(user, {
-          bonus: {
-            $$prepend: [100, 101],
-            skip: 12,
-          },
-        });
-
-        expect(nextUser).toStrictEqual({
-          name: 'Antonio',
-          bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 100, 101],
-        });
-      }
-    }
-
-    {
-      {
-        const nextUser = update(user, {
-          bonus: {
-            $$prepend: [100, 101],
-            skip: 13,
-          },
-        });
-
-        expect(nextUser).toStrictEqual({
-          name: 'Antonio',
-          bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 100, 101],
-        });
-      }
-    }
-
-    {
-      {
-        const nextUser = update(user, {
-          bonus: {
-            $$prepend: [100, 101],
-            skip: Infinity,
-          },
-        });
-
-        expect(nextUser).toStrictEqual({
-          name: 'Antonio',
-          bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 100, 101],
-        });
-      }
+      expect(update(user, { bonus: { $$prepend: [100, 101] } })).toStrictEqual({
+        name: 'Antonio',
+        bonus: [100, 101, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+      });
     }
 
     {
@@ -579,6 +301,20 @@ describe('update method', () => {
       checkEqual(-13);
       checkEqual(-Infinity);
     }
+
+    const testData = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+    function test(prepend: number[], skip: number, expectData: number[]) {
+      expect(update(testData, { $$prepend: prepend, skip })).toStrictEqual(expectData);
+    }
+
+    test([100, 101], 0, [100, 101, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    test([100, 101], 2, [0, 1, 100, 101, 2, 3, 4, 5, 6, 7, 8, 9]);
+    test([100, 101], 9, [0, 1, 2, 3, 4, 5, 6, 7, 8, 100, 101, 9]);
+    test([100, 101], 10, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 100, 101]);
+    test([100, 101], 11, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 100, 101]);
+    test([100, 101], 12, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 100, 101]);
+    test([100, 101], 13, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 100, 101]);
+    test([100, 101], Infinity, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 100, 101]);
   });
 
   it('use $$exclude command to remove array elements', () => {
@@ -1087,6 +823,8 @@ describe('update method', () => {
     test([-10, 11], [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]);
     test([-10, Infinity], [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]);
 
+    // All out of range
+
     test([10, 0], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
     test([10, 4], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
     test([10, 9], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
@@ -1281,9 +1019,18 @@ describe('update method', () => {
     test([-10, -Infinity], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
 
     // All out of range
-    test([10, 11], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    test([10, 10], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    test([10, Infinity], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+
     test([10, -11], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
-    test([-11, -12], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    test([10, -Infinity], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+
+    test([-11, 10], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    test([-11, Infinity], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+
+    test([-11, -11], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    test([-11, -Infinity], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+
     test([Infinity, Infinity], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
     test([Infinity, -Infinity], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
     test([-Infinity, -Infinity], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);

@@ -325,7 +325,7 @@ describe('update method', () => {
     test([100, 101], Infinity, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 100, 101]);
   });
 
-  it('use $$exclude command to remove array elements', () => {
+  it('use $$exclude command update arrays', () => {
     const user = {
       name: 'Antonio',
       bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -347,7 +347,7 @@ describe('update method', () => {
     {
       const nextUser = update(user, {
         bonus: {
-          $$exclude: [0, 2, 4],
+          $$exclude: [0, 2, 4, 100],
         },
       });
 
@@ -362,7 +362,7 @@ describe('update method', () => {
     }
   });
 
-  it('use $$exclude-skip command to remove array elements', () => {
+  it('use $$exclude-skip command to update arrays', () => {
     {
       const user = {
         name: 'Antonio',
@@ -515,7 +515,7 @@ describe('update method', () => {
     }
   });
 
-  it('use $$extract command to remove array elements', () => {
+  it('use $$extract command to update arrays', () => {
     const user = {
       name: 'Antonio',
       bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -537,7 +537,7 @@ describe('update method', () => {
     {
       const nextUser = update(user, {
         bonus: {
-          $$extract: [0, 2, 4],
+          $$extract: [0, 2, 4, 100],
         },
       });
 
@@ -552,7 +552,7 @@ describe('update method', () => {
     }
   });
 
-  it('use $$extract-skip command to remove array elements', () => {
+  it('use $$extract-skip command to update arrays', () => {
     {
       const user = {
         name: 'Antonio',

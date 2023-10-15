@@ -137,18 +137,24 @@ export function update(
       }
     }
     else if (updatePayload.$$exclude !== undefined) {
+      const { $$exclude: exclude } = updatePayload;
+
       if (Array.isArray(data)) {
-        if (Array.isArray(updatePayload.$$exclude)) {
-          const exclude = Symbol();
+        if (Array.isArray(exclude)) {
+          const excludeElement = Symbol();
+
           const nextArray = [...data];
-          updatePayload.$$exclude.forEach((key) => {
-            const index = Number(key);
-            nextArray[index] = exclude;
+          exclude.forEach((key) => {
+            if (key in nextArray) {
+              nextArray[key] = excludeElement;
+            }
           });
-          return nextArray.filter((element) => element !== exclude);
+
+          return nextArray
+            .filter((element) => element !== excludeElement);
         }
         else {
-          return excludeElements(data, updatePayload.$$exclude, updatePayload.skip);
+          return excludeElements(data, exclude, updatePayload.skip);
         }
       }
       else {
@@ -156,20 +162,25 @@ export function update(
       }
     }
     else if (updatePayload.$$extract !== undefined) {
+      const { $$extract: extract } = updatePayload;
+
       if (Array.isArray(data)) {
-        if (Array.isArray(updatePayload.$$extract)) {
-          const extract = Symbol();
+        if (Array.isArray(extract)) {
+          const extractElement = Symbol();
+
           const nextArray = [...data];
-          updatePayload.$$extract.forEach((key) => {
-            const index = Number(key);
-            nextArray[index] = { extract: extract, value: data[index] };
+          extract.forEach((key) => {
+            if (key in nextArray) {
+              nextArray[key] = { extract: extractElement, value: data[key] };
+            }
           });
+
           return nextArray
-            .filter((element) => (element && element.extract === extract))
+            .filter((element) => (element && element.extract === extractElement))
             .map((element) => element.value);
         }
         else {
-          return extractElements(data, updatePayload.$$extract, updatePayload.skip);
+          return extractElements(data, extract, updatePayload.skip);
         }
       }
       else {

@@ -148,7 +148,7 @@ export function update(
           return nextArray.filter((element) => element !== exclude);
         }
         else {
-          return exclude(data, updatePayload.$$exclude, updatePayload.skip);
+          return excludeElements(data, updatePayload.$$exclude, updatePayload.skip);
         }
       }
       else {
@@ -169,7 +169,7 @@ export function update(
             .map((element) => element.value);
         }
         else {
-          return extract(data, updatePayload.$$extract, updatePayload.skip);
+          return extractElements(data, updatePayload.$$extract, updatePayload.skip);
         }
       }
       else {
@@ -178,26 +178,8 @@ export function update(
     }
     else if (updatePayload.$$move !== undefined) {
       if (Array.isArray(data)) {
-        let aIndex = updatePayload.$$move[0];
-        let bIndex = updatePayload.$$move[1];
-
-        if (aIndex < 0) {
-          aIndex = Math.max(0, data.length + aIndex);
-        }
-        else {
-          aIndex = Math.min(data.length - 1, aIndex);
-        }
-
-        if (bIndex < 0) {
-          bIndex = Math.max(0, data.length + bIndex);
-        }
-        else {
-          bIndex = Math.min(data.length - 1, bIndex);
-        }
-
-        const nextArray = [...data];
-        nextArray.splice(bIndex, 0, nextArray.splice(aIndex, 1)[0]);
-        return nextArray;
+        const { $$move: move } = updatePayload;
+        return moveElement(move, data);
       }
       else {
         return data;
@@ -205,12 +187,8 @@ export function update(
     }
     else if (updatePayload.$$swap !== undefined) {
       if (Array.isArray(data)) {
-        const nextArray = [...data];
-        const aIndex = updatePayload.$$swap[0];
-        const bIndex = updatePayload.$$swap[1];
-        nextArray[aIndex] = data[bIndex];
-        nextArray[bIndex] = data[aIndex];
-        return nextArray;
+        const { $$swap: swap } = updatePayload;
+        return moveElement([swap[1], swap[0]], moveElement(swap, data), true);
       }
       else {
         return data;
@@ -279,18 +257,18 @@ export function update(
     else if (updatePayload.$$replace !== undefined) {
       if (Array.isArray(data)) {
         if (Array.isArray(updatePayload.$$replace)) {
-          let merge = updatePayload.$$replace;
+          let replace = updatePayload.$$replace;
 
           const at = updatePayload.at ?? 0;
           let startIndex = at >= 0 ? at : data.length + at;
           if (startIndex < 0) {
-            merge = merge.slice(-startIndex);
+            replace = replace.slice(-startIndex);
             startIndex = 0;
           }
 
           const nextData = [...data];
 
-          merge.some((mergeItemInstruction, index) => {
+          replace.some((mergeItemInstruction, index) => {
             const dataIndex = startIndex + index;
             if (dataIndex > nextData.length - 1) {
               return true;
@@ -372,6 +350,28 @@ function checkDeleteInstruction(
   return instruction && typeof instruction === 'object' && instruction.$$delete;
 }
 
+function getPositiveIndexPair(
+  pair: [number, number],
+  dataLength: number,
+): [number, number] {
+  return [
+    getPositiveIndex(pair[0], dataLength),
+    getPositiveIndex(pair[1], dataLength),
+  ];
+}
+
+function getPositiveIndex(
+  index: number,
+  dataLength: number,
+): number {
+  if (index < 0) {
+    return Math.max(0, dataLength + index);
+  }
+  else {
+    return Math.min(dataLength - 1, index);
+  }
+}
+
 function getStartEndIndex<T>(
   dataLength: number,
   length: number,
@@ -412,7 +412,59 @@ function getStartEndIndex<T>(
   }
 }
 
-function exclude<T>(
+function moveElement<T>(
+  move: [number, number],
+  data: T[],
+  swapResponseAction: boolean = false,
+): T[] {
+  if (shouldMove(...move, data.length)) {
+    const [aIndex, bIndex] = getPositiveIndexPair([move[0], move[1]], data.length);
+
+    const shiftValue = swapResponseAction && shouldMove(move[1], move[0], data.length)
+      ? Math.sign(bIndex - aIndex)
+      : 0;
+
+    const nextArray = [...data];
+    nextArray.splice(bIndex, 0, nextArray.splice(aIndex + shiftValue, 1)[0]);
+    return nextArray;
+  }
+  else {
+    return data;
+  }
+}
+
+function shouldMove(
+  aIndex: number,
+  bIndex: number,
+  dataLength: number,
+): boolean {
+  if (dataLength === 0) {
+    return false;
+  } if (aIndex > dataLength - 1 || aIndex < -dataLength) {
+    return false;
+  }
+  else if (aIndex === bIndex) {
+    return false;
+  }
+  else if (aIndex < 0) {
+    if (bIndex === dataLength + aIndex) {
+      return false;
+    }
+    else {
+      return true;
+    }
+  }
+  else {
+    if (aIndex === dataLength + bIndex) {
+      return false;
+    }
+    else {
+      return true;
+    }
+  }
+}
+
+function excludeElements<T>(
   data: T[],
   length: number,
   skip: undefined | number,
@@ -432,11 +484,11 @@ function exclude<T>(
   }
 }
 
-function extract<T>(
+function extractElements<T>(
   data: T[],
   length: number,
   skip: undefined | number,
-): any[] {
+): T[] {
   skip = skip ?? 0;
 
   const nextData = [...data];
@@ -456,7 +508,7 @@ function shouldGoFurther(
   data: Record<string, any>,
   key: number | string,
   defaultValue?: { default?: any },
-) {
+): boolean {
   if (checkUnsetInstruction(instruction)) {
     data[key] = undefined;
     return false;

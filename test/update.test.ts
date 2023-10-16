@@ -137,7 +137,7 @@ describe('update method', () => {
     }
   });
 
-  it('use $$set command to update values', () => {
+  it('use $$set instruction to update values', () => {
     const user = {
       nick: 'Antonio',
       bonus: 10,
@@ -153,7 +153,7 @@ describe('update method', () => {
     });
   });
 
-  it('use $$set command to update undefined capable values with undefined', () => {
+  it('use $$set instruction to update undefined capable values with undefined', () => {
     const user = {
       nick: 'Antonio',
       bonus: 10,
@@ -170,7 +170,7 @@ describe('update method', () => {
     });
   });
 
-  it('use $$unset command to update undefined capable values with undefined', () => {
+  it('use $$unset instruction to update undefined capable values with undefined', () => {
     const user = {
       nick: 'Antonio',
       bonus: 10,
@@ -187,7 +187,7 @@ describe('update method', () => {
     });
   });
 
-  it('use $$delete command to remove optional values', () => {
+  it('use $$delete instruction to remove optional values', () => {
     const user = {
       nick: 'Antonio',
       bonus: 10,
@@ -203,7 +203,7 @@ describe('update method', () => {
     });
   });
 
-  it('use $$append command to add elements', () => {
+  it('use $$append instruction to add elements', () => {
     const user = {
       name: 'Antonio',
       bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -264,7 +264,7 @@ describe('update method', () => {
     test([100, 101], Infinity, [100, 101, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
   });
 
-  it('use $$prepend command to add elements', () => {
+  it('use $$prepend instruction to add elements', () => {
     const user = {
       name: 'Antonio',
       bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -325,7 +325,7 @@ describe('update method', () => {
     test([100, 101], Infinity, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 100, 101]);
   });
 
-  it('use $$exclude command update arrays', () => {
+  it('use $$exclude instruction update arrays', () => {
     const user = {
       name: 'Antonio',
       bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -362,7 +362,7 @@ describe('update method', () => {
     }
   });
 
-  it('use $$exclude-skip command to update arrays', () => {
+  it('use $$exclude-row instruction to update arrays', () => {
     {
       const user = {
         name: 'Antonio',
@@ -437,7 +437,7 @@ describe('update method', () => {
     test(-Infinity, -Infinity, []);
   });
 
-  it('remains the scalars or objects the same with $$exclude command', () => {
+  it('remains the scalars or objects the same with $$exclude instruction', () => {
     {
       const user = {
         name: 'Antonio',
@@ -515,7 +515,7 @@ describe('update method', () => {
     }
   });
 
-  it('use $$extract command to update arrays', () => {
+  it('use $$extract instruction to update arrays', () => {
     const user = {
       name: 'Antonio',
       bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -552,7 +552,7 @@ describe('update method', () => {
     }
   });
 
-  it('use $$extract-skip command to update arrays', () => {
+  it('use $$extract-row instruction to update arrays', () => {
     {
       const user = {
         name: 'Antonio',
@@ -627,7 +627,7 @@ describe('update method', () => {
     test(-Infinity, -Infinity, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
   });
 
-  it('remains the scalars or objects the same with $$extract command', () => {
+  it('remains the scalars or objects the same with $$extract instruction', () => {
     {
       const user = {
         name: 'Antonio',
@@ -705,7 +705,7 @@ describe('update method', () => {
     }
   });
 
-  it('use $$move command to update arrays', () => {
+  it('use $$move instruction to update arrays', () => {
     {
       const user = {
         name: 'Antonio',
@@ -910,7 +910,7 @@ describe('update method', () => {
     test([-Infinity, -Infinity], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
   });
 
-  it('use $$swap command to update arrays', () => {
+  it('use $$swap instruction to update arrays', () => {
     {
       const user = {
         name: 'Antonio',
@@ -1092,7 +1092,7 @@ describe('update method', () => {
     test([-Infinity, -Infinity], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
   });
 
-  it('use $$merge command to update arrays', () => {
+  it('use $$merge instruction to update arrays', () => {
     {
       const user = {
         nick: 'Antonio',
@@ -1132,7 +1132,7 @@ describe('update method', () => {
     }
   });
 
-  it('use $$merge command to update nested arrays', () => {
+  it('use $$merge instruction to update nested arrays', () => {
     const user = {
       nick: 'Antonio',
       friends: [
@@ -1192,7 +1192,7 @@ describe('update method', () => {
     });
   });
 
-  it('use $$merge-at command to update arrays', () => {
+  it('use $$merge-row instruction to update arrays', () => {
     {
       const user = {
         nick: 'Antonio',
@@ -1321,7 +1321,7 @@ describe('update method', () => {
     ]);
   });
 
-  it('remains the scalars or objects the same with $$merge command', () => {
+  it('remains the scalars or objects the same with $$merge instruction', () => {
     {
       const user = {
         nick: 'Antonio',
@@ -1499,7 +1499,7 @@ describe('update method', () => {
     }
   });
 
-  it('use $$mergeAll command to update arrays', () => {
+  it('use $$mergeAll instruction to update arrays', () => {
     {
       const user = {
         nick: 'Antonio',
@@ -1543,7 +1543,7 @@ describe('update method', () => {
     }
   });
 
-  it('use $$mergeAll command to update nested arrays', () => {
+  it('use $$mergeAll instruction to update nested arrays', () => {
     {
       const user = {
         nick: 'Antonio',
@@ -1597,7 +1597,7 @@ describe('update method', () => {
     }
   });
 
-  it('remains the scalars or objects the same with $$mergeAll command', () => {
+  it('remains the scalars or objects the same with $$mergeAll instruction', () => {
     {
       const user = {
         nick: 'Antonio',
@@ -1747,7 +1747,7 @@ describe('update method', () => {
     }
   });
 
-  it('use $$replace command to update arrays', () => {
+  it('use $$replace instruction to update arrays', () => {
     {
       const user = {
         nick: 'Antonio',
@@ -1787,7 +1787,7 @@ describe('update method', () => {
     }
   });
 
-  it('use $$replace-at command to update arrays', () => {
+  it('use $$replace-row instruction to update arrays', () => {
     {
       const user = {
         nick: 'Antonio',
@@ -1916,7 +1916,7 @@ describe('update method', () => {
     ]);
   });
 
-  it('replace the scalars with new value with $$replace command', () => {
+  it('replace the scalars with new value with $$replace instruction', () => {
     {
       const user = {
         nick: 'Antonio',
@@ -2002,7 +2002,7 @@ describe('update method', () => {
     }
   });
 
-  it('use $$replaceAll command to update arrays', () => {
+  it('use $$replaceAll instruction to update arrays', () => {
     {
       const user = {
         nick: 'Antonio',
@@ -2046,7 +2046,7 @@ describe('update method', () => {
     }
   });
 
-  it('replace the scalars with new value with $$replaceAll command', () => {
+  it('replace the scalars with new value with $$replaceAll instruction', () => {
     {
       const user = {
         nick: 'Antonio',

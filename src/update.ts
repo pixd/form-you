@@ -1,6 +1,10 @@
 import { AnyPath, NodeValue, PossiblePath, PossibleValue } from './path.types';
 import { AnyPathUpdateInstruction, CommonPathUpdateInstruction, RootPathUpdateInstruction,
   UpdatePayload } from './update.types';
+import { isSetInstruction, isUnsetInstruction, isDeleteInstruction, isPrependInstruction, isAppendInstruction,
+  isExcludeInstruction, isExcludeRowInstruction, isExtractInstruction, isExtractRowInstruction, isMoveInstruction,
+  isSwapInstruction, isMergeInstruction, isMergeRowInstruction, isMergeAllInstruction, isReplaceInstruction,
+  isReplaceRowInstruction, isReplaceAllInstruction } from './update-instruction';
 
 export function updateWithInstruction<
   TData extends Record<string, any> = Record<string, any>,
@@ -66,10 +70,10 @@ export function updateAtPath(
       const nextData = Array.isArray(data) ? [...data] : { ...data };
       const key = anyPath[0];
 
-      if (anyPath.length === 1 && checkUnsetInstruction(updatePayload)) {
+      if (anyPath.length === 1 && isUnsetInstruction(updatePayload)) {
         nextData[key] = undefined;
       }
-      else if (anyPath.length === 1 && checkDeleteInstruction(updatePayload)) {
+      else if (anyPath.length === 1 && isDeleteInstruction(updatePayload)) {
         delete nextData[key];
       }
       else {
@@ -99,16 +103,16 @@ export function update(
     return updatePayload;
   }
   else if (updatePayload && typeof updatePayload === 'object') {
-    if ('$$set' in updatePayload) {
+    if (isSetInstruction(updatePayload)) {
       return updatePayload.$$set;
     }
-    else if (updatePayload.$$unset) {
+    else if (isUnsetInstruction(updatePayload)) {
       throw new Error('$$unset instruction can not be used in update method');
     }
-    else if (updatePayload.$$delete) {
+    else if (isDeleteInstruction(updatePayload)) {
       throw new Error('$$delete instruction can not be used in update method');
     }
-    else if (updatePayload.$$prepend !== undefined) {
+    else if (isPrependInstruction(updatePayload)) {
       if (Array.isArray(data)) {
         const skip = Math.max(0, updatePayload.skip ?? 0);
         const nextData = [...data];
@@ -125,7 +129,7 @@ export function update(
         return data;
       }
     }
-    else if (updatePayload.$$append !== undefined) {
+    else if (isAppendInstruction(updatePayload)) {
       if (Array.isArray(data)) {
         const skip = Math.max(0, updatePayload.skip ?? 0);
         const nextData = [...data];
@@ -136,58 +140,64 @@ export function update(
         return data;
       }
     }
-    else if (updatePayload.$$exclude !== undefined) {
-      const { $$exclude: exclude } = updatePayload;
-
+    else if (isExcludeInstruction(updatePayload)) {
       if (Array.isArray(data)) {
-        if (Array.isArray(exclude)) {
-          const excludeElement = Symbol();
+        const { $$exclude: exclude } = updatePayload;
+        const excludeElement = Symbol();
 
-          const nextArray = [...data];
-          exclude.forEach((key) => {
-            if (key in nextArray) {
-              nextArray[key] = excludeElement;
-            }
-          });
+        const nextArray = [...data];
+        exclude.forEach((key) => {
+          if (key in nextArray) {
+            nextArray[key] = excludeElement;
+          }
+        });
 
-          return nextArray
-            .filter((element) => element !== excludeElement);
-        }
-        else {
-          return excludeElements(data, exclude, updatePayload.skip);
-        }
+        return nextArray
+          .filter((element) => element !== excludeElement);
       }
       else {
         return data;
       }
     }
-    else if (updatePayload.$$extract !== undefined) {
-      const { $$extract: extract } = updatePayload;
-
+    else if (isExcludeRowInstruction(updatePayload)) {
       if (Array.isArray(data)) {
-        if (Array.isArray(extract)) {
-          const extractElement = Symbol();
-
-          const nextArray = [...data];
-          extract.forEach((key) => {
-            if (key in nextArray) {
-              nextArray[key] = { extract: extractElement, value: data[key] };
-            }
-          });
-
-          return nextArray
-            .filter((element) => (element && element.extract === extractElement))
-            .map((element) => element.value);
-        }
-        else {
-          return extractElements(data, extract, updatePayload.skip);
-        }
+        const { $$exclude: exclude, skip } = updatePayload;
+        return excludeElements(data, exclude, skip);
       }
       else {
         return data;
       }
     }
-    else if (updatePayload.$$move !== undefined) {
+    else if (isExtractInstruction(updatePayload)) {
+      if (Array.isArray(data)) {
+        const { $$extract: extract } = updatePayload;
+        const extractElement = Symbol();
+
+        const nextArray = [...data];
+        extract.forEach((key) => {
+          if (key in nextArray) {
+            nextArray[key] = { extract: extractElement, value: data[key] };
+          }
+        });
+
+        return nextArray
+          .filter((element) => (element && element.extract === extractElement))
+          .map((element) => element.value);
+      }
+      else {
+        return data;
+      }
+    }
+    else if (isExtractRowInstruction(updatePayload)) {
+      if (Array.isArray(data)) {
+        const { $$extract: extract, skip } = updatePayload;
+        return extractElements(data, extract, skip);
+      }
+      else {
+        return data;
+      }
+    }
+    else if (isMoveInstruction(updatePayload)) {
       if (Array.isArray(data)) {
         const { $$move: move } = updatePayload;
         return moveElement(move, data);
@@ -196,7 +206,7 @@ export function update(
         return data;
       }
     }
-    else if (updatePayload.$$swap !== undefined) {
+    else if (isSwapInstruction(updatePayload)) {
       if (Array.isArray(data)) {
         const { $$swap: swap } = updatePayload;
         return moveElement([swap[1], swap[0]], moveElement(swap, data), true);
@@ -205,115 +215,125 @@ export function update(
         return data;
       }
     }
-    else if (updatePayload.$$merge !== undefined) {
+    else if (isMergeInstruction(updatePayload)) {
       if (Array.isArray(data)) {
-        if (Array.isArray(updatePayload.$$merge)) {
-          let merge = updatePayload.$$merge;
-
-          const at = updatePayload.at ?? 0;
-          let startIndex = at >= 0 ? at : data.length + at;
-          if (startIndex < 0) {
-            merge = merge.slice(-startIndex);
-            startIndex = 0;
-          }
-
-          const nextData = [...data];
-
-          merge.some((mergeItemInstruction, index) => {
-            const dataIndex = startIndex + index;
-            if (dataIndex > nextData.length - 1) {
-              return true;
+        const { $$merge: merge } = updatePayload;
+        return Object.keys(merge)
+          .filter((index) => (String(Number(index)) === index && Number(index) >= 0))
+          .map((index) => Number(index))
+          .reduce((data, index) => {
+            if (data.length - 1 < index) {
+              return data;
             }
             else {
-              if (shouldGoFurther(mergeItemInstruction, nextData, dataIndex)) {
-                nextData[dataIndex] = update(nextData[dataIndex], mergeItemInstruction);
+              if (shouldGoFurther(merge[index], data, index)) {
+                data[index] = update(data[index], merge[index]);
               }
-              return false;
+              return data;
             }
-          });
-
-          return nextData;
-        }
-        else {
-          return Object.keys(updatePayload.$$merge)
-            .filter((index) => (String(Number(index)) === index && Number(index) >= 0))
-            .map((index) => Number(index))
-            .reduce((data, index) => {
-              if (data.length - 1 < index) {
-                return data;
-              }
-              else {
-                if (shouldGoFurther(updatePayload.$$merge[index], data, index)) {
-                  data[index] = update(data[index], updatePayload.$$merge[index]);
-                }
-                return data;
-              }
-            }, [...data]);
-        }
+          }, [...data]);
       }
       else {
         return data;
       }
     }
-    else if (updatePayload.$$mergeAll !== undefined) {
+    else if (isMergeRowInstruction(updatePayload)) {
       if (Array.isArray(data)) {
+        let { $$merge: merge, at } = updatePayload;
+        at = at ?? 0;
+
+        let startIndex = at >= 0 ? at : data.length + at;
+        if (startIndex < 0) {
+          merge = merge.slice(-startIndex);
+          startIndex = 0;
+        }
+
+        const nextData = [...data];
+
+        merge.some((mergeItemInstruction, index) => {
+          const dataIndex = startIndex + index;
+          if (dataIndex > nextData.length - 1) {
+            return true;
+          }
+          else {
+            if (shouldGoFurther(mergeItemInstruction, nextData, dataIndex)) {
+              nextData[dataIndex] = update(nextData[dataIndex], mergeItemInstruction);
+            }
+            return false;
+          }
+        });
+
+        return nextData;
+      }
+      else {
+        return data;
+      }
+    }
+    else if (isMergeAllInstruction(updatePayload)) {
+      if (Array.isArray(data)) {
+        const { $$mergeAll: mergeAll } = updatePayload;
         return data.map((item) => {
-          return update(item, updatePayload.$$mergeAll);
+          return update(item, mergeAll);
         });
       }
       else {
         return data;
       }
     }
-    else if (updatePayload.$$replace !== undefined) {
+    else if (isReplaceInstruction(updatePayload)) {
       if (Array.isArray(data)) {
-        if (Array.isArray(updatePayload.$$replace)) {
-          let replace = updatePayload.$$replace;
-
-          const at = updatePayload.at ?? 0;
-          let startIndex = at >= 0 ? at : data.length + at;
-          if (startIndex < 0) {
-            replace = replace.slice(-startIndex);
-            startIndex = 0;
-          }
-
-          const nextData = [...data];
-
-          replace.some((mergeItemInstruction, index) => {
-            const dataIndex = startIndex + index;
-            if (dataIndex > nextData.length - 1) {
-              return true;
+        const { $$replace: replace } = updatePayload;
+        return Object.keys(replace)
+          .filter((index) => (String(Number(index)) === index && Number(index) >= 0))
+          .map((index) => Number(index))
+          .reduce((data, index) => {
+            if (data.length - 1 < index) {
+              return data;
             }
             else {
-              nextData[dataIndex] = mergeItemInstruction;
-              return false;
+              data[index] = replace[index];
+              return data;
             }
-          });
-
-          return nextData;
-        }
-        else {
-          return Object.keys(updatePayload.$$replace)
-            .filter((index) => (String(Number(index)) === index && Number(index) >= 0))
-            .map((index) => Number(index))
-            .reduce((data, index) => {
-              if (data.length - 1 < index) {
-                return data;
-              }
-              else {
-                data[index] = updatePayload.$$replace[index];
-                return data;
-              }
-            }, [...data]);
-        }
+          }, [...data]);
       }
       else {
         return data;
       }
     }
-    else if (updatePayload.$$replaceAll !== undefined) {
+    else if (isReplaceRowInstruction(updatePayload)) {
       if (Array.isArray(data)) {
-        return data.map((_) => updatePayload.$$replaceAll);
+        let { $$replace: replace, at } = updatePayload;
+        at = at ?? 0;
+
+        let startIndex = at >= 0 ? at : data.length + at;
+        if (startIndex < 0) {
+          replace = replace.slice(-startIndex);
+          startIndex = 0;
+        }
+
+        const nextData = [...data];
+
+        replace.some((mergeItemInstruction, index) => {
+          const dataIndex = startIndex + index;
+          if (dataIndex > nextData.length - 1) {
+            return true;
+          }
+          else {
+            nextData[dataIndex] = mergeItemInstruction;
+            return false;
+          }
+        });
+
+        return nextData;
+      }
+      else {
+        return data;
+      }
+    }
+    else if (isReplaceAllInstruction(updatePayload)) {
+      if (Array.isArray(data)) {
+        const { $$replaceAll: replaceAll } = updatePayload;
+        return data.map((_) => replaceAll);
       }
       else {
         return data;
@@ -347,18 +367,6 @@ export function update(
   else {
     return updatePayload;
   }
-}
-
-function checkUnsetInstruction(
-  instruction: any,
-): boolean {
-  return instruction && typeof instruction === 'object' && instruction.$$unset;
-}
-
-function checkDeleteInstruction(
-  instruction: any,
-): boolean {
-  return instruction && typeof instruction === 'object' && instruction.$$delete;
 }
 
 function getPositiveIndexPair(
@@ -478,7 +486,7 @@ function shouldMove(
 function excludeElements<T>(
   data: T[],
   length: number,
-  skip: undefined | number,
+  skip: undefined | null | number,
 ): T[] {
   skip = skip ?? 0;
 
@@ -498,7 +506,7 @@ function excludeElements<T>(
 function extractElements<T>(
   data: T[],
   length: number,
-  skip: undefined | number,
+  skip: undefined | null | number,
 ): T[] {
   skip = skip ?? 0;
 
@@ -520,11 +528,11 @@ function shouldGoFurther(
   key: number | string,
   defaultValue?: { default?: any },
 ): boolean {
-  if (checkUnsetInstruction(instruction)) {
+  if (isUnsetInstruction(instruction)) {
     data[key] = undefined;
     return false;
   }
-  else if (checkDeleteInstruction(instruction)) {
+  else if (isDeleteInstruction(instruction)) {
     if (defaultValue && 'default' in defaultValue) {
       data[key] = defaultValue.default;
     }

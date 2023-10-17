@@ -1,213 +1,213 @@
 import { UpdatePayload } from './update.types';
 
-export type SetInstruction<
+export type SetCommand<
   TData extends any = any,
 > = {
   $$set: TData;
 };
 
-export function isSetInstruction<
+export function isSetCommand<
   TData extends any = any,
 >(
   instruction: any,
-): instruction is SetInstruction<TData> {
+): instruction is SetCommand<TData> {
   return !!instruction && '$$set' in instruction;
 }
 
-export type UnsetInstruction = {
+export type UnsetCommand = {
   $$unset: true;
 }
 
-export function isUnsetInstruction(
+export function isUnsetCommand(
   instruction: any,
-): instruction is UnsetInstruction {
+): instruction is UnsetCommand {
   return !!instruction && instruction.$$unset;
 }
 
-export type DeleteInstruction = {
+export type DeleteCommand = {
   $$delete: true;
 }
 
-export function isDeleteInstruction(
+export function isDeleteCommand(
   instruction: any,
-): instruction is DeleteInstruction {
+): instruction is DeleteCommand {
   return !!instruction && instruction.$$delete;
 }
 
-export type AppendInstruction<
+export type AppendCommand<
   TData extends any = any,
 > = {
   $$append: TData[];
   skip?: undefined | null | number;
 };
 
-export function isAppendInstruction<
+export function isAppendCommand<
   TData extends any = any,
 >(
   instruction: any,
-): instruction is AppendInstruction<TData> {
+): instruction is AppendCommand<TData> {
   return !!instruction && instruction.$$append !== undefined;
 }
 
-export type PrependInstruction<
+export type PrependCommand<
   TData extends any = any,
 > = {
   $$prepend: TData[];
   skip?: undefined | null | number;
 };
 
-export function isPrependInstruction<
+export function isPrependCommand<
   TData extends any = any,
 >(
   instruction: any,
-): instruction is PrependInstruction<TData> {
+): instruction is PrependCommand<TData> {
   return !!instruction && instruction.$$prepend !== undefined;
 }
 
-export type ExcludeInstruction = {
+export type ExcludeCommand = {
   $$exclude: number[];
 };
 
-export function isExcludeInstruction(
+export function isExcludeCommand(
   instruction: any,
-): instruction is ExcludeInstruction {
+): instruction is ExcludeCommand {
   return !!instruction && Array.isArray(instruction.$$exclude);
 }
 
-export type ExcludeRowInstruction = {
+export type ExcludeRowCommand = {
   $$exclude: number;
   skip?: undefined | null | number;
 };
 
-export function isExcludeRowInstruction(
+export function isExcludeRowCommand(
   instruction: any,
-): instruction is ExcludeRowInstruction {
+): instruction is ExcludeRowCommand {
   return !!instruction && typeof instruction.$$exclude === 'number';
 }
 
-export type ExtractInstruction = {
+export type ExtractCommand = {
   $$extract: number[];
 };
 
-export function isExtractInstruction(
+export function isExtractCommand(
   instruction: any,
-): instruction is ExtractInstruction {
+): instruction is ExtractCommand {
   return !!instruction && Array.isArray(instruction.$$extract);
 }
 
-export type ExtractRowInstruction = {
+export type ExtractRowCommand = {
   $$extract: number;
   skip?: undefined | null | number;
 };
 
-export function isExtractRowInstruction(
+export function isExtractRowCommand(
   instruction: any,
-): instruction is ExtractRowInstruction {
+): instruction is ExtractRowCommand {
   return !!instruction && typeof instruction.$$extract === 'number';
 }
 
-export type MoveInstruction = {
+export type MoveCommand = {
   $$move: [number, number];
 };
 
-export function isMoveInstruction(
+export function isMoveCommand(
   instruction: any,
-): instruction is MoveInstruction {
+): instruction is MoveCommand {
   return !!instruction && instruction.$$move !== undefined;
 }
 
-export type SwapInstruction = {
+export type SwapCommand = {
   $$swap: [number, number];
 };
 
-export function isSwapInstruction(
+export function isSwapCommand(
   instruction: any,
-): instruction is SwapInstruction {
+): instruction is SwapCommand {
   return !!instruction && instruction.$$swap !== undefined;
 }
 
-export type MergeInstruction<
+export type MergeCommand<
   TData extends any = any,
 > = {
   $$merge: { [key: number]: UpdatePayload<TData> } & { [ket in keyof TData]?: never };
 };
 
-export function isMergeInstruction<
+export function isMergeCommand<
   TData extends any = any,
 >(
   instruction: any,
-): instruction is MergeInstruction<TData> {
+): instruction is MergeCommand<TData> {
   return !!instruction && instruction.$$merge && typeof instruction.$$merge === 'object' && !Array.isArray(instruction.$$merge);
 }
 
-export type MergeRowInstruction<
+export type MergeRowCommand<
   TData extends any = any,
 > = {
   $$merge: UpdatePayload<TData>[];
   at?: undefined | null | number;
 };
 
-export function isMergeRowInstruction<
+export function isMergeRowCommand<
   TData extends any = any,
 >(
   instruction: any,
-): instruction is MergeRowInstruction<TData> {
+): instruction is MergeRowCommand<TData> {
   return !!instruction && Array.isArray(instruction.$$merge);
 }
 
-export type MergeAllInstruction<
+export type MergeAllCommand<
   TData extends any = any,
 > = {
   $$mergeAll: UpdatePayload<TData>;
 };
 
-export function isMergeAllInstruction<
+export function isMergeAllCommand<
   TData extends any = any,
 >(
   instruction: any,
-): instruction is MergeAllInstruction<TData> {
+): instruction is MergeAllCommand<TData> {
   return !!instruction && instruction.$$mergeAll !== undefined;
 }
 
-export type ReplaceInstruction<
+export type ReplaceCommand<
   TData extends any = any,
 > = {
   $$replace: { [key: number]: TData } & { [ket in keyof TData]?: never };
 };
 
-export function isReplaceInstruction<
+export function isReplaceCommand<
   TData extends any = any,
 >(
   instruction: any,
-): instruction is ReplaceInstruction<TData> {
+): instruction is ReplaceCommand<TData> {
   return !!instruction && instruction.$$replace && typeof instruction.$$replace === 'object' && !Array.isArray(instruction.$$replace);
 }
 
-export type ReplaceRowInstruction<
+export type ReplaceRowCommand<
   TData extends any = any,
 > = {
   $$replace: TData[];
   at?: undefined | null | number;
 };
 
-export function isReplaceRowInstruction<
+export function isReplaceRowCommand<
   TData extends any = any,
 >(
   instruction: any,
-): instruction is ReplaceRowInstruction<TData> {
+): instruction is ReplaceRowCommand<TData> {
   return !!instruction && Array.isArray(instruction.$$replace);
 }
 
-export type ReplaceAllInstruction<
+export type ReplaceAllCommand<
   TData extends any = any,
 > = {
   $$replaceAll: TData;
 };
 
-export function isReplaceAllInstruction<
+export function isReplaceAllCommand<
   TData extends any = any,
 >(
   instruction: any,
-): instruction is ReplaceAllInstruction<TData> {
+): instruction is ReplaceAllCommand<TData> {
   return !!instruction && instruction.$$replaceAll !== undefined;
 }

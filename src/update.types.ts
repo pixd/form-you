@@ -1,8 +1,8 @@
 import { AnyPath, NodeValue, PossiblePath, PossibleValue } from './path.types';
-import { SetInstruction, UnsetInstruction, DeleteInstruction, AppendInstruction, ExcludeInstruction, ExcludeRowInstruction,
-  ExtractInstruction, ExtractRowInstruction, MergeAllInstruction, MergeRowInstruction, MergeInstruction, MoveInstruction,
-  PrependInstruction, ReplaceAllInstruction, ReplaceRowInstruction, ReplaceInstruction,
-  SwapInstruction } from './update-instruction';
+import { SetCommand, UnsetCommand, DeleteCommand, AppendCommand, ExcludeCommand, ExcludeRowCommand,
+  ExtractCommand, ExtractRowCommand, MergeAllCommand, MergeRowCommand, MergeCommand, MoveCommand,
+  PrependCommand, ReplaceAllCommand, ReplaceRowCommand, ReplaceCommand,
+  SwapCommand } from './update-command';
 
 type Controls = {
   $$set?: never;
@@ -32,7 +32,7 @@ type PreventControls<
 
 type Set<
   TData extends any,
-> = SetInstruction<TData> & { $$unset?: never; $$delete?: never; id?: never; [key: number]: never } & (
+> = SetCommand<TData> & { $$unset?: never; $$delete?: never; id?: never; [key: number]: never } & (
   Exclude<TData, undefined> extends Record<string, any>
     ? { [TKey in keyof TData]?: never }
     : Record<string, any>
@@ -40,7 +40,7 @@ type Set<
 
 type Unset<
   TData extends any,
-> = UnsetInstruction & { $$set?: never; $$delete?: never; [key: number]: never } & (
+> = UnsetCommand & { $$set?: never; $$delete?: never; [key: number]: never } & (
   Exclude<TData, undefined> extends Record<string, any>
     ? { [TKey in keyof TData]?: never }
     : Record<string, any>
@@ -48,7 +48,7 @@ type Unset<
 
 type Delete<
   TData extends any,
-> = DeleteInstruction & { $$set?: never; $$unset?: never; [key: number]: never } & (
+> = DeleteCommand & { $$set?: never; $$unset?: never; [key: number]: never } & (
   Exclude<TData, undefined> extends Record<string, any>
     ? { [TKey in keyof TData]?: never }
     : Record<string, any>
@@ -61,20 +61,20 @@ export type UpdatePayload<
     ?
       | I[]
       | PreventControls<{ [key in number]: I }> & { [ket in keyof I]?: never }
-      | PreventControls<AppendInstruction<I>>
-      | PreventControls<PrependInstruction<I>>
-      | PreventControls<ExcludeInstruction>
-      | PreventControls<ExcludeRowInstruction>
-      | PreventControls<ExtractInstruction>
-      | PreventControls<ExtractRowInstruction>
-      | PreventControls<MoveInstruction>
-      | PreventControls<SwapInstruction>
-      | PreventControls<MergeInstruction<I>>
-      | PreventControls<MergeRowInstruction<I>>
-      | PreventControls<MergeAllInstruction<I>>
-      | PreventControls<ReplaceInstruction<I>>
-      | PreventControls<ReplaceRowInstruction<I>>
-      | PreventControls<ReplaceAllInstruction<I>>
+      | PreventControls<AppendCommand<I>>
+      | PreventControls<PrependCommand<I>>
+      | PreventControls<ExcludeCommand>
+      | PreventControls<ExcludeRowCommand>
+      | PreventControls<ExtractCommand>
+      | PreventControls<ExtractRowCommand>
+      | PreventControls<MoveCommand>
+      | PreventControls<SwapCommand>
+      | PreventControls<MergeCommand<I>>
+      | PreventControls<MergeRowCommand<I>>
+      | PreventControls<MergeAllCommand<I>>
+      | PreventControls<ReplaceCommand<I>>
+      | PreventControls<ReplaceRowCommand<I>>
+      | PreventControls<ReplaceAllCommand<I>>
     : TData extends Record<string, any>
       ? { [TKey in keyof TData]?: undefined extends TData[TKey]
           ? Unset<TData[TKey]> | Delete<TData[TKey]> | UpdatePayload<TData[TKey]>

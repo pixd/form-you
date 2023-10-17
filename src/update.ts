@@ -1,10 +1,10 @@
 import { AnyPath, NodeValue, PossiblePath, PossibleValue } from './path.types';
 import { AnyPathUpdateInstruction, CommonPathUpdateInstruction, RootPathUpdateInstruction,
   UpdatePayload } from './update.types';
-import { isSetInstruction, isUnsetInstruction, isDeleteInstruction, isPrependInstruction, isAppendInstruction,
-  isExcludeInstruction, isExcludeRowInstruction, isExtractInstruction, isExtractRowInstruction, isMoveInstruction,
-  isSwapInstruction, isMergeInstruction, isMergeRowInstruction, isMergeAllInstruction, isReplaceInstruction,
-  isReplaceRowInstruction, isReplaceAllInstruction } from './update-instruction';
+import { isSetCommand, isUnsetCommand, isDeleteCommand, isPrependCommand, isAppendCommand,
+  isExcludeCommand, isExcludeRowCommand, isExtractCommand, isExtractRowCommand, isMoveCommand,
+  isSwapCommand, isMergeCommand, isMergeRowCommand, isMergeAllCommand, isReplaceCommand,
+  isReplaceRowCommand, isReplaceAllCommand } from './update-command';
 
 export function updateWithInstruction<
   TData extends Record<string, any> = Record<string, any>,
@@ -70,10 +70,10 @@ export function updateAtPath(
       const nextData = Array.isArray(data) ? [...data] : { ...data };
       const key = anyPath[0];
 
-      if (anyPath.length === 1 && isUnsetInstruction(updatePayload)) {
+      if (anyPath.length === 1 && isUnsetCommand(updatePayload)) {
         nextData[key] = undefined;
       }
-      else if (anyPath.length === 1 && isDeleteInstruction(updatePayload)) {
+      else if (anyPath.length === 1 && isDeleteCommand(updatePayload)) {
         delete nextData[key];
       }
       else {
@@ -103,16 +103,16 @@ export function update(
     return updatePayload;
   }
   else if (updatePayload && typeof updatePayload === 'object') {
-    if (isSetInstruction(updatePayload)) {
+    if (isSetCommand(updatePayload)) {
       return updatePayload.$$set;
     }
-    else if (isUnsetInstruction(updatePayload)) {
+    else if (isUnsetCommand(updatePayload)) {
       throw new Error('$$unset instruction can not be used in update method');
     }
-    else if (isDeleteInstruction(updatePayload)) {
+    else if (isDeleteCommand(updatePayload)) {
       throw new Error('$$delete instruction can not be used in update method');
     }
-    else if (isPrependInstruction(updatePayload)) {
+    else if (isPrependCommand(updatePayload)) {
       if (Array.isArray(data)) {
         const skip = Math.max(0, updatePayload.skip ?? 0);
         const nextData = [...data];
@@ -129,7 +129,7 @@ export function update(
         return data;
       }
     }
-    else if (isAppendInstruction(updatePayload)) {
+    else if (isAppendCommand(updatePayload)) {
       if (Array.isArray(data)) {
         const skip = Math.max(0, updatePayload.skip ?? 0);
         const nextData = [...data];
@@ -140,7 +140,7 @@ export function update(
         return data;
       }
     }
-    else if (isExcludeInstruction(updatePayload)) {
+    else if (isExcludeCommand(updatePayload)) {
       if (Array.isArray(data)) {
         const { $$exclude: exclude } = updatePayload;
         const excludeElement = Symbol();
@@ -159,7 +159,7 @@ export function update(
         return data;
       }
     }
-    else if (isExcludeRowInstruction(updatePayload)) {
+    else if (isExcludeRowCommand(updatePayload)) {
       if (Array.isArray(data)) {
         const { $$exclude: exclude, skip } = updatePayload;
         return excludeElements(data, exclude, skip);
@@ -168,7 +168,7 @@ export function update(
         return data;
       }
     }
-    else if (isExtractInstruction(updatePayload)) {
+    else if (isExtractCommand(updatePayload)) {
       if (Array.isArray(data)) {
         const { $$extract: extract } = updatePayload;
         const extractElement = Symbol();
@@ -188,7 +188,7 @@ export function update(
         return data;
       }
     }
-    else if (isExtractRowInstruction(updatePayload)) {
+    else if (isExtractRowCommand(updatePayload)) {
       if (Array.isArray(data)) {
         const { $$extract: extract, skip } = updatePayload;
         return extractElements(data, extract, skip);
@@ -197,7 +197,7 @@ export function update(
         return data;
       }
     }
-    else if (isMoveInstruction(updatePayload)) {
+    else if (isMoveCommand(updatePayload)) {
       if (Array.isArray(data)) {
         const { $$move: move } = updatePayload;
         return moveElement(move, data);
@@ -206,7 +206,7 @@ export function update(
         return data;
       }
     }
-    else if (isSwapInstruction(updatePayload)) {
+    else if (isSwapCommand(updatePayload)) {
       if (Array.isArray(data)) {
         const { $$swap: swap } = updatePayload;
         return moveElement([swap[1], swap[0]], moveElement(swap, data), true);
@@ -215,7 +215,7 @@ export function update(
         return data;
       }
     }
-    else if (isMergeInstruction(updatePayload)) {
+    else if (isMergeCommand(updatePayload)) {
       if (Array.isArray(data)) {
         const { $$merge: merge } = updatePayload;
         return Object.keys(merge)
@@ -237,7 +237,7 @@ export function update(
         return data;
       }
     }
-    else if (isMergeRowInstruction(updatePayload)) {
+    else if (isMergeRowCommand(updatePayload)) {
       if (Array.isArray(data)) {
         let { $$merge: merge, at } = updatePayload;
         at = at ?? 0;
@@ -269,7 +269,7 @@ export function update(
         return data;
       }
     }
-    else if (isMergeAllInstruction(updatePayload)) {
+    else if (isMergeAllCommand(updatePayload)) {
       if (Array.isArray(data)) {
         const { $$mergeAll: mergeAll } = updatePayload;
         return data.map((item) => {
@@ -280,7 +280,7 @@ export function update(
         return data;
       }
     }
-    else if (isReplaceInstruction(updatePayload)) {
+    else if (isReplaceCommand(updatePayload)) {
       if (Array.isArray(data)) {
         const { $$replace: replace } = updatePayload;
         return Object.keys(replace)
@@ -300,7 +300,7 @@ export function update(
         return data;
       }
     }
-    else if (isReplaceRowInstruction(updatePayload)) {
+    else if (isReplaceRowCommand(updatePayload)) {
       if (Array.isArray(data)) {
         let { $$replace: replace, at } = updatePayload;
         at = at ?? 0;
@@ -330,7 +330,7 @@ export function update(
         return data;
       }
     }
-    else if (isReplaceAllInstruction(updatePayload)) {
+    else if (isReplaceAllCommand(updatePayload)) {
       if (Array.isArray(data)) {
         const { $$replaceAll: replaceAll } = updatePayload;
         return data.map((_) => replaceAll);
@@ -528,11 +528,11 @@ function shouldGoFurther(
   key: number | string,
   defaultValue?: { default?: any },
 ): boolean {
-  if (isUnsetInstruction(instruction)) {
+  if (isUnsetCommand(instruction)) {
     data[key] = undefined;
     return false;
   }
-  else if (isDeleteInstruction(instruction)) {
+  else if (isDeleteCommand(instruction)) {
     if (defaultValue && 'default' in defaultValue) {
       data[key] = defaultValue.default;
     }

@@ -1,55 +1,5 @@
 import { update, updateAtPath, updateWithInstruction } from '../src/update';
 
-type Sailor = {
-  name: string;
-  sex: 'm' | 'f';
-  subSailors?: Sailor[];
-};
-
-type Ship = {
-  name: string;
-  year?: number;
-  weight: undefined | number;
-  company: {
-    name: string;
-    address: {
-      city: string;
-      street: undefined | string;
-      house?: number;
-    };
-  };
-  capitan: 'none' | Omit<Sailor, 'subSailors'>;
-  sailors: 'none' | Sailor[];
-  voyages: 'none' | string[];
-};
-
-const ship: Ship = {
-  name: 'Yellow Submarine',
-  year: 1969,
-  weight: undefined,
-  company: {
-    name: 'The Beatles',
-    address: { city: 'Liverpool', street: 'Newcastle Rd', house: 9 },
-  },
-  capitan: 'none',
-  sailors: [
-    {
-      name: 'John',
-      sex: 'm',
-      subSailors: [
-        { name: 'Paul', sex: 'm' },
-        { name: 'Ringo', sex: 'm' },
-        { name: 'George', sex: 'm' },
-      ],
-    },
-    {
-      name: 'Yoko',
-      sex: 'f',
-    },
-  ],
-  voyages: 'none',
-};
-
 describe('update method', () => {
   it('can update objects', () => {
     const user = {
@@ -91,7 +41,7 @@ describe('update method', () => {
     });
   });
 
-  it('remains scalar or array the same', () => {
+  it('remains scalar or array the same with object update command', () => {
     {
       const user = undefined;
 
@@ -1878,132 +1828,521 @@ describe('update method', () => {
 });
 
 describe('updateAtPath', () => {
-  it('Test 1', () => {
-    const nextShip = updateAtPath(ship, 'company', {
-      name: 'test1',
-    });
+  const user = {
+    nick: 'Antonio',
+    bonus: [
+      { num: 1, value: 10 },
+      { num: 2, value: 20 },
+      { num: 3, value: 30 },
+    ],
+  };
 
-    expect(nextShip).toStrictEqual({
-      name: 'Yellow Submarine',
-      year: 1969,
-      company: {
-        name: 'test1',
-        address: {
-          city: 'Liverpool',
-          street: 'Newcastle Rd',
-          house: 9,
-        },
-      },
-      capitan: 'none',
-      sailors: [
-        {
-          name: 'John',
-          sex: 'm',
-          subSailors: [
-            { name: 'Paul', sex: 'm' },
-            { name: 'Ringo', sex: 'm' },
-            { name: 'George', sex: 'm' },
-          ],
-        },
+  it('can update data', () => {
+    const nextUser = updateAtPath(
+      user,
+      'bonus.1',
+      { value: 25 },
+    );
+
+    expect(nextUser).toStrictEqual({
+      nick: 'Antonio',
+      bonus: [
+        { num: 1, value: 10 },
+        { num: 2, value: 25 },
+        { num: 3, value: 30 },
       ],
-      voyages: 'none',
     });
   });
 
-  it('Test 2', () => {
-    const nextShip = updateAtPath(ship, 'sailors.0.subSailors.0', {
-      name: 'test1',
-    });
-
-    expect(nextShip).toStrictEqual({
-      name: 'Yellow Submarine',
-      year: 1969,
-      company: {
-        name: 'The Beatles',
-        address: {
-          city: 'Liverpool',
-          street: 'Newcastle Rd',
-          house: 9,
-        },
+  it('can set data', () => {
+    const nextUser = updateAtPath(
+      user,
+      'bonus.1',
+      {
+        $$set: { num: 102, value: 25 },
       },
-      capitan: 'none',
-      sailors: [
-        {
-          name: 'John',
-          sex: 'm',
-          subSailors: [
-            { name: 'test1', sex: 'm' },
-            { name: 'Ringo', sex: 'm' },
-            { name: 'George', sex: 'm' },
-          ],
-        },
+    );
+
+    expect(nextUser).toStrictEqual({
+      nick: 'Antonio',
+      bonus: [
+        { num: 1, value: 10 },
+        { num: 102, value: 25 },
+        { num: 3, value: 30 },
       ],
-      voyages: 'none',
     });
   });
 
-  it('Test 3', () => {
-    const nextShip = updateAtPath(ship, 'sailors.0.subSailors.0.name', 'test1');
+  it('can append data', () => {
+    const nextUser = updateAtPath(
+      user,
+      'bonus',
+      {
+        $$append: [
+          { num: 4, value: 40 },
+        ],
+      },
+    );
 
-    expect(nextShip).toStrictEqual({
-      name: 'Yellow Submarine',
-      year: 1969,
-      company: {
-        name: 'The Beatles',
-        address: {
-          city: 'Liverpool',
-          street: 'Newcastle Rd',
-          house: 9,
+    expect(nextUser).toStrictEqual({
+      nick: 'Antonio',
+      bonus: [
+        { num: 1, value: 10 },
+        { num: 2, value: 20 },
+        { num: 3, value: 30 },
+        { num: 4, value: 40 },
+      ],
+    });
+  });
+
+  it('can prepend data', () => {
+    const nextUser = updateAtPath(
+      user,
+      'bonus',
+      {
+        $$prepend: [
+          { num: 4, value: 40 },
+        ],
+      },
+    );
+
+    expect(nextUser).toStrictEqual({
+      nick: 'Antonio',
+      bonus: [
+        { num: 4, value: 40 },
+        { num: 1, value: 10 },
+        { num: 2, value: 20 },
+        { num: 3, value: 30 },
+      ],
+    });
+  });
+
+  it('can exclude data', () => {
+    const nextUser = updateAtPath(
+      user,
+      'bonus',
+      {
+        $$exclude: [1],
+      },
+    );
+
+    expect(nextUser).toStrictEqual({
+      nick: 'Antonio',
+      bonus: [
+        { num: 1, value: 10 },
+        { num: 3, value: 30 },
+      ],
+    });
+  });
+
+  it('can extract data', () => {
+    const nextUser = updateAtPath(
+      user,
+      'bonus',
+      {
+        $$extract: [1],
+      },
+    );
+
+    expect(nextUser).toStrictEqual({
+      nick: 'Antonio',
+      bonus: [
+        { num: 2, value: 20 },
+      ],
+    });
+  });
+
+  it('can move data', () => {
+    const nextUser = updateAtPath(
+      user,
+      'bonus',
+      {
+        $$move: [0, 2],
+      },
+    );
+
+    expect(nextUser).toStrictEqual({
+      nick: 'Antonio',
+      bonus: [
+        { num: 2, value: 20 },
+        { num: 3, value: 30 },
+        { num: 1, value: 10 },
+      ],
+    });
+  });
+
+  it('can swap data', () => {
+    const nextUser = updateAtPath(
+      user,
+      'bonus',
+      {
+        $$swap: [0, 2],
+      },
+    );
+
+    expect(nextUser).toStrictEqual({
+      nick: 'Antonio',
+      bonus: [
+        { num: 3, value: 30 },
+        { num: 2, value: 20 },
+        { num: 1, value: 10 },
+      ],
+    });
+  });
+
+  it('can merge data', () => {
+    const nextUser = updateAtPath(
+      user,
+      'bonus',
+      {
+        $$merge: {
+          // TODO Fix eslint rules
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          '1': { value: 70 },
         },
       },
-      capitan: 'none',
-      sailors: [
-        {
-          name: 'John',
-          sex: 'm',
-          subSailors: [
-            { name: 'test1', sex: 'm' },
-            { name: 'Ringo', sex: 'm' },
-            { name: 'George', sex: 'm' },
-          ],
-        },
+    );
+
+    expect(nextUser).toStrictEqual({
+      nick: 'Antonio',
+      bonus: [
+        { num: 1, value: 10 },
+        { num: 2, value: 70 },
+        { num: 3, value: 30 },
       ],
-      voyages: 'none',
+    });
+  });
+
+  it('can merge all data', () => {
+    const nextUser = updateAtPath(
+      user,
+      'bonus',
+      {
+        $$mergeAll: { value: 70 },
+      },
+    );
+
+    expect(nextUser).toStrictEqual({
+      nick: 'Antonio',
+      bonus: [
+        { num: 1, value: 70 },
+        { num: 2, value: 70 },
+        { num: 3, value: 70 },
+      ],
+    });
+  });
+
+  it('can replace data', () => {
+    const nextUser = updateAtPath(
+      user,
+      'bonus',
+      {
+        $$replace: {
+          // TODO Fix eslint rules
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          '1': { num: 7, value: 70 },
+        },
+      },
+    );
+
+    expect(nextUser).toStrictEqual({
+      nick: 'Antonio',
+      bonus: [
+        { num: 1, value: 10 },
+        { num: 7, value: 70 },
+        { num: 3, value: 30 },
+      ],
+    });
+  });
+
+  it('can replace all data', () => {
+    const nextUser = updateAtPath(
+      user,
+      'bonus',
+      {
+        $$replaceAll: { num: 7, value: 70 },
+      },
+    );
+
+    expect(nextUser).toStrictEqual({
+      nick: 'Antonio',
+      bonus: [
+        { num: 7, value: 70 },
+        { num: 7, value: 70 },
+        { num: 7, value: 70 },
+      ],
     });
   });
 });
 
 describe('updateWithInstruction', () => {
-  it('Test 1', () => {
-    const nextShip = updateWithInstruction(ship, {
-      path: 'sailors.0',
-      update: { name: 'test1' },
-    });
+  const user = {
+    nick: 'Antonio',
+    bonus: [
+      { num: 1, value: 10 },
+      { num: 2, value: 20 },
+      { num: 3, value: 30 },
+    ],
+  };
 
-    expect(nextShip).toStrictEqual({
-      name: 'Yellow Submarine',
-      year: 1969,
-      company: {
-        name: 'The Beatles',
-        address: {
-          city: 'Liverpool',
-          street: 'Newcastle Rd',
-          house: 9,
+  it('can update data', () => {
+    const nextUser = updateWithInstruction(
+      user,
+      {
+        path: 'bonus.1',
+        update: { value: 25 },
+      },
+    );
+
+    expect(nextUser).toStrictEqual({
+      nick: 'Antonio',
+      bonus: [
+        { num: 1, value: 10 },
+        { num: 2, value: 25 },
+        { num: 3, value: 30 },
+      ],
+    });
+  });
+
+  it('can set data', () => {
+    const nextUser = updateWithInstruction(
+      user,
+      {
+        path: 'bonus.1',
+        update: {
+          $$set: { num: 102, value: 25 },
         },
       },
-      capitan: 'none',
-      sailors: [
-        {
-          name: 'test1',
-          sex: 'm',
-          subSailors: [
-            { name: 'Paul', sex: 'm' },
-            { name: 'Ringo', sex: 'm' },
-            { name: 'George', sex: 'm' },
+    );
+
+    expect(nextUser).toStrictEqual({
+      nick: 'Antonio',
+      bonus: [
+        { num: 1, value: 10 },
+        { num: 102, value: 25 },
+        { num: 3, value: 30 },
+      ],
+    });
+  });
+
+  it('can append data', () => {
+    const nextUser = updateWithInstruction(
+      user,
+      {
+        path: 'bonus',
+        update: {
+          $$append: [
+            { num: 4, value: 40 },
           ],
         },
+      },
+    );
+
+    expect(nextUser).toStrictEqual({
+      nick: 'Antonio',
+      bonus: [
+        { num: 1, value: 10 },
+        { num: 2, value: 20 },
+        { num: 3, value: 30 },
+        { num: 4, value: 40 },
       ],
-      voyages: 'none',
+    });
+  });
+
+  it('can prepend data', () => {
+    const nextUser = updateWithInstruction(
+      user,
+      {
+        path: 'bonus',
+        update: {
+          $$prepend: [
+            { num: 4, value: 40 },
+          ],
+        },
+      },
+    );
+
+    expect(nextUser).toStrictEqual({
+      nick: 'Antonio',
+      bonus: [
+        { num: 4, value: 40 },
+        { num: 1, value: 10 },
+        { num: 2, value: 20 },
+        { num: 3, value: 30 },
+      ],
+    });
+  });
+
+  it('can exclude data', () => {
+    const nextUser = updateWithInstruction(
+      user,
+      {
+        path: 'bonus',
+        update: {
+          $$exclude: [1],
+        },
+      },
+    );
+
+    expect(nextUser).toStrictEqual({
+      nick: 'Antonio',
+      bonus: [
+        { num: 1, value: 10 },
+        { num: 3, value: 30 },
+      ],
+    });
+  });
+
+  it('can extract data', () => {
+    const nextUser = updateWithInstruction(
+      user,
+      {
+        path: 'bonus',
+        update: {
+          $$extract: [1],
+        },
+      },
+    );
+
+    expect(nextUser).toStrictEqual({
+      nick: 'Antonio',
+      bonus: [
+        { num: 2, value: 20 },
+      ],
+    });
+  });
+
+  it('can move data', () => {
+    const nextUser = updateWithInstruction(
+      user,
+      {
+        path: 'bonus',
+        update: {
+          $$move: [0, 2],
+        },
+      },
+    );
+
+    expect(nextUser).toStrictEqual({
+      nick: 'Antonio',
+      bonus: [
+        { num: 2, value: 20 },
+        { num: 3, value: 30 },
+        { num: 1, value: 10 },
+      ],
+    });
+  });
+
+  it('can swap data', () => {
+    const nextUser = updateWithInstruction(
+      user,
+      {
+        path: 'bonus',
+        update: {
+          $$swap: [0, 2],
+        },
+      },
+    );
+
+    expect(nextUser).toStrictEqual({
+      nick: 'Antonio',
+      bonus: [
+        { num: 3, value: 30 },
+        { num: 2, value: 20 },
+        { num: 1, value: 10 },
+      ],
+    });
+  });
+
+  it('can merge data', () => {
+    const nextUser = updateWithInstruction(
+      user,
+      {
+        path: 'bonus',
+        update: {
+          $$merge: {
+            // TODO Fix eslint rules
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            '1': { value: 70 },
+          },
+        },
+      },
+    );
+
+    expect(nextUser).toStrictEqual({
+      nick: 'Antonio',
+      bonus: [
+        { num: 1, value: 10 },
+        { num: 2, value: 70 },
+        { num: 3, value: 30 },
+      ],
+    });
+  });
+
+  it('can merge all data', () => {
+    const nextUser = updateWithInstruction(
+      user,
+      {
+        path: 'bonus',
+        update: {
+          $$mergeAll: { value: 70 },
+        },
+      },
+    );
+
+    expect(nextUser).toStrictEqual({
+      nick: 'Antonio',
+      bonus: [
+        { num: 1, value: 70 },
+        { num: 2, value: 70 },
+        { num: 3, value: 70 },
+      ],
+    });
+  });
+
+  it('can replace data', () => {
+    const nextUser = updateWithInstruction(
+      user,
+      {
+        path: 'bonus',
+        update: {
+          $$replace: {
+            // TODO Fix eslint rules
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            '1': { num: 7, value: 70 },
+          },
+        },
+      },
+    );
+
+    expect(nextUser).toStrictEqual({
+      nick: 'Antonio',
+      bonus: [
+        { num: 1, value: 10 },
+        { num: 7, value: 70 },
+        { num: 3, value: 30 },
+      ],
+    });
+  });
+
+  it('can replace all data', () => {
+    const nextUser = updateWithInstruction(
+      user,
+      {
+        path: 'bonus',
+        update: {
+          $$replaceAll: { num: 7, value: 70 },
+        },
+      },
+    );
+
+    expect(nextUser).toStrictEqual({
+      nick: 'Antonio',
+      bonus: [
+        { num: 7, value: 70 },
+        { num: 7, value: 70 },
+        { num: 7, value: 70 },
+      ],
     });
   });
 });

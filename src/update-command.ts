@@ -15,23 +15,23 @@ export function isSetCommand<
 }
 
 export type UnsetCommand = {
-  $$unset: true;
+  $$unset: boolean;
 }
 
 export function isUnsetCommand(
   instruction: any,
 ): instruction is UnsetCommand {
-  return !!instruction && instruction.$$unset;
+  return !!instruction && typeof instruction.$$unset === 'boolean';
 }
 
 export type DeleteCommand = {
-  $$delete: true;
+  $$delete: boolean;
 }
 
 export function isDeleteCommand(
   instruction: any,
 ): instruction is DeleteCommand {
-  return !!instruction && instruction.$$delete;
+  return !!instruction && typeof instruction.$$delete === 'boolean';
 }
 
 export type AppendCommand<
@@ -129,7 +129,8 @@ export function isSwapCommand(
 export type MergeCommand<
   TData extends any = any,
 > = {
-  $$merge: { [key: number]: UpdatePayload<TData> } & { [ket in keyof TData]?: never };
+  $$merge: UpdatePayload<TData>[];
+  at?: undefined | null | number;
 };
 
 export function isMergeCommand<
@@ -137,21 +138,6 @@ export function isMergeCommand<
 >(
   instruction: any,
 ): instruction is MergeCommand<TData> {
-  return !!instruction && instruction.$$merge && typeof instruction.$$merge === 'object' && !Array.isArray(instruction.$$merge);
-}
-
-export type MergeRowCommand<
-  TData extends any = any,
-> = {
-  $$merge: UpdatePayload<TData>[];
-  at?: undefined | null | number;
-};
-
-export function isMergeRowCommand<
-  TData extends any = any,
->(
-  instruction: any,
-): instruction is MergeRowCommand<TData> {
   return !!instruction && Array.isArray(instruction.$$merge);
 }
 
@@ -167,47 +153,4 @@ export function isMergeAllCommand<
   instruction: any,
 ): instruction is MergeAllCommand<TData> {
   return !!instruction && instruction.$$mergeAll !== undefined;
-}
-
-export type ReplaceCommand<
-  TData extends any = any,
-> = {
-  $$replace: { [key: number]: TData } & { [ket in keyof TData]?: never };
-};
-
-export function isReplaceCommand<
-  TData extends any = any,
->(
-  instruction: any,
-): instruction is ReplaceCommand<TData> {
-  return !!instruction && instruction.$$replace && typeof instruction.$$replace === 'object' && !Array.isArray(instruction.$$replace);
-}
-
-export type ReplaceRowCommand<
-  TData extends any = any,
-> = {
-  $$replace: TData[];
-  at?: undefined | null | number;
-};
-
-export function isReplaceRowCommand<
-  TData extends any = any,
->(
-  instruction: any,
-): instruction is ReplaceRowCommand<TData> {
-  return !!instruction && Array.isArray(instruction.$$replace);
-}
-
-export type ReplaceAllCommand<
-  TData extends any = any,
-> = {
-  $$replaceAll: TData;
-};
-
-export function isReplaceAllCommand<
-  TData extends any = any,
->(
-  instruction: any,
-): instruction is ReplaceAllCommand<TData> {
-  return !!instruction && instruction.$$replaceAll !== undefined;
 }

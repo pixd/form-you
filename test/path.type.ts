@@ -12,6 +12,9 @@ import { expect, PASSED } from './tools/noop';
       category: {
         id: number;
       };
+      brand?: {
+        id: number;
+      };
       settings: ['on' | 'off', 'dark' | 'light'];
       tags: string[];
       sort?: number;
@@ -22,11 +25,23 @@ import { expect, PASSED } from './tools/noop';
     const name = getAtPath(product, 'name');
     expect.equal<typeof name, string>(PASSED);
 
+    const unknownNameProp = getAtPath(product, 'name.abc');
+    expect.equal<typeof unknownNameProp, never>(PASSED);
+
+    const lengthNameProp = getAtPath(product, 'name.length');
+    expect.equal<typeof lengthNameProp, never>(PASSED);
+
     const category = getAtPath(product, 'category');
     expect.equal<typeof category, { id: number }>(PASSED);
 
     const categoryId = getAtPath(product, 'category.id');
     expect.equal<typeof categoryId, number>(PASSED);
+
+    const brand = getAtPath(product, 'brand');
+    expect.equal<typeof brand, undefined | { id: number }>(PASSED);
+
+    const brandId = getAtPath(product, 'brand.id');
+    expect.equal<typeof brandId, number>(PASSED);
 
     const settings = getAtPath(product, 'settings');
     expect.equal<typeof settings, ['on' | 'off', 'dark' | 'light']>(PASSED);
@@ -53,10 +68,10 @@ import { expect, PASSED } from './tools/noop';
     expect.equal<typeof tags, string[]>(PASSED);
 
     const firstTag = getAtPath(product, 'tags.0');
-    expect.equal<typeof firstTag, undefined | string>(PASSED);
+    expect.equal<typeof firstTag, string>(PASSED);
 
     const secondTag = getAtPath(product, 'tags.1');
-    expect.equal<typeof secondTag, undefined | string>(PASSED);
+    expect.equal<typeof secondTag, string>(PASSED);
 
     const unknownTag = getAtPath(product, 'tags.abc');
     expect.equal<typeof unknownTag, unknown>(PASSED);
@@ -90,7 +105,7 @@ import { expect, PASSED } from './tools/noop';
     expect.equal<typeof innerEmpty, number>(PASSED);
 
     const nonexistentEmpty = getAtPath(emptyPropNameTest, 'inner..');
-    expect.equal<typeof nonexistentEmpty, unknown>(PASSED);
+    expect.equal<typeof nonexistentEmpty, never>(PASSED);
   }
 
   {
@@ -108,7 +123,7 @@ import { expect, PASSED } from './tools/noop';
     expect.equal<typeof innerEmpty, number>(PASSED);
 
     const nonexistentEmpty = getAtPath(emptyPropNameTest, '..');
-    expect.equal<typeof nonexistentEmpty, unknown>(PASSED);
+    expect.equal<typeof nonexistentEmpty, never>(PASSED);
   }
 
   {
@@ -129,7 +144,7 @@ import { expect, PASSED } from './tools/noop';
     expect.equal<typeof innerEmpty, number>(PASSED);
 
     const nonexistentEmpty = getAtPath(emptyPropNameTest, '...');
-    expect.equal<typeof nonexistentEmpty, unknown>(PASSED);
+    expect.equal<typeof nonexistentEmpty, never>(PASSED);
   }
 }
 
@@ -266,6 +281,9 @@ import { expect, PASSED } from './tools/noop';
       category: {
         id: number;
       };
+      brand?: {
+        id: number;
+      };
       settings: ['on' | 'off', 'dark' | 'light'];
       tags: string[];
       sort?: number;
@@ -275,6 +293,8 @@ import { expect, PASSED } from './tools/noop';
     expect.equal<NodeValue<Product, 'name'>, string>(PASSED);
     expect.equal<NodeValue<Product, 'category'>, { id: number }>(PASSED);
     expect.equal<NodeValue<Product, 'category.id'>, number>(PASSED);
+    expect.equal<NodeValue<Product, 'brand'>, undefined | { id: number }>(PASSED);
+    expect.equal<NodeValue<Product, 'brand.id'>, number>(PASSED);
     expect.equal<NodeValue<Product, 'settings'>, ['on' | 'off', 'dark' | 'light']>(PASSED);
     expect.equal<NodeValue<Product, 'settings.0'>, 'on' | 'off'>(PASSED);
     expect.equal<NodeValue<Product, 'settings.1'>, 'dark' | 'light'>(PASSED);
@@ -295,8 +315,8 @@ import { expect, PASSED } from './tools/noop';
       PASSED,
     );
     expect.equal<NodeValue<Product, 'tags'>, string[]>(PASSED);
-    expect.equal<NodeValue<Product, 'tags.0'>, undefined | string>(PASSED);
-    expect.equal<NodeValue<Product, 'tags.1'>, undefined | string>(PASSED);
+    expect.equal<NodeValue<Product, 'tags.0'>, string>(PASSED);
+    expect.equal<NodeValue<Product, 'tags.1'>, string>(PASSED);
     // @ts-expect-error
     expect.equal<NodeValue<Product, 'tags.abc'>, unknown>(
       PASSED,
@@ -331,7 +351,7 @@ import { expect, PASSED } from './tools/noop';
     expect.equal<NodeValue<EmptyPropNameTest, 'inner.'>, number>(PASSED);
 
     // @ts-expect-error
-    expect.equal<NodeValue<EmptyPropNameTest, 'inner..'>, unknown>(
+    expect.equal<NodeValue<EmptyPropNameTest, 'inner..'>, never>(
       PASSED,
     );
   }
@@ -348,7 +368,7 @@ import { expect, PASSED } from './tools/noop';
     expect.equal<NodeValue<EmptyPropNameTest, '.'>, number>(PASSED);
 
     // @ts-expect-error
-    expect.equal<NodeValue<EmptyPropNameTest, '..'>, unknown>(
+    expect.equal<NodeValue<EmptyPropNameTest, '..'>, never>(
       PASSED,
     );
   }
@@ -368,7 +388,7 @@ import { expect, PASSED } from './tools/noop';
     expect.equal<NodeValue<EmptyPropNameTest, '..'>, number>(PASSED);
 
     // @ts-expect-error
-    expect.equal<NodeValue<EmptyPropNameTest, '...'>, unknown>(
+    expect.equal<NodeValue<EmptyPropNameTest, '...'>, never>(
       PASSED,
     );
   }

@@ -1,10 +1,10 @@
 import { AnyPath, NodeValue, PossiblePath, PossibleValue } from './path.types';
-import { AnyPathUpdateInstruction, CommonPathUpdateInstruction, RootPathUpdateInstruction,
-  UpdatePayload } from './update.types';
-import { isSetCommand, isUnsetCommand, isDeleteCommand, isPrependCommand, isAppendCommand,
-  isExcludeCommand, isExcludeRowCommand, isExtractCommand, isExtractRowCommand, isMoveCommand,
-  isSwapCommand, isMergeCommand, isMergeRowCommand, isMergeAllCommand, isReplaceCommand,
-  isReplaceRowCommand, isReplaceAllCommand } from './update-command';
+import { AnyPathUpdateInstruction, CommonPathUpdateInstruction,
+  RootPathUpdateInstruction, UpdatePayload } from './update.types';
+import { isSetCommand, isUnsetCommand, isDeleteCommand, isPrependCommand,
+  isAppendCommand, isExcludeCommand, isExcludeRowCommand, isExtractCommand,
+  isExtractRowCommand, isMoveCommand, isSwapCommand, isMergeCommand,
+  isMergeAllCommand } from './update-command';
 
 export function updateWithInstruction<
   TData extends Record<string, any> = Record<string, any>,
@@ -107,10 +107,15 @@ export function update(
       return updatePayload.$$set;
     }
     else if (isUnsetCommand(updatePayload)) {
-      throw new Error('$$unset instruction can not be used in update method');
+      if (updatePayload.$$unset) {
+        return undefined;
+      }
+      else {
+        return data;
+      }
     }
     else if (isDeleteCommand(updatePayload)) {
-      throw new Error('$$delete instruction can not be used in update method');
+      throw new Error('$$delete command can not be used in update method');
     }
     else if (isPrependCommand(updatePayload)) {
       if (Array.isArray(data)) {
@@ -143,7 +148,7 @@ export function update(
     else if (isExcludeCommand(updatePayload)) {
       if (Array.isArray(data)) {
         const { $$exclude: exclude } = updatePayload;
-        const excludeElement = Symbol();
+        const excludeElement = Symbol('excludeElement');
 
         const nextArray = [...data];
         exclude.forEach((key) => {
@@ -162,7 +167,17 @@ export function update(
     else if (isExcludeRowCommand(updatePayload)) {
       if (Array.isArray(data)) {
         const { $$exclude: exclude, skip } = updatePayload;
-        return excludeElements(data, exclude, skip);
+        const nextData = [...data];
+
+        const startEndIndex = getStartEndIndex(data.length, exclude, skip ?? 0, [], nextData);
+
+        if (Array.isArray(startEndIndex)) {
+          return startEndIndex;
+        }
+        else {
+          nextData.splice(startEndIndex.start, startEndIndex.end - startEndIndex.start + 1);
+          return nextData;
+        }
       }
       else {
         return data;
@@ -171,7 +186,7 @@ export function update(
     else if (isExtractCommand(updatePayload)) {
       if (Array.isArray(data)) {
         const { $$extract: extract } = updatePayload;
-        const extractElement = Symbol();
+        const extractElement = Symbol('extractElement');
 
         const nextArray = [...data];
         extract.forEach((key) => {
@@ -191,7 +206,16 @@ export function update(
     else if (isExtractRowCommand(updatePayload)) {
       if (Array.isArray(data)) {
         const { $$extract: extract, skip } = updatePayload;
-        return extractElements(data, extract, skip);
+        const nextData = [...data];
+
+        const startEndIndex = getStartEndIndex(data.length, extract, skip ?? 0, nextData, []);
+
+        if (Array.isArray(startEndIndex)) {
+          return startEndIndex;
+        }
+        else {
+          return nextData.slice(startEndIndex.start, startEndIndex.end + 1);
+        }
       }
       else {
         return data;
@@ -216,28 +240,6 @@ export function update(
       }
     }
     else if (isMergeCommand(updatePayload)) {
-      if (Array.isArray(data)) {
-        const { $$merge: merge } = updatePayload;
-        return Object.keys(merge)
-          .filter((index) => (String(Number(index)) === index && Number(index) >= 0))
-          .map((index) => Number(index))
-          .reduce((data, index) => {
-            if (data.length - 1 < index) {
-              return data;
-            }
-            else {
-              if (shouldGoFurther(merge[index], data, index)) {
-                data[index] = update(data[index], merge[index]);
-              }
-              return data;
-            }
-          }, [...data]);
-      }
-      else {
-        return data;
-      }
-    }
-    else if (isMergeRowCommand(updatePayload)) {
       if (Array.isArray(data)) {
         let { $$merge: merge, at } = updatePayload;
         at = at ?? 0;
@@ -280,87 +282,33 @@ export function update(
         return data;
       }
     }
-    else if (isReplaceCommand(updatePayload)) {
-      if (Array.isArray(data)) {
-        const { $$replace: replace } = updatePayload;
-        return Object.keys(replace)
-          .filter((index) => (String(Number(index)) === index && Number(index) >= 0))
-          .map((index) => Number(index))
-          .reduce((data, index) => {
-            if (data.length - 1 < index) {
-              return data;
-            }
-            else {
-              data[index] = replace[index];
-              return data;
-            }
-          }, [...data]);
-      }
-      else {
-        return data;
-      }
-    }
-    else if (isReplaceRowCommand(updatePayload)) {
-      if (Array.isArray(data)) {
-        let { $$replace: replace, at } = updatePayload;
-        at = at ?? 0;
-
-        let startIndex = at >= 0 ? at : data.length + at;
-        if (startIndex < 0) {
-          replace = replace.slice(-startIndex);
-          startIndex = 0;
-        }
-
-        const nextData = [...data];
-
-        replace.some((mergeItemInstruction, index) => {
-          const dataIndex = startIndex + index;
-          if (dataIndex > nextData.length - 1) {
-            return true;
-          }
-          else {
-            nextData[dataIndex] = mergeItemInstruction;
-            return false;
-          }
-        });
-
-        return nextData;
-      }
-      else {
-        return data;
-      }
-    }
-    else if (isReplaceAllCommand(updatePayload)) {
-      if (Array.isArray(data)) {
-        const { $$replaceAll: replaceAll } = updatePayload;
-        return data.map((_) => replaceAll);
-      }
-      else {
-        return data;
-      }
-    }
     else {
-      if (Array.isArray(data)) {
-        return data;
-      }
-      else if (data && typeof data === 'object') {
-        return Object.keys(updatePayload)
-          .reduce((data, key) => {
-            if (shouldGoFurther(updatePayload[key], data, key)) {
-              if (updatePayload[key] && typeof updatePayload[key] === 'object') {
-                if (key in data) {
-                  data[key] = update(data[key], updatePayload[key]);
-                }
-              }
-              else {
+      if (data && typeof data === 'object') {
+        if (Array.isArray(data)) {
+          const nextData = [...data];
+          const removeElement = Symbol('removeElement');
+          return Object.keys(updatePayload)
+            .reduce((data, key) => {
+              if (shouldGoFurther(updatePayload[key], data, key, { value: removeElement })) {
                 data[key] = update(data[key], updatePayload[key]);
               }
-            }
-            return data;
-          }, { ...data });
+              return data;
+            }, nextData)
+            .filter((element) => element?.value !== removeElement);
+        }
+        else {
+          const nextData = { ...data };
+          return Object.keys(updatePayload)
+            .reduce((data, key) => {
+              if (shouldGoFurther(updatePayload[key], data, key)) {
+                data[key] = update(data[key], updatePayload[key]);
+              }
+              return data;
+            }, nextData);
+        }
       }
       else {
-        return data;
+        return updatePayload;
       }
     }
   }
@@ -483,61 +431,20 @@ function shouldMove(
   }
 }
 
-function excludeElements<T>(
-  data: T[],
-  length: number,
-  skip: undefined | null | number,
-): T[] {
-  skip = skip ?? 0;
-
-  const nextData = [...data];
-
-  const startEndIndex = getStartEndIndex(data.length, length, skip, [], nextData);
-
-  if (Array.isArray(startEndIndex)) {
-    return startEndIndex;
-  }
-  else {
-    nextData.splice(startEndIndex.start, startEndIndex.end - startEndIndex.start + 1);
-    return nextData;
-  }
-}
-
-function extractElements<T>(
-  data: T[],
-  length: number,
-  skip: undefined | null | number,
-): T[] {
-  skip = skip ?? 0;
-
-  const nextData = [...data];
-
-  const startEndIndex = getStartEndIndex(data.length, length, skip, nextData, []);
-
-  if (Array.isArray(startEndIndex)) {
-    return startEndIndex;
-  }
-  else {
-    return nextData.slice(startEndIndex.start, startEndIndex.end + 1);
-  }
-}
-
 function shouldGoFurther(
   instruction: any,
   data: Record<string, any>,
   key: number | string,
-  defaultValue?: { default?: any },
+  defaultValue?: { value: any }
 ): boolean {
-  if (isUnsetCommand(instruction)) {
-    data[key] = undefined;
-    return false;
-  }
-  else if (isDeleteCommand(instruction)) {
-    if (defaultValue && 'default' in defaultValue) {
-      data[key] = defaultValue.default;
-    }
-    else {
-      delete data[key];
+  if (isDeleteCommand(instruction)) {
+    if (instruction.$$delete) {
+      if (defaultValue) {
+        data[key] = defaultValue.value;
+      }
+      else {
+        delete data[key];
+      }
     }
     return false;
   }

@@ -21,7 +21,7 @@ export type AtKey<
 > = TData extends any[]
   ? Extract<keyof TData, `${number}` | number> extends number
     ? TKey extends `${number}`
-      ? undefined | TData[number]
+      ? TData[number]
       : unknown
     : Extract<keyof TData, `${number}` | number> extends number | string
       ? TKey extends Extract<keyof TData, `${number}`>
@@ -84,5 +84,5 @@ export type NodeValue<
   TData extends Record<string, any>,
   TPath extends PossiblePath<TData>,
 > = TPath extends `${infer TKey}.${infer TKeyRest}`
-  ? AtPath<AtKey<TData, TKey>, TKeyRest>
-  : AtKey<TData, TPath>;
+  ? AtPath<AtKey<Extract<TData, Record<string, any>>, TKey>, TKeyRest>
+  : AtKey<Extract<TData, Record<string, any>>, TPath>;

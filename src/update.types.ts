@@ -1,8 +1,31 @@
 import { AnyPath, NodeValue, PossiblePath, PossibleValue } from './path.types';
-import { SetCommand, UnsetCommand, DeleteCommand, AppendCommand, ExcludeCommand, ExcludeRowCommand,
-  ExtractCommand, ExtractRowCommand, MergeAllCommand, MergeRowCommand, MergeCommand, MoveCommand,
-  PrependCommand, ReplaceAllCommand, ReplaceRowCommand, ReplaceCommand,
-  SwapCommand } from './update-command';
+import { SetCommand, UnsetCommand, DeleteCommand, AppendCommand,
+  ExcludeCommand, ExcludeRowCommand, ExtractCommand, ExtractRowCommand,
+  MergeCommand, MergeAllCommand, MoveCommand, PrependCommand, SwapCommand } from './update-command';
+
+type CanBeDeletedKeys<
+  TData extends any,
+> = {
+  [K in keyof TData]-?: TData extends Record<K, TData[K]>
+    ? never
+    : K
+}[keyof TData]
+
+type CanBeUnsettedKeys<
+  TData extends any,
+> = {
+  [K in keyof TData]-?: undefined | TData[K] extends Required<TData>[K]
+    ? K
+    : never
+}[keyof TData]
+
+type GetCommand<
+  TCommand extends any,
+  TKey extends number | string | symbol,
+  TAcceptableKey extends number | string | symbol,
+> = TKey extends TAcceptableKey
+  ? TCommand
+  : never;
 
 type Controls = {
   $$set?: never;
@@ -32,27 +55,33 @@ type PreventControls<
 
 type Set<
   TData extends any,
-> = SetCommand<TData> & { $$unset?: never; $$delete?: never; id?: never; [key: number]: never } & (
-  Exclude<TData, undefined> extends Record<string, any>
-    ? { [TKey in keyof TData]?: never }
-    : Record<string, any>
-);
+> = SetCommand<undefined extends TData ? TData : TData> // I don't know why, but this fixes the test: update(product, { $$set: undefined })
+  & { $$unset?: never; $$delete?: never; [key: number]: never }
+  & (
+    Exclude<TData, undefined> extends Record<string, any>
+      ? { [TKey in keyof TData]?: never }
+      : {}
+  );
 
 type Unset<
   TData extends any,
-> = UnsetCommand & { $$set?: never; $$delete?: never; [key: number]: never } & (
-  Exclude<TData, undefined> extends Record<string, any>
-    ? { [TKey in keyof TData]?: never }
-    : Record<string, any>
-);
+> = UnsetCommand
+  & { $$set?: never; $$delete?: never; [key: number]: never }
+  & (
+    Exclude<TData, undefined> extends Record<string, any>
+      ? { [TKey in keyof TData]?: never }
+      : {}
+  );
 
 type Delete<
   TData extends any,
-> = DeleteCommand & { $$set?: never; $$unset?: never; [key: number]: never } & (
-  Exclude<TData, undefined> extends Record<string, any>
-    ? { [TKey in keyof TData]?: never }
-    : Record<string, any>
-);
+> = DeleteCommand
+  & { $$set?: never; $$unset?: never; [key: number]: never }
+  & (
+    Exclude<TData, undefined> extends Record<string, any>
+      ? { [TKey in keyof TData]?: never }
+      : {}
+  );
 
 export type UpdatePayload<
   TData extends any,
@@ -60,7 +89,7 @@ export type UpdatePayload<
   TData extends (infer I)[]
     ?
       | I[]
-      | PreventControls<{ [key in number]: I }> & { [ket in keyof I]?: never }
+      | PreventControls<{ [key in number]: UpdatePayload<I> } & { [ket in keyof I]?: never }>
       | PreventControls<AppendCommand<I>>
       | PreventControls<PrependCommand<I>>
       | PreventControls<ExcludeCommand>
@@ -70,14 +99,13 @@ export type UpdatePayload<
       | PreventControls<MoveCommand>
       | PreventControls<SwapCommand>
       | PreventControls<MergeCommand<I>>
-      | PreventControls<MergeRowCommand<I>>
       | PreventControls<MergeAllCommand<I>>
-      | PreventControls<ReplaceCommand<I>>
-      | PreventControls<ReplaceRowCommand<I>>
-      | PreventControls<ReplaceAllCommand<I>>
     : TData extends Record<string, any>
       ? { [TKey in keyof TData]?: undefined extends TData[TKey]
-          ? Unset<TData[TKey]> | Delete<TData[TKey]> | UpdatePayload<TData[TKey]>
+          ?
+            | GetCommand<Unset<TData[TKey]>, TKey, CanBeUnsettedKeys<TData>>
+            | GetCommand<Delete<TData[TKey]>, TKey, CanBeDeletedKeys<TData>>
+            | UpdatePayload<Required<TData>[TKey]>
           : UpdatePayload<TData[TKey]>
         } & { $$set?: never; $$unset?: never; $$delete?: never }
       :

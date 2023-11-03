@@ -7,13 +7,13 @@ describe('update method', () => {
       bonus: 10,
     };
 
-    const nextUser = update(user, {
+    const newUser = update(user, {
       nick: 'Mark',
       // @ts-expect-error
       enabled: true,
     });
 
-    expect(nextUser).toStrictEqual({
+    expect(newUser).toStrictEqual({
       nick: 'Mark',
       bonus: 10,
       enabled: true,
@@ -29,13 +29,13 @@ describe('update method', () => {
       },
     };
 
-    const nextUser = update(user, {
+    const newUser = update(user, {
       friend: {
         nick: 'Juan',
       },
     });
 
-    expect(nextUser).toStrictEqual({
+    expect(newUser).toStrictEqual({
       nick: 'Antonio',
       friend: {
         nick: 'Juan',
@@ -54,14 +54,14 @@ describe('update method', () => {
     };
 
     {
-      const nextUser = update(user, {
+      const newUser = update(user, {
         bonus: {
           '0': { value: 15 },
           '2': { value: 35 },
         },
       });
 
-      expect(nextUser).toStrictEqual({
+      expect(newUser).toStrictEqual({
         nick: 'Antonio',
         bonus: [
           { num: 1, value: 15 },
@@ -93,7 +93,7 @@ describe('update method', () => {
       ],
     };
 
-    const nextUser = update(user, {
+    const newUser = update(user, {
       friends: {
         '0': {
           bonus: {
@@ -103,7 +103,7 @@ describe('update method', () => {
       },
     });
 
-    expect(nextUser).toStrictEqual({
+    expect(newUser).toStrictEqual({
       nick: 'Antonio',
       friends: [
         {
@@ -213,32 +213,67 @@ describe('update method', () => {
       bonus: 10,
     };
 
-    const nextUser = update(user, {
+    const newUser = update(user, {
       nick: { $$set: 'Mark' },
     });
 
-    expect(nextUser).toStrictEqual({
+    expect(newUser).toStrictEqual({
       nick: 'Mark',
       bonus: 10,
     });
   });
 
-  it('use $$set command to update undefined capable values with undefined', () => {
-    const user = {
-      nick: 'Antonio',
-      bonus: 10,
-    };
+  it('ignore { $$set: undefined } commands', () => {
+    {
+      const user = {
+        nick: 'Antonio',
+        bonus: 10,
+      };
 
-    const nextUser = update(
-      user,
-      // @ts-expect-error
-      { bonus: { $$set: undefined } },
-    );
+      const newUser = update(
+        user,
+        { bonus: { $$set: undefined } },
+      );
 
-    expect(nextUser).toStrictEqual({
-      nick: 'Antonio',
-      bonus: undefined,
-    });
+      expect(newUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: {},
+      });
+    }
+
+    {
+      const user = {
+        nick: 'Antonio',
+        bonus: { value: 10 },
+      };
+
+      const newUser = update(
+        user,
+        { bonus: { $$set: undefined } },
+      );
+
+      expect(newUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: { value: 10 },
+      });
+    }
+
+    {
+      const user = {
+        nick: 'Antonio',
+        bonus: { value: 10 },
+      };
+
+      const newUser = update(
+        user,
+        { bonus: { $$set: undefined, value: 20 } },
+      );
+
+      expect(newUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: { value: 20 },
+      });
+    }
   });
 
   it('use $$unset command to update undefined capable values with undefined', () => {
@@ -248,13 +283,13 @@ describe('update method', () => {
         bonus: 10,
       };
 
-      const nextUser = update(
+      const newUser = update(
         user,
         // @ts-expect-error
         { bonus: { $$unset: true } },
       );
 
-      expect(nextUser).toStrictEqual({
+      expect(newUser).toStrictEqual({
         nick: 'Antonio',
         bonus: undefined,
       });
@@ -266,15 +301,68 @@ describe('update method', () => {
         bonus: 10,
       };
 
-      const nextUser = update(
+      const newUser = update(
         user,
         // @ts-expect-error
         { bonus: { $$unset: false } },
       );
 
-      expect(nextUser).toStrictEqual({
+      expect(newUser).toStrictEqual({
         nick: 'Antonio',
         bonus: 10,
+      });
+    }
+  });
+
+  it('ignore { $$unset: undefined } commands', () => {
+    {
+      const user = {
+        nick: 'Antonio',
+        bonus: 10,
+      };
+
+      const newUser = update(
+        user,
+        { bonus: { $$unset: undefined } },
+      );
+
+      expect(newUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: {},
+      });
+    }
+
+    {
+      const user = {
+        nick: 'Antonio',
+        bonus: { value: 10 },
+      };
+
+      const newUser = update(
+        user,
+        { bonus: { $$unset: undefined } },
+      );
+
+      expect(newUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: { value: 10 },
+      });
+    }
+
+    {
+      const user = {
+        nick: 'Antonio',
+        bonus: { value: 10 },
+      };
+
+      const newUser = update(
+        user,
+        { bonus: { $$unset: undefined, value: 20 } },
+      );
+
+      expect(newUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: { value: 20 },
       });
     }
   });
@@ -286,13 +374,13 @@ describe('update method', () => {
         bonus: 10,
       };
 
-      const nextUser = update(
+      const newUser = update(
         user,
         // @ts-expect-error
         { bonus: { $$delete: true } },
       );
 
-      expect(nextUser).toStrictEqual({
+      expect(newUser).toStrictEqual({
         nick: 'Antonio',
       });
     }
@@ -303,15 +391,68 @@ describe('update method', () => {
         bonus: 10,
       };
 
-      const nextUser = update(
+      const newUser = update(
         user,
         // @ts-expect-error
         { bonus: { $$delete: false } },
       );
 
-      expect(nextUser).toStrictEqual({
+      expect(newUser).toStrictEqual({
         nick: 'Antonio',
         bonus: 10,
+      });
+    }
+  });
+
+  it('ignore { $$delete: undefined } commands', () => {
+    {
+      const user = {
+        nick: 'Antonio',
+        bonus: 10,
+      };
+
+      const newUser = update(
+        user,
+        { bonus: { $$delete: undefined } },
+      );
+
+      expect(newUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: {},
+      });
+    }
+
+    {
+      const user = {
+        nick: 'Antonio',
+        bonus: { value: 10 },
+      };
+
+      const newUser = update(
+        user,
+        { bonus: { $$delete: undefined } },
+      );
+
+      expect(newUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: { value: 10 },
+      });
+    }
+
+    {
+      const user = {
+        nick: 'Antonio',
+        bonus: { value: 10 },
+      };
+
+      const newUser = update(
+        user,
+        { bonus: { $$delete: undefined, value: 20 } },
+      );
+
+      expect(newUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: { value: 20 },
       });
     }
   });
@@ -377,6 +518,62 @@ describe('update method', () => {
     test([100, 101], Infinity, [100, 101, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
   });
 
+  it('ignore { $$append: undefined } commands', () => {
+    {
+      const user = {
+        nick: 'Antonio',
+        bonus: 10,
+      };
+
+      const newUser = update(
+        user,
+        // @ts-expect-error
+        { bonus: { $$append: undefined } },
+      );
+
+      expect(newUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: {},
+      });
+    }
+
+    {
+      const user = {
+        nick: 'Antonio',
+        bonus: { value: 10 },
+      };
+
+      const newUser = update(
+        user,
+        // @ts-expect-error
+        { bonus: { $$append: undefined } },
+      );
+
+      expect(newUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: { value: 10 },
+      });
+    }
+
+    {
+      const user = {
+        nick: 'Antonio',
+        bonus: { value: 10 },
+      };
+
+      const newUser = update(
+        user,
+        // @ts-expect-error
+        { bonus: { $$append: undefined, value: 20 } },
+      );
+
+      expect(newUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: { value: 20 },
+      });
+    }
+  });
+
   it('use $$prepend command to add elements', () => {
     const user = {
       name: 'Antonio',
@@ -438,6 +635,62 @@ describe('update method', () => {
     test([100, 101], Infinity, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 100, 101]);
   });
 
+  it('ignore { $$prepend: undefined } commands', () => {
+    {
+      const user = {
+        nick: 'Antonio',
+        bonus: 10,
+      };
+
+      const newUser = update(
+        user,
+        // @ts-expect-error
+        { bonus: { $$prepend: undefined } },
+      );
+
+      expect(newUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: {},
+      });
+    }
+
+    {
+      const user = {
+        nick: 'Antonio',
+        bonus: { value: 10 },
+      };
+
+      const newUser = update(
+        user,
+        // @ts-expect-error
+        { bonus: { $$prepend: undefined } },
+      );
+
+      expect(newUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: { value: 10 },
+      });
+    }
+
+    {
+      const user = {
+        nick: 'Antonio',
+        bonus: { value: 10 },
+      };
+
+      const newUser = update(
+        user,
+        // @ts-expect-error
+        { bonus: { $$prepend: undefined, value: 20 } },
+      );
+
+      expect(newUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: { value: 20 },
+      });
+    }
+  });
+
   it('use $$exclude command update arrays', () => {
     const user = {
       name: 'Antonio',
@@ -445,26 +698,26 @@ describe('update method', () => {
     };
 
     {
-      const nextUser = update(user, {
+      const newUser = update(user, {
         bonus: {
           $$exclude: [],
         },
       });
 
-      expect(nextUser).toStrictEqual({
+      expect(newUser).toStrictEqual({
         name: 'Antonio',
         bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
       });
     }
 
     {
-      const nextUser = update(user, {
+      const newUser = update(user, {
         bonus: {
           $$exclude: [0, 2, 4, 100],
         },
       });
 
-      expect(nextUser).toStrictEqual({
+      expect(newUser).toStrictEqual({
         name: 'Antonio',
         bonus: [1, 3, 5, 6, 7, 8, 9],
       });
@@ -482,14 +735,14 @@ describe('update method', () => {
         bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
       };
 
-      const nextUser = update(user, {
+      const newUser = update(user, {
         bonus: {
           $$exclude: 2,
           skip: 1,
         },
       });
 
-      expect(nextUser).toStrictEqual({
+      expect(newUser).toStrictEqual({
         name: 'Antonio',
         bonus: [0, 3, 4, 5, 6, 7, 8, 9],
       });
@@ -557,13 +810,13 @@ describe('update method', () => {
         bonus: undefined,
       };
 
-      const nextUser = update(
+      const newUser = update(
         user,
         // @ts-expect-error
         { bonus: { $$exclude: [0] } },
       );
 
-      expect(nextUser).toStrictEqual({
+      expect(newUser).toStrictEqual({
         name: 'Antonio',
         bonus: undefined,
       });
@@ -575,13 +828,13 @@ describe('update method', () => {
         bonus: null,
       };
 
-      const nextUser = update(
+      const newUser = update(
         user,
         // @ts-expect-error
         { bonus: { $$exclude: [0] } },
       );
 
-      expect(nextUser).toStrictEqual({
+      expect(newUser).toStrictEqual({
         name: 'Antonio',
         bonus: null,
       });
@@ -593,13 +846,13 @@ describe('update method', () => {
         bonus: 10,
       };
 
-      const nextUser = update(
+      const newUser = update(
         user,
         // @ts-expect-error
         { bonus: { $$exclude: [0] } },
       );
 
-      expect(nextUser).toStrictEqual({
+      expect(newUser).toStrictEqual({
         name: 'Antonio',
         bonus: 10,
       });
@@ -611,15 +864,71 @@ describe('update method', () => {
         bonus: { value: 10 },
       };
 
-      const nextUser = update(
+      const newUser = update(
         user,
         // @ts-expect-error
         { bonus: { $$exclude: [0] } },
       );
 
-      expect(nextUser).toStrictEqual({
+      expect(newUser).toStrictEqual({
         name: 'Antonio',
         bonus: { value: 10 },
+      });
+    }
+  });
+
+  it('ignore { $$exclude: undefined } commands', () => {
+    {
+      const user = {
+        nick: 'Antonio',
+        bonus: 10,
+      };
+
+      const newUser = update(
+        user,
+        // @ts-expect-error
+        { bonus: { $$exclude: undefined } },
+      );
+
+      expect(newUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: {},
+      });
+    }
+
+    {
+      const user = {
+        nick: 'Antonio',
+        bonus: { value: 10 },
+      };
+
+      const newUser = update(
+        user,
+        // @ts-expect-error
+        { bonus: { $$exclude: undefined } },
+      );
+
+      expect(newUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: { value: 10 },
+      });
+    }
+
+    {
+      const user = {
+        nick: 'Antonio',
+        bonus: { value: 10 },
+      };
+
+      const newUser = update(
+        user,
+        // @ts-expect-error
+        { bonus: { $$exclude: undefined, value: 20 } },
+      );
+
+      expect(newUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: { value: 20 },
       });
     }
   });
@@ -631,26 +940,26 @@ describe('update method', () => {
     };
 
     {
-      const nextUser = update(user, {
+      const newUser = update(user, {
         bonus: {
           $$extract: [],
         },
       });
 
-      expect(nextUser).toStrictEqual({
+      expect(newUser).toStrictEqual({
         name: 'Antonio',
         bonus: [],
       });
     }
 
     {
-      const nextUser = update(user, {
+      const newUser = update(user, {
         bonus: {
           $$extract: [0, 2, 4, 100],
         },
       });
 
-      expect(nextUser).toStrictEqual({
+      expect(newUser).toStrictEqual({
         name: 'Antonio',
         bonus: [0, 2, 4],
       });
@@ -668,14 +977,14 @@ describe('update method', () => {
         bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
       };
 
-      const nextUser = update(user, {
+      const newUser = update(user, {
         bonus: {
           $$extract: 2,
           skip: 1,
         },
       });
 
-      expect(nextUser).toStrictEqual({
+      expect(newUser).toStrictEqual({
         name: 'Antonio',
         bonus: [1, 2],
       });
@@ -743,13 +1052,13 @@ describe('update method', () => {
         bonus: undefined,
       };
 
-      const nextUser = update(
+      const newUser = update(
         user,
         // @ts-expect-error
         { bonus: { $$extract: [0] } },
       );
 
-      expect(nextUser).toStrictEqual({
+      expect(newUser).toStrictEqual({
         name: 'Antonio',
         bonus: undefined,
       });
@@ -761,13 +1070,13 @@ describe('update method', () => {
         bonus: null,
       };
 
-      const nextUser = update(
+      const newUser = update(
         user,
         // @ts-expect-error
         { bonus: { $$extract: [0] } },
       );
 
-      expect(nextUser).toStrictEqual({
+      expect(newUser).toStrictEqual({
         name: 'Antonio',
         bonus: null,
       });
@@ -779,13 +1088,13 @@ describe('update method', () => {
         bonus: 10,
       };
 
-      const nextUser = update(
+      const newUser = update(
         user,
         // @ts-expect-error
         { bonus: { $$extract: [0] } },
       );
 
-      expect(nextUser).toStrictEqual({
+      expect(newUser).toStrictEqual({
         name: 'Antonio',
         bonus: 10,
       });
@@ -797,15 +1106,71 @@ describe('update method', () => {
         bonus: { value: 10 },
       };
 
-      const nextUser = update(
+      const newUser = update(
         user,
         // @ts-expect-error
         { bonus: { $$extract: [0] } },
       );
 
-      expect(nextUser).toStrictEqual({
+      expect(newUser).toStrictEqual({
         name: 'Antonio',
         bonus: { value: 10 },
+      });
+    }
+  });
+
+  it('ignore { $$extract: undefined } commands', () => {
+    {
+      const user = {
+        nick: 'Antonio',
+        bonus: 10,
+      };
+
+      const newUser = update(
+        user,
+        // @ts-expect-error
+        { bonus: { $$extract: undefined } },
+      );
+
+      expect(newUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: {},
+      });
+    }
+
+    {
+      const user = {
+        nick: 'Antonio',
+        bonus: { value: 10 },
+      };
+
+      const newUser = update(
+        user,
+        // @ts-expect-error
+        { bonus: { $$extract: undefined } },
+      );
+
+      expect(newUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: { value: 10 },
+      });
+    }
+
+    {
+      const user = {
+        nick: 'Antonio',
+        bonus: { value: 10 },
+      };
+
+      const newUser = update(
+        user,
+        // @ts-expect-error
+        { bonus: { $$extract: undefined, value: 20 } },
+      );
+
+      expect(newUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: { value: 20 },
       });
     }
   });
@@ -817,13 +1182,13 @@ describe('update method', () => {
         bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
       };
 
-      const nextUser = update(user, {
+      const newUser = update(user, {
         bonus: {
           $$move: [1, 3],
         },
       });
 
-      expect(nextUser).toStrictEqual({
+      expect(newUser).toStrictEqual({
         name: 'Antonio',
         bonus: [0, 2, 3, 1, 4, 5, 6, 7, 8, 9],
       });
@@ -835,13 +1200,13 @@ describe('update method', () => {
         bonus: [],
       };
 
-      const nextUser = update(user, {
+      const newUser = update(user, {
         bonus: {
           $$move: [1, 3],
         },
       });
 
-      expect(nextUser).toStrictEqual({
+      expect(newUser).toStrictEqual({
         name: 'Antonio',
         bonus: [],
       });
@@ -1015,6 +1380,62 @@ describe('update method', () => {
     test([-Infinity, -Infinity], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
   });
 
+  it('ignore { $$move: undefined } commands', () => {
+    {
+      const user = {
+        nick: 'Antonio',
+        bonus: 10,
+      };
+
+      const newUser = update(
+        user,
+        // @ts-expect-error
+        { bonus: { $$move: undefined } },
+      );
+
+      expect(newUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: {},
+      });
+    }
+
+    {
+      const user = {
+        nick: 'Antonio',
+        bonus: { value: 10 },
+      };
+
+      const newUser = update(
+        user,
+        // @ts-expect-error
+        { bonus: { $$move: undefined } },
+      );
+
+      expect(newUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: { value: 10 },
+      });
+    }
+
+    {
+      const user = {
+        nick: 'Antonio',
+        bonus: { value: 10 },
+      };
+
+      const newUser = update(
+        user,
+        // @ts-expect-error
+        { bonus: { $$move: undefined, value: 20 } },
+      );
+
+      expect(newUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: { value: 20 },
+      });
+    }
+  });
+
   it('use $$swap command to update arrays', () => {
     {
       const user = {
@@ -1022,13 +1443,13 @@ describe('update method', () => {
         bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
       };
 
-      const nextUser = update(user, {
+      const newUser = update(user, {
         bonus: {
           $$swap: [1, 3],
         },
       });
 
-      expect(nextUser).toStrictEqual({
+      expect(newUser).toStrictEqual({
         name: 'Antonio',
         bonus: [0, 3, 2, 1, 4, 5, 6, 7, 8, 9],
       });
@@ -1040,13 +1461,13 @@ describe('update method', () => {
         bonus: [],
       };
 
-      const nextUser = update(user, {
+      const newUser = update(user, {
         bonus: {
           $$swap: [1, 3],
         },
       });
 
-      expect(nextUser).toStrictEqual({
+      expect(newUser).toStrictEqual({
         name: 'Antonio',
         bonus: [],
       });
@@ -1197,6 +1618,62 @@ describe('update method', () => {
     test([-Infinity, -Infinity], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
   });
 
+  it('ignore { $$swap: undefined } commands', () => {
+    {
+      const user = {
+        nick: 'Antonio',
+        bonus: 10,
+      };
+
+      const newUser = update(
+        user,
+        // @ts-expect-error
+        { bonus: { $$swap: undefined } },
+      );
+
+      expect(newUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: {},
+      });
+    }
+
+    {
+      const user = {
+        nick: 'Antonio',
+        bonus: { value: 10 },
+      };
+
+      const newUser = update(
+        user,
+        // @ts-expect-error
+        { bonus: { $$swap: undefined } },
+      );
+
+      expect(newUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: { value: 10 },
+      });
+    }
+
+    {
+      const user = {
+        nick: 'Antonio',
+        bonus: { value: 10 },
+      };
+
+      const newUser = update(
+        user,
+        // @ts-expect-error
+        { bonus: { $$swap: undefined, value: 20 } },
+      );
+
+      expect(newUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: { value: 20 },
+      });
+    }
+  });
+
   it('use $$merge command to update arrays', () => {
     {
       const user = {
@@ -1209,7 +1686,7 @@ describe('update method', () => {
         ],
       };
 
-      const nextUser = update(user, {
+      const newUser = update(user, {
         bonus: {
           $$merge: [
             { value: 15 },
@@ -1218,7 +1695,7 @@ describe('update method', () => {
         },
       });
 
-      expect(nextUser).toStrictEqual({
+      expect(newUser).toStrictEqual({
         nick: 'Antonio',
         bonus: [
           { num: 1, value: 15 },
@@ -1231,7 +1708,6 @@ describe('update method', () => {
 
     {
       const merge = [{ value: 15 }, { value: 25 }];
-      // @ts-expect-error
       expect(update([], { $$merge: merge, at: 4 })).toStrictEqual([]);
     }
 
@@ -1327,6 +1803,62 @@ describe('update method', () => {
     ]);
   });
 
+  it('ignore { $$merge: undefined } commands', () => {
+    {
+      const user = {
+        nick: 'Antonio',
+        bonus: 10,
+      };
+
+      const newUser = update(
+        user,
+        // @ts-expect-error
+        { bonus: { $$merge: undefined } },
+      );
+
+      expect(newUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: {},
+      });
+    }
+
+    {
+      const user = {
+        nick: 'Antonio',
+        bonus: { value: 10 },
+      };
+
+      const newUser = update(
+        user,
+        // @ts-expect-error
+        { bonus: { $$merge: undefined } },
+      );
+
+      expect(newUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: { value: 10 },
+      });
+    }
+
+    {
+      const user = {
+        nick: 'Antonio',
+        bonus: { value: 10 },
+      };
+
+      const newUser = update(
+        user,
+        // @ts-expect-error
+        { bonus: { $$merge: undefined, value: 20 } },
+      );
+
+      expect(newUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: { value: 20 },
+      });
+    }
+  });
+
   it('use $$mergeAll command to update arrays', () => {
     {
       const user = {
@@ -1337,13 +1869,13 @@ describe('update method', () => {
         ],
       };
 
-      const nextUser = update(user, {
+      const newUser = update(user, {
         bonus: {
           $$mergeAll: { value: 15 },
         },
       });
 
-      expect(nextUser).toStrictEqual({
+      expect(newUser).toStrictEqual({
         nick: 'Antonio',
         bonus: [
           { num: 1, value: 15 },
@@ -1358,13 +1890,13 @@ describe('update method', () => {
         bonus: [] as ({ num: number; value: number})[],
       };
 
-      const nextUser = update(user, {
+      const newUser = update(user, {
         bonus: {
           $$mergeAll: { value: 20 },
         },
       });
 
-      expect(nextUser).toStrictEqual({
+      expect(newUser).toStrictEqual({
         nick: 'Antonio',
         bonus: [],
       });
@@ -1393,7 +1925,7 @@ describe('update method', () => {
         ],
       };
 
-      const nextUser = update(user, {
+      const newUser = update(user, {
         friends: {
           $$mergeAll: {
             bonus: {
@@ -1403,7 +1935,7 @@ describe('update method', () => {
         },
       });
 
-      expect(nextUser).toStrictEqual({
+      expect(newUser).toStrictEqual({
         nick: 'Antonio',
         friends: [
           {
@@ -1457,13 +1989,13 @@ describe('update method', () => {
 
   it('replace scalar or object elements with $$mergeAll command', () => {
     function test(user: any) {
-      const nextUser = update(user, {
+      const newUser = update(user, {
         bonus: {
           $$mergeAll: { value: 20 },
         },
       });
 
-      expect(nextUser).toStrictEqual({
+      expect(newUser).toStrictEqual({
         nick: 'Antonio',
         bonus: [
           { num: 1, value: 20 },
@@ -1496,6 +2028,62 @@ describe('update method', () => {
       ],
     });
   });
+
+  it('ignore { $$mergeAll: undefined } commands', () => {
+    {
+      const user = {
+        nick: 'Antonio',
+        bonus: 10,
+      };
+
+      const newUser = update(
+        user,
+        // @ts-expect-error
+        { bonus: { $$mergeAll: undefined } },
+      );
+
+      expect(newUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: {},
+      });
+    }
+
+    {
+      const user = {
+        nick: 'Antonio',
+        bonus: { value: 10 },
+      };
+
+      const newUser = update(
+        user,
+        // @ts-expect-error
+        { bonus: { $$mergeAll: undefined } },
+      );
+
+      expect(newUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: { value: 10 },
+      });
+    }
+
+    {
+      const user = {
+        nick: 'Antonio',
+        bonus: { value: 10 },
+      };
+
+      const newUser = update(
+        user,
+        // @ts-expect-error
+        { bonus: { $$mergeAll: undefined, value: 20 } },
+      );
+
+      expect(newUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: { value: 20 },
+      });
+    }
+  });
 });
 
 describe('updateAtPath', () => {
@@ -1509,13 +2097,13 @@ describe('updateAtPath', () => {
   };
 
   it('can update data', () => {
-    const nextUser = updateAtPath(
+    const newUser = updateAtPath(
       user,
       'bonus.1',
       { value: 25 },
     );
 
-    expect(nextUser).toStrictEqual({
+    expect(newUser).toStrictEqual({
       nick: 'Antonio',
       bonus: [
         { num: 1, value: 10 },
@@ -1526,7 +2114,7 @@ describe('updateAtPath', () => {
   });
 
   it('can set data', () => {
-    const nextUser = updateAtPath(
+    const newUser = updateAtPath(
       user,
       'bonus.1',
       {
@@ -1534,7 +2122,7 @@ describe('updateAtPath', () => {
       },
     );
 
-    expect(nextUser).toStrictEqual({
+    expect(newUser).toStrictEqual({
       nick: 'Antonio',
       bonus: [
         { num: 1, value: 10 },
@@ -1545,7 +2133,7 @@ describe('updateAtPath', () => {
   });
 
   it('can append data', () => {
-    const nextUser = updateAtPath(
+    const newUser = updateAtPath(
       user,
       'bonus',
       {
@@ -1555,7 +2143,7 @@ describe('updateAtPath', () => {
       },
     );
 
-    expect(nextUser).toStrictEqual({
+    expect(newUser).toStrictEqual({
       nick: 'Antonio',
       bonus: [
         { num: 1, value: 10 },
@@ -1567,7 +2155,7 @@ describe('updateAtPath', () => {
   });
 
   it('can prepend data', () => {
-    const nextUser = updateAtPath(
+    const newUser = updateAtPath(
       user,
       'bonus',
       {
@@ -1577,7 +2165,7 @@ describe('updateAtPath', () => {
       },
     );
 
-    expect(nextUser).toStrictEqual({
+    expect(newUser).toStrictEqual({
       nick: 'Antonio',
       bonus: [
         { num: 4, value: 40 },
@@ -1589,7 +2177,7 @@ describe('updateAtPath', () => {
   });
 
   it('can exclude data', () => {
-    const nextUser = updateAtPath(
+    const newUser = updateAtPath(
       user,
       'bonus',
       {
@@ -1597,7 +2185,7 @@ describe('updateAtPath', () => {
       },
     );
 
-    expect(nextUser).toStrictEqual({
+    expect(newUser).toStrictEqual({
       nick: 'Antonio',
       bonus: [
         { num: 1, value: 10 },
@@ -1607,7 +2195,7 @@ describe('updateAtPath', () => {
   });
 
   it('can extract data', () => {
-    const nextUser = updateAtPath(
+    const newUser = updateAtPath(
       user,
       'bonus',
       {
@@ -1615,7 +2203,7 @@ describe('updateAtPath', () => {
       },
     );
 
-    expect(nextUser).toStrictEqual({
+    expect(newUser).toStrictEqual({
       nick: 'Antonio',
       bonus: [
         { num: 2, value: 20 },
@@ -1624,7 +2212,7 @@ describe('updateAtPath', () => {
   });
 
   it('can move data', () => {
-    const nextUser = updateAtPath(
+    const newUser = updateAtPath(
       user,
       'bonus',
       {
@@ -1632,7 +2220,7 @@ describe('updateAtPath', () => {
       },
     );
 
-    expect(nextUser).toStrictEqual({
+    expect(newUser).toStrictEqual({
       nick: 'Antonio',
       bonus: [
         { num: 2, value: 20 },
@@ -1643,7 +2231,7 @@ describe('updateAtPath', () => {
   });
 
   it('can swap data', () => {
-    const nextUser = updateAtPath(
+    const newUser = updateAtPath(
       user,
       'bonus',
       {
@@ -1651,7 +2239,7 @@ describe('updateAtPath', () => {
       },
     );
 
-    expect(nextUser).toStrictEqual({
+    expect(newUser).toStrictEqual({
       nick: 'Antonio',
       bonus: [
         { num: 3, value: 30 },
@@ -1662,7 +2250,7 @@ describe('updateAtPath', () => {
   });
 
   it('can merge data', () => {
-    const nextUser = updateAtPath(
+    const newUser = updateAtPath(
       user,
       'bonus',
       {
@@ -1672,7 +2260,7 @@ describe('updateAtPath', () => {
       },
     );
 
-    expect(nextUser).toStrictEqual({
+    expect(newUser).toStrictEqual({
       nick: 'Antonio',
       bonus: [
         { num: 1, value: 15 },
@@ -1683,7 +2271,7 @@ describe('updateAtPath', () => {
   });
 
   it('can merge all data', () => {
-    const nextUser = updateAtPath(
+    const newUser = updateAtPath(
       user,
       'bonus',
       {
@@ -1691,7 +2279,7 @@ describe('updateAtPath', () => {
       },
     );
 
-    expect(nextUser).toStrictEqual({
+    expect(newUser).toStrictEqual({
       nick: 'Antonio',
       bonus: [
         { num: 1, value: 70 },
@@ -1713,7 +2301,7 @@ describe('updateWithInstruction', () => {
   };
 
   it('can update data', () => {
-    const nextUser = updateWithInstruction(
+    const newUser = updateWithInstruction(
       user,
       {
         path: 'bonus.1',
@@ -1721,7 +2309,7 @@ describe('updateWithInstruction', () => {
       },
     );
 
-    expect(nextUser).toStrictEqual({
+    expect(newUser).toStrictEqual({
       nick: 'Antonio',
       bonus: [
         { num: 1, value: 10 },
@@ -1732,7 +2320,7 @@ describe('updateWithInstruction', () => {
   });
 
   it('can set data', () => {
-    const nextUser = updateWithInstruction(
+    const newUser = updateWithInstruction(
       user,
       {
         path: 'bonus.1',
@@ -1742,7 +2330,7 @@ describe('updateWithInstruction', () => {
       },
     );
 
-    expect(nextUser).toStrictEqual({
+    expect(newUser).toStrictEqual({
       nick: 'Antonio',
       bonus: [
         { num: 1, value: 10 },
@@ -1753,7 +2341,7 @@ describe('updateWithInstruction', () => {
   });
 
   it('can append data', () => {
-    const nextUser = updateWithInstruction(
+    const newUser = updateWithInstruction(
       user,
       {
         path: 'bonus',
@@ -1765,7 +2353,7 @@ describe('updateWithInstruction', () => {
       },
     );
 
-    expect(nextUser).toStrictEqual({
+    expect(newUser).toStrictEqual({
       nick: 'Antonio',
       bonus: [
         { num: 1, value: 10 },
@@ -1777,7 +2365,7 @@ describe('updateWithInstruction', () => {
   });
 
   it('can prepend data', () => {
-    const nextUser = updateWithInstruction(
+    const newUser = updateWithInstruction(
       user,
       {
         path: 'bonus',
@@ -1789,7 +2377,7 @@ describe('updateWithInstruction', () => {
       },
     );
 
-    expect(nextUser).toStrictEqual({
+    expect(newUser).toStrictEqual({
       nick: 'Antonio',
       bonus: [
         { num: 4, value: 40 },
@@ -1801,7 +2389,7 @@ describe('updateWithInstruction', () => {
   });
 
   it('can exclude data', () => {
-    const nextUser = updateWithInstruction(
+    const newUser = updateWithInstruction(
       user,
       {
         path: 'bonus',
@@ -1811,7 +2399,7 @@ describe('updateWithInstruction', () => {
       },
     );
 
-    expect(nextUser).toStrictEqual({
+    expect(newUser).toStrictEqual({
       nick: 'Antonio',
       bonus: [
         { num: 1, value: 10 },
@@ -1821,7 +2409,7 @@ describe('updateWithInstruction', () => {
   });
 
   it('can extract data', () => {
-    const nextUser = updateWithInstruction(
+    const newUser = updateWithInstruction(
       user,
       {
         path: 'bonus',
@@ -1831,7 +2419,7 @@ describe('updateWithInstruction', () => {
       },
     );
 
-    expect(nextUser).toStrictEqual({
+    expect(newUser).toStrictEqual({
       nick: 'Antonio',
       bonus: [
         { num: 2, value: 20 },
@@ -1840,7 +2428,7 @@ describe('updateWithInstruction', () => {
   });
 
   it('can move data', () => {
-    const nextUser = updateWithInstruction(
+    const newUser = updateWithInstruction(
       user,
       {
         path: 'bonus',
@@ -1850,7 +2438,7 @@ describe('updateWithInstruction', () => {
       },
     );
 
-    expect(nextUser).toStrictEqual({
+    expect(newUser).toStrictEqual({
       nick: 'Antonio',
       bonus: [
         { num: 2, value: 20 },
@@ -1861,7 +2449,7 @@ describe('updateWithInstruction', () => {
   });
 
   it('can swap data', () => {
-    const nextUser = updateWithInstruction(
+    const newUser = updateWithInstruction(
       user,
       {
         path: 'bonus',
@@ -1871,7 +2459,7 @@ describe('updateWithInstruction', () => {
       },
     );
 
-    expect(nextUser).toStrictEqual({
+    expect(newUser).toStrictEqual({
       nick: 'Antonio',
       bonus: [
         { num: 3, value: 30 },
@@ -1882,7 +2470,7 @@ describe('updateWithInstruction', () => {
   });
 
   it('can merge data', () => {
-    const nextUser = updateWithInstruction(
+    const newUser = updateWithInstruction(
       user,
       {
         path: 'bonus',
@@ -1894,7 +2482,7 @@ describe('updateWithInstruction', () => {
       },
     );
 
-    expect(nextUser).toStrictEqual({
+    expect(newUser).toStrictEqual({
       nick: 'Antonio',
       bonus: [
         { num: 1, value: 15 },
@@ -1905,7 +2493,7 @@ describe('updateWithInstruction', () => {
   });
 
   it('can merge all data', () => {
-    const nextUser = updateWithInstruction(
+    const newUser = updateWithInstruction(
       user,
       {
         path: 'bonus',
@@ -1915,7 +2503,7 @@ describe('updateWithInstruction', () => {
       },
     );
 
-    expect(nextUser).toStrictEqual({
+    expect(newUser).toStrictEqual({
       nick: 'Antonio',
       bonus: [
         { num: 1, value: 70 },

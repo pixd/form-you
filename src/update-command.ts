@@ -1,5 +1,19 @@
 import { UpdatePayload } from './update.types';
 
+export const COMMAND_KEYS = [
+  '$$set',
+  '$$unset',
+  '$$delete',
+  '$$append',
+  '$$prepend',
+  '$$exclude',
+  '$$extract',
+  '$$move',
+  '$$swap',
+  '$$merge',
+  '$$mergeAll',
+];
+
 export type SetCommand<
   TData extends any = any,
 > = {
@@ -11,7 +25,7 @@ export function isSetCommand<
 >(
   instruction: any,
 ): instruction is SetCommand<TData> {
-  return !!instruction && '$$set' in instruction;
+  return !!instruction && instruction.$$set !== undefined;
 }
 
 export type UnsetCommand = {

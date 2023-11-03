@@ -1,20 +1,13 @@
 import { AnyPath, NodeValue, PossiblePath, PossibleValue } from './path.types';
-import { SetCommand, UnsetCommand, DeleteCommand, AppendCommand,
-  ExcludeCommand, ExcludeRowCommand, ExtractCommand, ExtractRowCommand,
-  MergeCommand, MergeAllCommand, MoveCommand, PrependCommand, SwapCommand } from './update-command';
+import { AppendCommand, DeleteCommand, ExcludeCommand,
+  ExcludeRowCommand, ExtractCommand, ExtractRowCommand,
+  MergeCommand, MergeAllCommand, MoveCommand, PrependCommand,
+  SetCommand, SwapCommand, UnsetCommand } from './update-command';
 
 type CanBeDeletedKeys<
   TData extends any,
 > = {
-  [K in keyof TData]-?: TData extends Record<K, TData[K]>
-    ? never
-    : K
-}[keyof TData]
-
-type CanBeUnsettedKeys<
-  TData extends any,
-> = {
-  [K in keyof TData]-?: undefined | TData[K] extends Required<TData>[K]
+  [K in keyof TData]-?: { [key in K]?: TData[K] } extends { [key in K]: TData[K] }
     ? K
     : never
 }[keyof TData]
@@ -53,43 +46,39 @@ type PreventControls<
   T extends Record<string, any>,
 > = Omit<Controls, keyof T> & T;
 
+type ExcludeDataKeys<
+  TData extends any,
+> = Exclude<TData, undefined> extends Record<string, any>
+  ? { [key in keyof TData]?: never }
+  : {};
+
 type Set<
   TData extends any,
-> = SetCommand<undefined extends TData ? TData : TData> // I don't know why, but this fixes the test: update(product, { $$set: undefined })
+> = SetCommand<TData>
   & { $$unset?: never; $$delete?: never; [key: number]: never }
-  & (
-    Exclude<TData, undefined> extends Record<string, any>
-      ? { [TKey in keyof TData]?: never }
-      : {}
-  );
+  & ExcludeDataKeys<TData>;
 
 type Unset<
   TData extends any,
-> = UnsetCommand
-  & { $$set?: never; $$delete?: never; [key: number]: never }
-  & (
-    Exclude<TData, undefined> extends Record<string, any>
-      ? { [TKey in keyof TData]?: never }
-      : {}
-  );
+> = undefined extends TData
+  ? UnsetCommand
+    & { $$set?: never; $$delete?: never; [key: number]: never }
+    & ExcludeDataKeys<TData>
+  : never;
 
 type Delete<
   TData extends any,
 > = DeleteCommand
   & { $$set?: never; $$unset?: never; [key: number]: never }
-  & (
-    Exclude<TData, undefined> extends Record<string, any>
-      ? { [TKey in keyof TData]?: never }
-      : {}
-  );
+  & ExcludeDataKeys<TData>;
 
 export type UpdatePayload<
   TData extends any,
-> = Set<TData> | (
+> = undefined | Set<TData> | Unset<TData> | (
   TData extends (infer I)[]
     ?
       | I[]
-      | PreventControls<{ [key in number]: UpdatePayload<I> } & { [ket in keyof I]?: never }>
+      | PreventControls<{ [key in number]: undefined | UpdatePayload<I> }> & ExcludeDataKeys<I>
       | PreventControls<AppendCommand<I>>
       | PreventControls<PrependCommand<I>>
       | PreventControls<ExcludeCommand>
@@ -101,15 +90,11 @@ export type UpdatePayload<
       | PreventControls<MergeCommand<I>>
       | PreventControls<MergeAllCommand<I>>
     : TData extends Record<string, any>
-      ? { [TKey in keyof TData]?: undefined extends TData[TKey]
-          ?
-            | GetCommand<Unset<TData[TKey]>, TKey, CanBeUnsettedKeys<TData>>
-            | GetCommand<Delete<TData[TKey]>, TKey, CanBeDeletedKeys<TData>>
-            | UpdatePayload<Required<TData>[TKey]>
-          : UpdatePayload<TData[TKey]>
+      ? { [TKey in keyof TData]?:
+          | GetCommand<Delete<TData[TKey]>, TKey, CanBeDeletedKeys<TData>>
+          | UpdatePayload<TData[TKey]>
         } & { $$set?: never; $$unset?: never; $$delete?: never }
-      :
-      TData
+      : (TData | { $$set?: never; $$unset?: never; $$delete?: never })
 );
 
 export type RootPathUpdateInstruction<

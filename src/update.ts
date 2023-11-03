@@ -4,7 +4,7 @@ import { AnyPathUpdateInstruction, CommonPathUpdateInstruction,
 import { isSetCommand, isUnsetCommand, isDeleteCommand, isPrependCommand,
   isAppendCommand, isExcludeCommand, isExcludeRowCommand, isExtractCommand,
   isExtractRowCommand, isMoveCommand, isSwapCommand, isMergeCommand,
-  isMergeAllCommand } from './update-command';
+  isMergeAllCommand, COMMAND_KEYS } from './update-command';
 
 export function updateWithInstruction<
   TData extends Record<string, any> = Record<string, any>,
@@ -99,7 +99,10 @@ export function update(
   data: any,
   updatePayload: any,
 ) {
-  if (Array.isArray(updatePayload)) {
+  if (updatePayload === undefined) {
+    return data;
+  }
+  else if (Array.isArray(updatePayload)) {
     return updatePayload;
   }
   else if (updatePayload && typeof updatePayload === 'object') {
@@ -283,32 +286,27 @@ export function update(
       }
     }
     else {
-      if (data && typeof data === 'object') {
-        if (Array.isArray(data)) {
-          const nextData = [...data];
-          const removeElement = Symbol('removeElement');
-          return Object.keys(updatePayload)
-            .reduce((data, key) => {
-              if (shouldGoFurther(updatePayload[key], data, key, { value: removeElement })) {
-                data[key] = update(data[key], updatePayload[key]);
-              }
-              return data;
-            }, nextData)
-            .filter((element) => element?.value !== removeElement);
-        }
-        else {
-          const nextData = { ...data };
-          return Object.keys(updatePayload)
-            .reduce((data, key) => {
-              if (shouldGoFurther(updatePayload[key], data, key)) {
-                data[key] = update(data[key], updatePayload[key]);
-              }
-              return data;
-            }, nextData);
-        }
+      if (Array.isArray(data)) {
+        const removeElement = Symbol('removeElement');
+        return Object.keys(updatePayload)
+          .filter((key) => !COMMAND_KEYS.includes(key))
+          .reduce((data, key) => {
+            if (shouldGoFurther(updatePayload[key], data, key, { value: removeElement })) {
+              data[key] = update(data[key], updatePayload[key]);
+            }
+            return data;
+          }, [...data])
+          .filter((element) => element?.value !== removeElement);
       }
       else {
-        return updatePayload;
+        return Object.keys(updatePayload)
+          .filter((key) => !COMMAND_KEYS.includes(key))
+          .reduce((data, key) => {
+            if (shouldGoFurther(updatePayload[key], data, key)) {
+              data[key] = update(data[key], updatePayload[key]);
+            }
+            return data;
+          }, data && typeof data === 'object' ? { ...data } : {});
       }
     }
   }

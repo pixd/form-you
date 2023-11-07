@@ -1,9 +1,5 @@
 import StringSchema from '../src/StringSchema';
-import {
-  isNotOptionalMessage,
-  isNotNullableMessage,
-  mustBeAnStringMessage,
-} from './tools/checkMessage';
+import { isNotOptionalMessage, isNotNullableMessage, mustBeAnStringMessage } from './tools/checkMessage';
 import testSchemaValidation from './tools/testSchemaValidation';
 
 describe('StringSchema', () => {
@@ -192,25 +188,43 @@ describe('StringSchema', () => {
     testSchemaValidation(schema.nullable().clone(), '');
   });
 
-  it('should use default value', () => {
+  it('should get default value with .getDefault()', () => {
     const schema = StringSchema.create();
 
     expect(schema.getDefault()).toBe('');
   });
 
-  it('should set default value', () => {
-    const schema = StringSchema.create().default('Snickers');
+  it('should set default value with .default()', () => {
+    const schema = StringSchema.create().default('Antonio');
 
-    expect(schema.getDefault()).toBe('Snickers');
+    expect(schema.getDefault()).toBe('Antonio');
   });
 
   it('should use values to calculate default value', () => {
-    const schema = StringSchema.create(['Snickers', 'Mars']);
+    const schema = StringSchema.create(['Antonio', 'Mars']);
 
-    expect(schema.getDefault()).toBe('Snickers');
+    expect(schema.getDefault()).toBe('Antonio');
   });
 
-  it('should mutate with mutate', () => {
+  it('should change default value after .refine()', () => {
+    {
+      const schema = StringSchema.create();
+
+      const nextSchema = schema.refine(['Antonio']);
+
+      expect(nextSchema.getDefault()).toBe('Antonio');
+    }
+
+    {
+      const schema = StringSchema.create(['Antonio', 'Mark']);
+
+      const nextSchema = schema.refine(['Antonio']);
+
+      expect(nextSchema.getDefault()).toBe('Antonio');
+    }
+  });
+
+  it('should mutate with .mutate()', () => {
     {
       const schema = StringSchema.create();
 
@@ -258,12 +272,12 @@ describe('StringSchema', () => {
 
       expect(schema.getDefault()).toBe('');
 
-      const nextSchema = schema.mutate((schema) => schema.default('abc'));
+      const nextSchema = schema.mutate((schema) => schema.default('Antonio'));
 
       expect(schema).toBe(nextSchema);
 
-      expect(schema.getDefault()).toBe('abc');
-      expect(nextSchema.getDefault()).toBe('abc');
+      expect(schema.getDefault()).toBe('Antonio');
+      expect(nextSchema.getDefault()).toBe('Antonio');
     }
   });
 });

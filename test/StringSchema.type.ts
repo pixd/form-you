@@ -1,6 +1,102 @@
+import BaseSchema from '../src/BaseSchema';
 import StringSchema from '../src/StringSchema';
 import { SchemaContextType, SchemaDataType } from '../src/types';
-import noop, { expect, PASSED } from './tools/noop';
+import { expect, PASSED } from './tools/expect';
+
+/**
+ * Schema inheritance
+ */
+{
+  const defaultSchema = StringSchema.create();
+
+  {
+    const schema = StringSchema.create();
+
+    expect.safety.extends<BaseSchema, typeof schema>(PASSED);
+    expect.safety.extends<StringSchema, typeof schema>(PASSED);
+    expect.safety.extends<typeof defaultSchema, typeof schema>(PASSED);
+    expect.safety.extends<typeof schema, typeof defaultSchema>(PASSED);
+    expect.safety.extends<SchemaDataType<typeof defaultSchema>, SchemaDataType<typeof schema>>(PASSED);
+    expect.safety.extends<SchemaDataType<typeof schema>, SchemaDataType<typeof defaultSchema>>(PASSED);
+  }
+
+  {
+    const schema = StringSchema.create().optional();
+
+    expect.safety.extends<BaseSchema, typeof schema>(PASSED);
+    expect.safety.extends<StringSchema, typeof schema>(PASSED);
+    expect.safety.not.extends<typeof defaultSchema, typeof schema>(PASSED);
+    expect.safety.extends<typeof schema, typeof defaultSchema>(PASSED);
+    expect.safety.not.extends<SchemaDataType<typeof defaultSchema>, SchemaDataType<typeof schema>>(PASSED);
+    expect.safety.extends<SchemaDataType<typeof schema>, SchemaDataType<typeof defaultSchema>>(PASSED);
+  }
+
+  {
+    const schema = StringSchema.create().nullable();
+
+    expect.safety.extends<BaseSchema, typeof schema>(PASSED);
+    expect.safety.extends<StringSchema, typeof schema>(PASSED);
+    expect.safety.not.extends<typeof defaultSchema, typeof schema>(PASSED);
+    expect.safety.extends<typeof schema, typeof defaultSchema>(PASSED);
+    expect.safety.not.extends<SchemaDataType<typeof defaultSchema>, SchemaDataType<typeof schema>>(PASSED);
+    expect.safety.extends<SchemaDataType<typeof schema>, SchemaDataType<typeof defaultSchema>>(PASSED);
+  }
+
+  {
+    const schema = StringSchema.create(['Antonio']);
+
+    expect.safety.extends<BaseSchema, typeof schema>(PASSED);
+    expect.safety.extends<StringSchema, typeof schema>(PASSED);
+    expect.safety.extends<typeof defaultSchema, typeof schema>(PASSED);
+    expect.safety.not.extends<typeof schema, typeof defaultSchema>(PASSED);
+    expect.safety.extends<SchemaDataType<typeof defaultSchema>, SchemaDataType<typeof schema>>(PASSED);
+    expect.safety.not.extends<SchemaDataType<typeof schema>, SchemaDataType<typeof defaultSchema>>(PASSED);
+  }
+
+  {
+    const schemaA = StringSchema.create(['Antonio', 'Mark']);
+    const schemaB = StringSchema.create(['Antonio']);
+
+    expect.safety.not.extends<typeof schemaB, typeof schemaA>(PASSED);
+    expect.safety.extends<typeof schemaA, typeof schemaB>(PASSED);
+    expect.safety.not.extends<SchemaDataType<typeof schemaB>, SchemaDataType<typeof schemaA>>(PASSED);
+    expect.safety.extends<SchemaDataType<typeof schemaA>, SchemaDataType<typeof schemaB>>(PASSED);
+  }
+
+  {
+    const schema = StringSchema.create(['Antonio', 'Mark']);
+    const nextSchema = schema.refine(['Antonio']);
+
+    expect.safety.extends<BaseSchema, typeof schema>(PASSED);
+    expect.safety.extends<StringSchema, typeof schema>(PASSED);
+    expect.safety.not.extends<typeof nextSchema, typeof schema>(PASSED);
+    expect.safety.extends<typeof schema, typeof nextSchema>(PASSED);
+    expect.safety.not.extends<SchemaDataType<typeof nextSchema>, SchemaDataType<typeof schema>>(PASSED);
+    expect.safety.extends<SchemaDataType<typeof schema>, SchemaDataType<typeof nextSchema>>(PASSED);
+  }
+
+  {
+    const schema = StringSchema.create().context<{ price: number }>();
+    const defaultSchema = StringSchema.create();
+
+    expect.safety.extends<BaseSchema, typeof schema>(PASSED);
+    expect.safety.extends<StringSchema, typeof schema>(PASSED);
+    expect.safety.extends<typeof defaultSchema, typeof schema>(PASSED);
+    expect.safety.not.extends<typeof schema, typeof defaultSchema>(PASSED);
+    expect.safety.extends<SchemaDataType<typeof defaultSchema>, SchemaDataType<typeof schema>>(PASSED);
+    expect.safety.extends<SchemaDataType<typeof schema>, SchemaDataType<typeof defaultSchema>>(PASSED);
+  }
+
+  {
+    const schema = StringSchema.create().context<{ price: number }>();
+    const nextSchema = schema.context<{ name: string }>();
+
+    expect.safety.extends<typeof schema, typeof nextSchema>(PASSED);
+    expect.safety.not.extends<typeof nextSchema, typeof schema>(PASSED);
+    expect.safety.extends<SchemaDataType<typeof schema>, SchemaDataType<typeof nextSchema>>(PASSED);
+    expect.safety.extends<SchemaDataType<typeof nextSchema>, SchemaDataType<typeof schema>>(PASSED);
+  }
+}
 
 /**
  * Schema data type
@@ -175,42 +271,11 @@ import noop, { expect, PASSED } from './tools/noop';
 
     expect.equal<typeof defaultValue, 'Snickers' | 'Mars'>(PASSED);
   }
-}
-
-/**
- * Change pattern
- */
-{
-  // TODO This functionality should be changed
 
   {
-    const schema = StringSchema.create(['Snickers', 'Bounty']);
+    const schema = StringSchema.create(['Snickers', 'Mars']).refine(['Snickers']);
 
-    const nextSchema = schema.values(['Mars', 'Twix']);
-
-    const schemaDefaultValue = schema.getDefault();
-
-    const nextSchemaDefaultValue = nextSchema.getDefault();
-
-    noop<typeof schemaDefaultValue>('Snickers');
-
-    // @ts-expect-error
-    noop<typeof schemaDefaultValue>('Mars');
-
-    schema.default('Bounty');
-
-    // @ts-expect-error
-    schema.default('Twix');
-
-    // @ts-expect-error
-    noop<typeof nextSchemaDefaultValue>('Snickers');
-
-    noop<typeof nextSchemaDefaultValue>('Mars');
-
-    // @ts-expect-error
-    nextSchema.default('Bounty');
-
-    nextSchema.default('Twix');
+    expect.equal<Parameters<typeof schema.default>[0], null | 'Snickers'>(PASSED);
   }
 }
 
@@ -219,6 +284,14 @@ import noop, { expect, PASSED } from './tools/noop';
  */
 {
   {
+    const schema = StringSchema.create();
+
+    type ContextType = SchemaContextType<typeof schema>;
+
+    expect.equal<ContextType, object>(PASSED);
+  }
+
+  {
     type Context = {
       price: number;
     };
@@ -305,12 +378,11 @@ import noop, { expect, PASSED } from './tools/noop';
 
   {
     type Context = {
-      price: number;
-      name?: string;
+      price?: number;
     };
 
     type NextContext = {
-      name: string;
+      price: number;
     };
 
     const schema = StringSchema.create().context<Context>().context<NextContext>();
@@ -319,18 +391,16 @@ import noop, { expect, PASSED } from './tools/noop';
 
     expect.equal<ContextType, {
       price: number;
-      name: string;
     }>(PASSED);
   }
 
   {
     type Context = {
       price: number;
-      name: string;
     };
 
     type NextContext = {
-      name?: string;
+      price?: number;
     };
 
     const schema = StringSchema.create().context<Context>().context<NextContext>();
@@ -339,7 +409,58 @@ import noop, { expect, PASSED } from './tools/noop';
 
     expect.equal<ContextType, {
       price: number;
-      name: string;
+    }>(PASSED);
+  }
+
+  {
+    type Context = {
+      price: number;
+    };
+
+    type NextContext = {
+      price: undefined;
+    };
+
+    const schema = StringSchema.create().context<Context>().context<NextContext>();
+
+    type ContextType = SchemaContextType<typeof schema>;
+
+    expect.equal<ContextType, never>(PASSED);
+  }
+
+  {
+    type Context = {
+      price: undefined | number;
+    };
+
+    type NextContext = {
+      price: undefined;
+    };
+
+    const schema = StringSchema.create().context<Context>().context<NextContext>();
+
+    type ContextType = SchemaContextType<typeof schema>;
+
+    expect.equal<ContextType, {
+      price: undefined;
+    }>(PASSED);
+  }
+
+  {
+    type Context = {
+      price?: number;
+    };
+
+    type NextContext = {
+      price: undefined;
+    };
+
+    const schema = StringSchema.create().context<Context>().context<NextContext>();
+
+    type ContextType = SchemaContextType<typeof schema>;
+
+    expect.equal<ContextType, {
+      price: undefined;
     }>(PASSED);
   }
 
@@ -406,24 +527,10 @@ import noop, { expect, PASSED } from './tools/noop';
 
     // TODO This should work
 
-    // @ts-ignore It would be better if it worked
+    // @ts-ignore I don't know why, but this is not working...
     expect.equal<ContextType, { sale: number[] }>(PASSED);
-
+    // ... so let's write it like this
     expect.equal<ContextType, { sale: number[] & (string | number)[] }>(PASSED);
-
-    noop<ContextType>({
-      sale: [15],
-    });
-
-    noop<ContextType>({
-      // @ts-expect-error
-      sale: ['new-year'],
-    });
-
-    noop<ContextType>({
-      // @ts-expect-error
-      sale: [15, 'new-year'],
-    });
   }
 
   {
@@ -501,5 +608,33 @@ import noop, { expect, PASSED } from './tools/noop';
     type NextDataType = SchemaDataType<typeof nextSchema>;
 
     expect.equal<NextDataType, undefined | null | string>(PASSED);
+  }
+}
+
+/**
+ * Refine
+ */
+{
+  {
+    const schema = StringSchema.create();
+
+    const nextSchema = schema.refine(['Antonio']);
+
+    expect.equal<SchemaDataType<typeof nextSchema>, 'Antonio'>(PASSED);
+  }
+
+  {
+    const schema = StringSchema.create(['Antonio', 'Mark']);
+
+    const nextSchema = schema.refine(['Antonio']);
+
+    expect.equal<SchemaDataType<typeof nextSchema>, 'Antonio'>(PASSED);
+  }
+
+  {
+    const schema = StringSchema.create(['Antonio']);
+
+    // @ts-expect-error
+    schema.refine(['Antonio', 'Mark']);
   }
 }

@@ -1,6 +1,6 @@
 import { getAtPath } from '../src/path';
 import { NodeValue, PossiblePath, PossibleValue } from '../src/path.types';
-import { expect, PASSED } from './tools/noop';
+import { expect, PASSED } from './tools/expect';
 
 /**
  * getAtPath

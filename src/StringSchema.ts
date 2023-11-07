@@ -1,116 +1,117 @@
-import BaseSchema, { RejectType, SchemaCloneProps } from './BaseSchema';
+import BaseSchema, { RejectType, SafetyType, SchemaCloneProps } from './BaseSchema';
 import errorMessages, { prepareErrorMessage } from './error-messages';
 import ValidationError, { PredefinedValidationTestName } from './ValidationError';
 
+type PatternData<TPattern extends string = string> = `${TPattern}`;
+
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 export default interface StringSchema<
-  TData extends string = string,
-  TOptional extends boolean = never,
-  TNullable extends boolean = never,
-  TContext extends Record<string, any> = Record<string, any>,
-> extends BaseSchema<TData, TOptional, TNullable, TContext> {
-  pattern<
-    TValue extends string = string,
+  TPattern extends string = string,
+  TOptional extends boolean = any,
+  TNullable extends boolean = any,
+  TContext extends Record<string, any> = object,
+> extends BaseSchema<PatternData<TPattern>, TOptional, TNullable, TContext> {
+  apply<
+    TNextPattern extends TPattern = TPattern,
+    TDefaultValue extends PatternData<TPattern> = PatternData<TPattern>,
+    TRejectUndefined extends null | string = never,
+    TRejectNull extends null | string = never,
   >(
-    values: TValue[],
-  ): StringSchema<TValue, TOptional, TNullable, TContext>;
+    props?: Partial<SchemaCloneProps<TNextPattern, TDefaultValue, TRejectUndefined, TRejectNull>>,
+  ): StringSchema<TNextPattern, RejectType<TRejectUndefined, TOptional>, RejectType<TRejectNull, TNullable>, TContext>;
 
   clone<
-    TDefaultValue extends TData = TData,
+    TNextPattern extends TPattern = TPattern,
+    TDefaultValue extends PatternData<TPattern> = PatternData<TPattern>,
     TRejectUndefined extends null | string = never,
     TRejectNull extends null | string = never,
   >(
-    props?: Partial<SchemaCloneProps<TDefaultValue, TRejectUndefined, TRejectNull>>,
-  ): StringSchema<TData, RejectType<TRejectUndefined, TOptional>, RejectType<TRejectNull, TNullable>, TContext>;
-
-  rich<
-    TDefaultValue extends TData = TData,
-    TRejectUndefined extends null | string = never,
-    TRejectNull extends null | string = never,
-  >(
-    schema: BaseSchema,
-    props?: Partial<SchemaCloneProps<TDefaultValue, TRejectUndefined, TRejectNull>>,
-  ): StringSchema<TData, RejectType<TRejectUndefined, TOptional>, RejectType<TRejectNull, TNullable>, TContext>;
+    props?: Partial<SchemaCloneProps<TNextPattern, TDefaultValue, TRejectUndefined, TRejectNull>>,
+  ): StringSchema<TNextPattern, RejectType<TRejectUndefined, TOptional>, RejectType<TRejectNull, TNullable>, TContext>;
 
   mutate<
-    TReturned extends StringSchema<TData> = StringSchema<TData>,
+    TReturned extends StringSchema<TPattern> = StringSchema<TPattern>,
   >(
     cb: {
-      (schema: StringSchema<TData, TOptional, TNullable, TContext>): TReturned;
+      (schema: StringSchema<TPattern, TOptional, TNullable, TContext>): TReturned;
     },
   ): TReturned;
 
   context<
-    TNextContext extends null | TContext extends null ? Record<string, any> : (object & Partial<TContext>) = TContext,
-  >(): StringSchema<TData, TOptional, TNullable, (null | TContext extends null ? object : TContext) & TNextContext>;
+    TNextContext extends SafetyType<TContext, Record<string, any>, object & Partial<TContext>> = TContext,
+  >(): StringSchema<TPattern, TOptional, TNullable, SafetyType<TContext, object> & TNextContext>;
 
-  optional(): StringSchema<TData, true, TNullable, TContext>;
+  optional(): StringSchema<TPattern, true, TNullable, TContext>;
 
   notOptional(
     message?: string,
-  ): StringSchema<TData, false, TNullable, TContext>;
+  ): StringSchema<TPattern, false, TNullable, TContext>;
 
-  nullable(): StringSchema<TData, TOptional, true, TContext>;
+  nullable(): StringSchema<TPattern, TOptional, true, TContext>;
 
   notNullable(
     message?: string,
-  ): StringSchema<TData, TOptional, false, TContext>;
+  ): StringSchema<TPattern, TOptional, false, TContext>;
 
   required(
     message?: string,
-  ): StringSchema<TData, false, false, TContext>;
+  ): StringSchema<TPattern, false, false, TContext>;
 
-  notRequired(): StringSchema<TData, true, true, TContext>;
+  notRequired(): StringSchema<TPattern, true, true, TContext>;
 
   default(
-    defaultValue: null | TData,
-  ): StringSchema<TData, TOptional, TNullable, TContext>;
+    defaultValue: null | PatternData<TPattern>,
+  ): StringSchema<TPattern, TOptional, TNullable, TContext>;
 }
 
 export default class StringSchema<
-  TData extends string = string,
-  TOptional extends boolean = never,
-  TNullable extends boolean = never,
-  TContext extends Record<string, any> = Record<string, any>,
-> extends BaseSchema<TData, TOptional, TNullable, TContext> {
+  TPattern extends string = string,
+  TOptional extends boolean = any,
+  TNullable extends boolean = any,
+  TContext extends Record<string, any> = object,
+> extends BaseSchema<PatternData<TPattern>, TOptional, TNullable, TContext> {
   protected override patternValue: null | string[] = null;
 
-  protected override defaultValue: null | TData = null;
+  protected override defaultValue: null | PatternData<TPattern> = null;
 
   protected override selfConstructor: {
     new (): StringSchema;
   } = StringSchema;
 
+  protected override selfRich() {
+    return;
+  }
+
   public static create<
-    TValue extends string = string,
-    TContext extends Record<string, any> = never,
+    TPattern extends string = string,
+    TContext extends Record<string, any> = object,
   >(
-    values?: TValue[],
-  ): StringSchema<TValue, false, false, TContext> {
-    const schema = new StringSchema<TValue, false, false, TContext>();
+    values?: TPattern[],
+  ): StringSchema<TPattern, false, false, TContext> {
+    const schema = new StringSchema<TPattern, false, false, TContext>();
 
     schema.patternValue = values ?? null;
 
     return schema;
   }
 
-  public values<
-    TValue extends string = string,
+  public refine<
+    TNextPattern extends TPattern = TPattern,
   >(
-    values: TValue[],
-  ): StringSchema<TValue, TOptional, TNullable, TContext> {
-    return this.pattern(values);
+    pattern: TNextPattern[],
+  ): StringSchema<TNextPattern & TPattern, TOptional, TNullable, TContext> {
+    return this.pattern(pattern) as StringSchema<TNextPattern & TPattern, TOptional, TNullable, TContext>;
   }
 
-  public override getDefault(): TData {
+  public override getDefault(): PatternData<TPattern> {
     if (this.defaultValue != null) {
       return this.defaultValue;
     }
     else if (this.patternValue) {
-      return (this.patternValue[0] ?? '') as TData;
+      return (this.patternValue[0] ?? '') as PatternData<TPattern>;
     }
     else {
-      return '' as TData;
+      return '' as PatternData<TPattern>;
     }
   }
 

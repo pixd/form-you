@@ -1,4 +1,4 @@
-import BaseSchema, { RejectType, SchemaCloneProps } from './BaseSchema';
+import BaseSchema, { RejectType, SafetyType, SchemaCloneProps } from './BaseSchema';
 import errorMessages, { prepareErrorMessage } from './error-messages';
 import { _, AnySchema, SchemaDataType } from './types';
 import ValidationError, { PredefinedValidationTestName } from './ValidationError';
@@ -43,118 +43,138 @@ export type ShapeData<
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 export default interface ObjectSchema<
-  TData extends Record<string, any> = Record<string, any>,
-  TOptional extends boolean = never,
-  TNullable extends boolean = never,
-  TContext extends Record<string, any> = Record<string, any>,
-> extends BaseSchema<TData, TOptional, TNullable, TContext> {
-  pattern<
-    TShape extends Shape = Shape,
+  TShape extends Shape = never,
+  TOptional extends boolean = any,
+  TNullable extends boolean = any,
+  TContext extends Record<string, any> = object,
+> extends BaseSchema<_<ShapeData<TShape>>, TOptional, TNullable, TContext> {
+  apply<
+    TNextShape extends SafetyType<TShape, Shape> = SafetyType<TShape, Shape>,
+    TDefaultValue extends _<ShapeData<TShape>> = _<ShapeData<TShape>>,
+    TRejectUndefined extends null | string = never,
+    TRejectNull extends null | string = never,
   >(
-    shape: TShape,
-  ): ObjectSchema<_<ShapeData<TShape>>, TOptional, TNullable, TContext>;
+    props?: SchemaCloneProps<TNextShape, TDefaultValue, TRejectUndefined, TRejectNull>,
+  ): ObjectSchema<TNextShape, RejectType<TRejectUndefined, TOptional>, RejectType<TRejectNull, TNullable>, TContext>;
 
   clone<
-    TDefaultValue extends TData = TData,
+    TNextShape extends SafetyType<TShape, Shape> = SafetyType<TShape, Shape>,
+    TDefaultValue extends _<ShapeData<TShape>> = _<ShapeData<TShape>>,
     TRejectUndefined extends null | string = never,
     TRejectNull extends null | string = never,
   >(
-    props?: Partial<SchemaCloneProps<TDefaultValue, TRejectUndefined, TRejectNull>>,
-  ): ObjectSchema<TData, RejectType<TRejectUndefined, TOptional>, RejectType<TRejectNull, TNullable>, TContext>;
-
-  rich<
-    TDefaultValue extends TData = TData,
-    TRejectUndefined extends null | string = never,
-    TRejectNull extends null | string = never,
-  >(
-    schema: BaseSchema,
-    props?: Partial<SchemaCloneProps<TDefaultValue, TRejectUndefined, TRejectNull>>,
-  ): ObjectSchema<TData, RejectType<TRejectUndefined, TOptional>, RejectType<TRejectNull, TNullable>, TContext>;
+    props?: SchemaCloneProps<TNextShape, TDefaultValue, TRejectUndefined, TRejectNull>,
+  ): ObjectSchema<TNextShape, RejectType<TRejectUndefined, TOptional>, RejectType<TRejectNull, TNullable>, TContext>;
 
   mutate<
-    TReturned extends ObjectSchema<TData> = ObjectSchema<TData>,
+    TReturned extends ObjectSchema<TShape> = ObjectSchema<TShape>,
   >(
     cb: {
-      (schema: ObjectSchema<TData, TOptional, TNullable, TContext>): TReturned;
+      (schema: ObjectSchema<TShape, TOptional, TNullable, TContext>): TReturned;
     },
   ): TReturned;
 
   context<
-    TNextContext extends null | TContext extends null ? Record<string, any> : (object & Partial<TContext>) = TContext,
-  >(): ObjectSchema<TData, TOptional, TNullable, (null | TContext extends null ? object : TContext) & TNextContext>;
+    TNextContext extends SafetyType<TContext, Record<string, any>, object & Partial<TContext>> = TContext,
+  >(): ObjectSchema<TShape, TOptional, TNullable, SafetyType<TContext, object> & TNextContext>;
 
-  optional(): ObjectSchema<TData, true, TNullable, TContext>;
+  optional(): ObjectSchema<TShape, true, TNullable, TContext>;
 
   notOptional(
     message?: string,
-  ): ObjectSchema<TData, false, TNullable, TContext>;
+  ): ObjectSchema<TShape, false, TNullable, TContext>;
 
-  nullable(): ObjectSchema<TData, TOptional, true, TContext>;
+  nullable(): ObjectSchema<TShape, TOptional, true, TContext>;
 
   notNullable(
     message?: string,
-  ): ObjectSchema<TData, TOptional, false, TContext>;
+  ): ObjectSchema<TShape, TOptional, false, TContext>;
 
   required(
     message?: string,
-  ): ObjectSchema<TData, false, false, TContext>;
+  ): ObjectSchema<TShape, false, false, TContext>;
 
-  notRequired(): ObjectSchema<TData, true, true, TContext>;
+  notRequired(): ObjectSchema<TShape, true, true, TContext>;
 
   default(
-    defaultValue: null | TData,
-  ): ObjectSchema<TData, TOptional, TNullable, TContext>;
+    defaultValue: null | _<ShapeData<TShape>>,
+  ): ObjectSchema<TShape, TOptional, TNullable, TContext>;
 }
 
 export default class ObjectSchema<
-  TData extends Record<string, any> = Record<string, any>,
-  TOptional extends boolean = never,
-  TNullable extends boolean = never,
-  TContext extends Record<string, any> = Record<string, any>,
-> extends BaseSchema<TData, TOptional, TNullable, TContext> {
+  TShape extends Shape = never,
+  TOptional extends boolean = any,
+  TNullable extends boolean = any,
+  TContext extends Record<string, any> = object,
+> extends BaseSchema<_<ShapeData<TShape>>, TOptional, TNullable, TContext> {
   protected override patternValue: null | Shape = null;
 
-  protected override defaultValue: null | TData = null;
+  protected override defaultValue: null | _<ShapeData<TShape>> = null;
+
+  protected defaultValueSchema: Shape = {};
 
   protected override selfConstructor: {
     new (): ObjectSchema;
   } = ObjectSchema;
 
+  protected override selfRich(
+    schema: ObjectSchema<TShape, TOptional, TNullable, TContext>,
+    props: SchemaCloneProps<SafetyType<TShape, Shape>, _<ShapeData<TShape>>>,
+  ) {
+    if ('defaultValue' in props) {
+      if (props.defaultValue == null) {
+        schema.defaultValueSchema = this.patternValue ?? {};
+      }
+      else {
+        schema.defaultValueSchema = {};
+      }
+    }
+  }
+
   public static create<
     TShape extends Shape = never,
-    TContext extends Record<string, any> = never,
+    TContext extends Record<string, any> = object,
   >(
     shape?: TShape,
-  ): ObjectSchema<_<ShapeData<TShape>>, false, false, TContext> {
-    const schema = new ObjectSchema<_<ShapeData<TShape>>, false, false, TContext>();
+  ): ObjectSchema<TShape, false, false, TContext> {
+    const schema = new ObjectSchema<TShape, false, false, TContext>();
 
     schema.patternValue = shape ?? null;
+
+    schema.defaultValueSchema = shape ?? {};
 
     return schema;
   }
 
-  public shape<
-    TShape extends Shape = Shape,
+  public concat<
+    TNextShape extends SafetyType<TShape, Shape, object & Partial<TShape>> = TShape,
   >(
-    shape: TShape,
-  ): ObjectSchema<_<ShapeData<TShape>>, TOptional, TNullable, TContext> {
-    return this.pattern(shape);
+    shape: TNextShape,
+  ): ObjectSchema<TNextShape & SafetyType<TShape, {}>, TOptional, TNullable, TContext> {
+    const nextSchema = this.pattern({
+      ...this.patternValue,
+      ...shape,
+    }) as ObjectSchema<TNextShape & SafetyType<TShape, {}>, TOptional, TNullable, TContext>;
+
+    nextSchema.defaultValueSchema = {
+      ...this.defaultValueSchema,
+      ...shape,
+    };
+
+    return nextSchema
   }
 
-  public override getDefault(): TData {
-    if (this.defaultValue != null) {
-      return this.defaultValue;
-    }
-    else if (this.patternValue) {
-      return Object.entries(this.patternValue)
-        .reduce((defaultValue: TData, [key, schema]: [keyof TData, BaseSchema]) => {
-          defaultValue[key] = schema.getDefault();
-          return defaultValue;
-        }, {} as TData);
-    }
-    else {
-      return {} as TData;
-    }
+  public override getDefault(): _<ShapeData<TShape>> {
+    const defaultValue = Object.entries(this.defaultValueSchema)
+      .reduce((defaultValue, [key, schema]) => {
+        defaultValue[key] = schema.getDefault();
+        return defaultValue;
+      }, {} as _<ShapeData<TShape>>);
+
+    return {
+      ...this.defaultValue,
+      ...defaultValue,
+    };
   }
 
   public override validate<

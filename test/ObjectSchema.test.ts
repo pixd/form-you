@@ -1,9 +1,6 @@
 import ObjectSchema from '../src/ObjectSchema';
-import {
-  isNotOptionalMessage,
-  isNotNullableMessage,
-  mustBeAnObjectMessage,
-} from './tools/checkMessage';
+import StringSchema from '../src/StringSchema';
+import { isNotOptionalMessage, isNotNullableMessage, mustBeAnObjectMessage } from './tools/checkMessage';
 import testSchemaValidation from './tools/testSchemaValidation';
 
 describe('ObjectSchema', () => {
@@ -192,13 +189,13 @@ describe('ObjectSchema', () => {
     testSchemaValidation(schema.nullable().clone(), {});
   });
 
-  it('should use default value', () => {
+  it('should get default value with .getDefault()', () => {
     const schema = ObjectSchema.create();
 
     expect(schema.getDefault()).toStrictEqual({});
   });
 
-  it('should set default value', () => {
+  it('should set default value with .default()', () => {
     const schema = ObjectSchema.create().default({
       price: 100,
     });
@@ -220,32 +217,67 @@ describe('ObjectSchema', () => {
     });
   });
 
-  it('should change default value on pattern change', () => {
-    const priceSchema = ObjectSchema.create().default({ amount: 100 });
-    const categorySchema = ObjectSchema.create().default({ id: 1 });
+  it('should change default value after .concat()', () => {
+    {
+      const schema = ObjectSchema.create();
 
-    const schema = ObjectSchema.create({
-      price: priceSchema,
-    });
+      const nextSchema = schema.concat({
+        name: StringSchema.create(),
+      });
 
-    expect(schema.getDefault()).toStrictEqual({
-      price: {
-        amount: 100,
-      },
-    });
+      expect(nextSchema.getDefault()).toStrictEqual({
+        name: '',
+      });
+    }
 
-    const nextSchema = schema.shape({
-      category: categorySchema,
-    });
+    {
+      const schema = ObjectSchema.create({
+        id: StringSchema.create(),
+      });
 
-    expect(nextSchema.getDefault()).toStrictEqual({
-      category: {
-        id: 1,
-      },
-    });
+      const nextSchema = schema.concat({
+        name: StringSchema.create(),
+      });
+
+      expect(nextSchema.getDefault()).toStrictEqual({
+        id: '',
+        name: '',
+      });
+    }
+
+    {
+      const schema = ObjectSchema.create({
+        id: StringSchema.create(),
+      }).default({ id: '10' });
+
+      const nextSchema = schema.concat({
+        name: StringSchema.create(),
+      });
+
+      expect(nextSchema.getDefault()).toStrictEqual({
+        id: '10',
+        name: '',
+      });
+    }
+
+    {
+      const schema = ObjectSchema.create({
+        name: StringSchema.create().optional(),
+      }).default({
+        name: undefined,
+      });
+
+      const nextSchema = schema.concat({
+        name: StringSchema.create(),
+      });
+
+      expect(nextSchema.getDefault()).toStrictEqual({
+        name: '',
+      });
+    }
   });
 
-  it('should mutate with mutate', () => {
+  it('should mutate with .mutate()', () => {
     {
       const schema = ObjectSchema.create();
 

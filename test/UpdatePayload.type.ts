@@ -1,5 +1,5 @@
 import { UpdatePayload } from '../src/update.types';
-import { expect, PASSED } from './tools/noop';
+import { expect, PASSED } from './tools/expect';
 
 type User = {
   id: number;

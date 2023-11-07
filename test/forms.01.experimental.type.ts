@@ -1,25 +1,21 @@
 import ObjectSchema from '../src/ObjectSchema';
 import StringSchema from '../src/StringSchema';
 import { SchemaDataType, SchemaContextType } from '../src/types';
-import { expect, PASSED } from './tools/noop';
+import { expect, PASSED } from './tools/expect';
 
 {
   type You<
-    TContext extends object = any,
+    TContext extends Record<string, any> = never,
   > = {
     object: {
       <
-        TData extends Record<string, any> = Record<string, never>,
-        TOptional extends boolean = never,
-        TNullable extends boolean = never,
-      >(): ObjectSchema<TData, TOptional, TNullable, TContext>;
+        TData extends Record<string, any> = never,
+      >(): ObjectSchema<TData, false, false, TContext>;
     };
     string: {
       <
         TData extends string = string,
-        TOptional extends boolean = never,
-        TNullable extends boolean = never,
-      >(): StringSchema<TData, TOptional, TNullable, TContext>;
+      >(): StringSchema<TData, false, false, TContext>;
     };
   };
 
@@ -59,7 +55,7 @@ import { expect, PASSED } from './tools/noop';
   };
 
   const myForm = form.withContext<Context>().create((you) => {
-    return you.object().shape({
+    return you.object().refine({
       name: you.string(),
     }).testContext((context) => {
       expect.equal<typeof context, Context>(PASSED);

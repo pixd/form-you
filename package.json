@@ -1,6 +1,6 @@
 {
   "name": "form-you",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Create forms with redux and yup-like definition and validation",
   "main": "lib/index.js",
   "module": "lib/index.esm.js",
@@ -9,15 +9,15 @@
     "lib"
   ],
   "scripts": {
-    "build": "npm run lint && npm run test && npm run build:dts && npm run build:project",
+    "build": "npm run build:dts && npm run build:project",
     "build:dts": "npm run clear:dts && tsc --emitDeclarationOnly -p . --outDir ./dts",
-    "build:project": "npm run clear:lib && rollup -c rollup.config.js",
+    "build:project": "npm run clear:lib && rollup -c ./rollup.config.js",
     "clear": "npm run clear:dts && npm run clear:lib",
     "clear:dts": "rm -rf ./dts",
     "clear:lib": "rm -rf ./lib",
-    "lint": "eslint ./src ./test --quiet --report-unused-disable-directives && node ./scripts/eopt.js ./src/*.ts ./test/*.ts",
-    "prepublishOnly": "npm run build",
-    "test": "jest --projects ./package.json"
+    "lint": "eslint ./src ./test --quiet --report-unused-disable-directives",
+    "prepublishOnly": "npm run lint && npm run test && npm run build",
+    "test": "jest --projects ./package.json && node ./scripts/eopt.js ./src/*.ts ./test/*.ts"
   },
   "repository": {
     "type": "git",

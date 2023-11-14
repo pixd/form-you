@@ -290,26 +290,44 @@ import { expect, PASSED } from './tools/expect';
  * Default value
  */
 {
-  const priceSchema = ObjectSchema.create({});
-
-  {
-    const schema = ObjectSchema.create();
-
-    expect.equal<Parameters<typeof schema.default>[0], null | Record<string, any>>(PASSED);
-  }
-
   {
     const schema = ObjectSchema.create();
 
     const defaultValue = schema.getDefault();
 
     expect.equal<typeof defaultValue, Record<string, any>>(PASSED);
+
+    expect.equal<Parameters<typeof schema.default>[0], null | Record<string, any>>(PASSED);
   }
 
   {
-    const schema = ObjectSchema.create({});
+    const schema = ObjectSchema.create().optional();
 
-    expect.equal<Parameters<typeof schema.default>[0], null | Record<string, never>>(PASSED);
+    const defaultValue = schema.getDefault();
+
+    expect.equal<typeof defaultValue, Record<string, any>>(PASSED);
+
+    expect.equal<Parameters<typeof schema.default>[0], null | Record<string, any>>(PASSED);
+  }
+
+  {
+    const schema = ObjectSchema.create().nullable();
+
+    const defaultValue = schema.getDefault();
+
+    expect.equal<typeof defaultValue, Record<string, any>>(PASSED);
+
+    expect.equal<Parameters<typeof schema.default>[0], null | Record<string, any>>(PASSED);
+  }
+
+  {
+    const schema = ObjectSchema.create().notRequired();
+
+    const defaultValue = schema.getDefault();
+
+    expect.equal<typeof defaultValue, Record<string, any>>(PASSED);
+
+    expect.equal<Parameters<typeof schema.default>[0], null | Record<string, any>>(PASSED);
   }
 
   {
@@ -318,72 +336,194 @@ import { expect, PASSED } from './tools/expect';
     const defaultValue = schema.getDefault();
 
     expect.equal<typeof defaultValue, Record<string, never>>(PASSED);
+
+    expect.equal<Parameters<typeof schema.default>[0], null | Record<string, never>>(PASSED);
   }
 
   {
     const schema = ObjectSchema.create({
-      price: priceSchema,
-    });
-
-    expect.equal<Parameters<typeof schema.default>[0], null | {
-      price: Record<string, never>;
-    }>(PASSED);
-  }
-
-  {
-    const schema = ObjectSchema.create({
-      price: priceSchema,
+      name: StringSchema.create(),
     });
 
     const defaultValue = schema.getDefault();
 
-    expect.equal<typeof defaultValue, {
-      price: Record<string, never>;
-    }>(PASSED);
+    expect.equal<typeof defaultValue, { name: string }>(PASSED);
+
+    expect.equal<Parameters<typeof schema.default>[0], null | { name: string }>(PASSED);
   }
 
   {
-    const schema = ObjectSchema
-      .create({
-        price: priceSchema,
-      })
+    const schema = ObjectSchema.create({
+      name: StringSchema.create().optional(),
+    });
+
+    const defaultValue = schema.getDefault();
+
+    expect.equal<typeof defaultValue, { name?: string }>(PASSED);
+
+    expect.equal<Parameters<typeof schema.default>[0], null | { name?: string }>(PASSED);
+  }
+
+  {
+    const schema = ObjectSchema.create({
+      name: StringSchema.create().nullable(),
+    });
+
+    const defaultValue = schema.getDefault();
+
+    expect.equal<typeof defaultValue, { name: null | string }>(PASSED);
+
+    expect.equal<Parameters<typeof schema.default>[0], null | { name: null | string }>(PASSED);
+  }
+
+  {
+    const schema = ObjectSchema.create({
+      name: StringSchema.create().notRequired(),
+    });
+
+    const defaultValue = schema.getDefault();
+
+    expect.equal<typeof defaultValue, { name?: null | string }>(PASSED);
+
+    expect.equal<Parameters<typeof schema.default>[0], null | { name?: null | string }>(PASSED);
+  }
+
+  {
+    const schema = ObjectSchema.create({
+      name: StringSchema.create(),
+    })
       .default({
-        price: {},
+        name: 'Antonio',
       });
 
     const defaultValue = schema.getDefault();
 
-    expect.equal<typeof defaultValue, {
-      price: Record<string, never>;
-    }>(PASSED);
-  }
-
-  {
-    const schema = ObjectSchema
-      .create({
-        price: priceSchema,
-      })
-      .default(null);
-
-    const defaultValue = schema.getDefault();
-
-    expect.equal<typeof defaultValue, {
-      price: Record<string, never>;
-    }>(PASSED);
+    expect.equal<typeof defaultValue, { name: string }>(PASSED);
   }
 
   {
     const schema = ObjectSchema.create({
-      price: priceSchema,
+      name: StringSchema.create().optional(),
+    })
+      .default({
+        name: 'Antonio',
+      });
+
+    const defaultValue = schema.getDefault();
+
+    expect.equal<typeof defaultValue, { name?: string }>(PASSED);
+  }
+
+  {
+    const schema = ObjectSchema.create({
+      name: StringSchema.create().nullable(),
+    })
+      .default({
+        name: 'Antonio',
+      });
+
+    const defaultValue = schema.getDefault();
+
+    expect.equal<typeof defaultValue, { name: null | string }>(PASSED);
+  }
+
+  {
+    const schema = ObjectSchema.create({
+      name: StringSchema.create().notRequired(),
+    })
+      .default({
+        name: 'Antonio',
+      });
+
+    const defaultValue = schema.getDefault();
+
+    expect.equal<typeof defaultValue, { name?: null | string }>(PASSED);
+  }
+
+  {
+    const schema = ObjectSchema.create({
+      name: StringSchema.create(),
+    })
+      .default(null);
+
+    const defaultValue = schema.getDefault();
+
+    expect.equal<typeof defaultValue, { name: string }>(PASSED);
+  }
+}
+
+/**
+ * Default value and concat
+ */
+{
+  {
+    const schema = ObjectSchema.create({
+      name: StringSchema.create(),
     }).concat({
-      wsPrice: priceSchema,
+      id: StringSchema.create(),
     });
 
     const defaultValue = schema.getDefault();
 
     expect.equal<typeof defaultValue, {
-      price: Record<string, never>;
-      wsPrice: Record<string, never>;
+      id: string;
+      name: string;
+    }>(PASSED);
+  }
+
+  {
+    const schema = ObjectSchema.create({
+      name: StringSchema.create().optional(),
+    }).concat({
+      name: StringSchema.create(),
+    });
+
+    const defaultValue = schema.getDefault();
+
+    expect.equal<typeof defaultValue, {
+      name: string;
+    }>(PASSED);
+  }
+
+  {
+    const schema = ObjectSchema.create({
+      name: StringSchema.create().nullable(),
+    }).concat({
+      name: StringSchema.create(),
+    });
+
+    const defaultValue = schema.getDefault();
+
+    expect.equal<typeof defaultValue, {
+      name: string;
+    }>(PASSED);
+  }
+
+  {
+    const schema = ObjectSchema.create({
+      name: StringSchema.create().notRequired(),
+    }).concat({
+      name: StringSchema.create().optional(),
+    });
+
+    const defaultValue = schema.getDefault();
+
+    expect.equal<typeof defaultValue, {
+      name?: string;
+    }>(PASSED);
+  }
+
+  {
+    const schema = ObjectSchema.create({
+      name: StringSchema.create().notRequired(),
+    }).concat({
+      name: StringSchema.create().nullable(),
+    });
+
+    const defaultValue = schema.getDefault();
+
+    expect.equal<typeof defaultValue, {
+      name: null | string;
     }>(PASSED);
   }
 }
@@ -736,25 +876,14 @@ import { expect, PASSED } from './tools/expect';
 
   {
     const schema = ObjectSchema.create({
-      id: StringSchema.create(),
+      name: StringSchema.create(),
     });
 
     const nextSchema = schema.concat({
-      name: StringSchema.create(),
+      id: StringSchema.create(),
     });
 
     expect.equal<SchemaDataType<typeof nextSchema>, { id: string; name: string }>(PASSED);
-  }
-
-  {
-    const schema = ObjectSchema.create({
-      name: StringSchema.create(),
-    });
-
-    schema.concat({
-      // @ts-expect-error
-      name: StringSchema.create().optional(),
-    });
   }
 
   {
@@ -776,7 +905,108 @@ import { expect, PASSED } from './tools/expect';
 
     schema.concat({
       // @ts-expect-error
+      name: StringSchema.create().optional(),
+    });
+  }
+
+  {
+    const schema = ObjectSchema.create({
+      name: StringSchema.create(),
+    });
+
+    schema.concat({
+      // @ts-expect-error
       name: ObjectSchema.create(),
+    });
+  }
+
+  {
+    const schema = ObjectSchema.create({
+      name: StringSchema.create(),
+    });
+
+    const nextSchema = schema.concat({});
+
+    expect.equal<SchemaDataType<typeof nextSchema>, { name: string }>(PASSED);
+  }
+
+  {
+    const schema = ObjectSchema.create({
+      user: ObjectSchema.create({
+        id: StringSchema.create(),
+        name: StringSchema.create().optional(),
+      }),
+    });
+
+    const nextSchema = schema.concat({
+      user: ObjectSchema.create(),
+    });
+
+    expect.equal<SchemaDataType<typeof nextSchema>, { user: { id: string; name?: string } }>(PASSED);
+  }
+
+  {
+    const schema = ObjectSchema.create({
+      user: ObjectSchema.create({
+        id: StringSchema.create(),
+        name: StringSchema.create().optional(),
+      }),
+    });
+
+    schema.concat({
+      // @ts-expect-error
+      user: ObjectSchema.create({}),
+    });
+  }
+
+  {
+    const schema = ObjectSchema.create({
+      user: ObjectSchema.create({
+        id: StringSchema.create(),
+        name: StringSchema.create().optional(),
+      }),
+    });
+
+    const nextSchema = schema.concat({
+      user: ObjectSchema.create({
+        id: StringSchema.create(),
+        name: StringSchema.create(),
+      }),
+    });
+
+    expect.equal<SchemaDataType<typeof nextSchema>, { user: { id: string; name: string } }>(PASSED);
+  }
+
+  {
+    const schema = ObjectSchema.create({
+      user: ObjectSchema.create({
+        id: StringSchema.create(),
+        name: StringSchema.create().optional(),
+      }),
+    });
+
+    const nextSchema = schema.concat({
+      user: ObjectSchema.create({
+        id: StringSchema.create(),
+      }),
+    });
+
+    expect.equal<SchemaDataType<typeof nextSchema>, { user: { id: string; name?: string } }>(PASSED);
+  }
+
+  {
+    const schema = ObjectSchema.create({
+      user: ObjectSchema.create({
+        id: StringSchema.create(),
+        name: StringSchema.create().optional(),
+      }),
+    });
+
+    schema.concat({
+      // @ts-expect-error
+      user: ObjectSchema.create({
+        name: StringSchema.create().optional(),
+      }),
     });
   }
 }

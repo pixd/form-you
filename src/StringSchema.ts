@@ -17,7 +17,7 @@ export default interface StringSchema<
     TRejectUndefined extends null | string = never,
     TRejectNull extends null | string = never,
   >(
-    props?: Partial<SchemaCloneProps<TNextPattern, TDefaultValue, TRejectUndefined, TRejectNull>>,
+    props?: Partial<SchemaCloneProps<TNextPattern[], TDefaultValue, TRejectUndefined, TRejectNull>>,
   ): StringSchema<TNextPattern, RejectType<TRejectUndefined, TOptional>, RejectType<TRejectNull, TNullable>, TContext>;
 
   clone<
@@ -26,7 +26,7 @@ export default interface StringSchema<
     TRejectUndefined extends null | string = never,
     TRejectNull extends null | string = never,
   >(
-    props?: Partial<SchemaCloneProps<TNextPattern, TDefaultValue, TRejectUndefined, TRejectNull>>,
+    props?: Partial<SchemaCloneProps<TNextPattern[], TDefaultValue, TRejectUndefined, TRejectNull>>,
   ): StringSchema<TNextPattern, RejectType<TRejectUndefined, TOptional>, RejectType<TRejectNull, TNullable>, TContext>;
 
   mutate<
@@ -86,11 +86,11 @@ export default class StringSchema<
     TPattern extends string = string,
     TContext extends Record<string, any> = object,
   >(
-    values?: TPattern[],
+    pattern?: TPattern[],
   ): StringSchema<TPattern, false, false, TContext> {
     const schema = new StringSchema<TPattern, false, false, TContext>();
 
-    schema.patternValue = values ?? null;
+    schema.patternValue = pattern ?? null;
 
     return schema;
   }
@@ -98,9 +98,16 @@ export default class StringSchema<
   public refine<
     TNextPattern extends TPattern = TPattern,
   >(
-    pattern: TNextPattern[],
-  ): StringSchema<TNextPattern & TPattern, TOptional, TNullable, TContext> {
-    return this.pattern(pattern) as StringSchema<TNextPattern & TPattern, TOptional, TNullable, TContext>;
+    patternValue: TNextPattern[],
+  ): StringSchema<TNextPattern, TOptional, TNullable, TContext> {
+    const defaultValue = patternValue.includes(this.defaultValue as TNextPattern)
+      ? this.defaultValue
+      : null;
+
+    return this.apply({
+      defaultValue,
+      patternValue,
+    });
   }
 
   public override getDefault(): PatternData<TPattern> {

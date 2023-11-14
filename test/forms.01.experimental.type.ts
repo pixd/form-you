@@ -55,7 +55,7 @@ import { expect, PASSED } from './tools/expect';
   };
 
   const myForm = form.withContext<Context>().create((you) => {
-    return you.object().refine({
+    return you.object().concat({
       name: you.string(),
     }).testContext((context) => {
       expect.equal<typeof context, Context>(PASSED);
@@ -69,3 +69,42 @@ import { expect, PASSED } from './tools/expect';
 
   expect.equal<FormContext, Context>(PASSED);
 }
+
+/*
+  Состояние элемента формы:
+  {
+    value: any;
+    prevValue: any;
+    initialValue: any;
+    modified: boolean;
+    modifiedAt: number;
+  }
+
+  <Input {...userForm.name.control} />
+  <Input {...userForm.company.address.city.field.props} />
+  -- <Input {...userForm.friends[].address.city.field.props} />
+  <Input {...userForm.friends(0).address.city.field.props} />
+  <Input {...userForm.friends.at(0).address.city.field.props} />
+  <Input {...userForm.friends.state.at(0).address.city.field.props} />
+  <Input {...userForm.friends.asArray().at(0).address.city.field.props} />
+  <Input {...userForm.friends(0).as<Friend>().address.city.field.props} />
+  <Input {...userForm.friend.as<Boss>().address.city.field.props} />
+
+  {isBoss(userForm.friend)
+    ? <Boss {...userForm.friend.as<Boss>()} />
+    : <User {...userForm.friend.as<User>()} />}
+
+  updateAtPath('friends.0.address.city', 'Moscow');
+
+
+  tariffForm.rates.update({ $$append: [{ name: 'abc' }] })
+  tariffForm.rates.elements.map()
+
+  StringSchema.create().refine();
+  ObjectSchema.create().concat({});
+  ObjectSchema.create().refine();
+
+
+
+
+ */

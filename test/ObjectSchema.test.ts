@@ -206,15 +206,29 @@ describe('ObjectSchema', () => {
   });
 
   it('should use shape to calculate default value', () => {
-    const priceSchema = ObjectSchema.create();
+    {
+      const schema = ObjectSchema.create();
 
-    const schema = ObjectSchema.create({
-      price: priceSchema,
-    });
+      expect(schema.getDefault()).toStrictEqual({});
+    }
 
-    expect(schema.getDefault()).toStrictEqual({
-      price: {},
-    });
+    {
+      const schema = ObjectSchema.create({});
+
+      expect(schema.getDefault()).toStrictEqual({});
+    }
+
+    {
+      const priceSchema = ObjectSchema.create();
+
+      const schema = ObjectSchema.create({
+        price: priceSchema,
+      });
+
+      expect(schema.getDefault()).toStrictEqual({
+        price: {},
+      });
+    }
   });
 
   it('should change default value after .concat()', () => {
@@ -231,12 +245,24 @@ describe('ObjectSchema', () => {
     }
 
     {
-      const schema = ObjectSchema.create({
-        id: StringSchema.create(),
-      });
+      const schema = ObjectSchema.create({});
 
       const nextSchema = schema.concat({
         name: StringSchema.create(),
+      });
+
+      expect(nextSchema.getDefault()).toStrictEqual({
+        name: '',
+      });
+    }
+
+    {
+      const schema = ObjectSchema.create({
+        name: StringSchema.create(),
+      });
+
+      const nextSchema = schema.concat({
+        id: StringSchema.create(),
       });
 
       expect(nextSchema.getDefault()).toStrictEqual({
@@ -247,32 +273,36 @@ describe('ObjectSchema', () => {
 
     {
       const schema = ObjectSchema.create({
-        id: StringSchema.create(),
-      }).default({ id: '10' });
+        name: StringSchema.create(),
+      })
+        .default({
+          name: 'Antonio',
+        });
 
       const nextSchema = schema.concat({
         name: StringSchema.create(),
       });
 
       expect(nextSchema.getDefault()).toStrictEqual({
-        id: '10',
         name: '',
       });
     }
 
     {
       const schema = ObjectSchema.create({
-        name: StringSchema.create().optional(),
-      }).default({
-        name: undefined,
-      });
+        name: StringSchema.create(),
+      })
+        .default({
+          name: 'Antonio',
+        });
 
       const nextSchema = schema.concat({
-        name: StringSchema.create(),
+        id: StringSchema.create(),
       });
 
       expect(nextSchema.getDefault()).toStrictEqual({
-        name: '',
+        id: '',
+        name: 'Antonio',
       });
     }
   });

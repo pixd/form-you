@@ -200,10 +200,24 @@ describe('StringSchema', () => {
     expect(schema.getDefault()).toBe('Antonio');
   });
 
-  it('should use values to calculate default value', () => {
-    const schema = StringSchema.create(['Antonio', 'Mars']);
+  it('should use pattern to calculate default value', () => {
+    {
+      const schema = StringSchema.create();
 
-    expect(schema.getDefault()).toBe('Antonio');
+      expect(schema.getDefault()).toBe('');
+    }
+
+    {
+      const schema = StringSchema.create(['Antonio']);
+
+      expect(schema.getDefault()).toBe('Antonio');
+    }
+
+    {
+      const schema = StringSchema.create(['Antonio', 'Mark']);
+
+      expect(schema.getDefault()).toBe('Antonio');
+    }
   });
 
   it('should change default value after .refine()', () => {
@@ -217,6 +231,22 @@ describe('StringSchema', () => {
 
     {
       const schema = StringSchema.create(['Antonio', 'Mark']);
+
+      const nextSchema = schema.refine(['Antonio']);
+
+      expect(nextSchema.getDefault()).toBe('Antonio');
+    }
+
+    {
+      const schema = StringSchema.create().default('Mark');
+
+      const nextSchema = schema.refine(['Antonio']);
+
+      expect(nextSchema.getDefault()).toBe('Antonio');
+    }
+
+    {
+      const schema = StringSchema.create(['Antonio', 'Mark']).default('Mark');
 
       const nextSchema = schema.refine(['Antonio']);
 

@@ -231,51 +231,80 @@ import { expect, PASSED } from './tools/expect';
   {
     const schema = StringSchema.create();
 
+    const defaultValue = schema.getDefault();
+
+    expect.equal<typeof defaultValue, string>(PASSED);
+
     expect.equal<Parameters<typeof schema.default>[0], null | string>(PASSED);
   }
 
   {
-    const schema = StringSchema.create();
+    const schema = StringSchema.create().optional();
 
     const defaultValue = schema.getDefault();
 
     expect.equal<typeof defaultValue, string>(PASSED);
+
+    expect.equal<Parameters<typeof schema.default>[0], null | string>(PASSED);
   }
 
   {
-    const schema = StringSchema.create(['Snickers', 'Mars']);
-
-    expect.equal<Parameters<typeof schema.default>[0], null | 'Snickers' | 'Mars'>(PASSED);
-  }
-
-  {
-    const schema = StringSchema.create(['Snickers', 'Mars']);
+    const schema = StringSchema.create().nullable();
 
     const defaultValue = schema.getDefault();
 
-    expect.equal<typeof defaultValue, 'Snickers' | 'Mars'>(PASSED);
+    expect.equal<typeof defaultValue, string>(PASSED);
+
+    expect.equal<Parameters<typeof schema.default>[0], null | string>(PASSED);
   }
 
   {
-    const schema = StringSchema.create(['Snickers', 'Mars']).default('Snickers');
+    const schema = StringSchema.create().notRequired();
 
     const defaultValue = schema.getDefault();
 
-    expect.equal<typeof defaultValue, 'Snickers' | 'Mars'>(PASSED);
+    expect.equal<typeof defaultValue, string>(PASSED);
+
+    expect.equal<Parameters<typeof schema.default>[0], null | string>(PASSED);
   }
 
   {
-    const schema = StringSchema.create(['Snickers', 'Mars']).default(null);
+    const schema = StringSchema.create(['Antonio', 'Mark']);
 
     const defaultValue = schema.getDefault();
 
-    expect.equal<typeof defaultValue, 'Snickers' | 'Mars'>(PASSED);
+    expect.equal<typeof defaultValue, 'Antonio' | 'Mark'>(PASSED);
+
+    expect.equal<Parameters<typeof schema.default>[0], null | 'Antonio' | 'Mark'>(PASSED);
   }
 
   {
-    const schema = StringSchema.create(['Snickers', 'Mars']).refine(['Snickers']);
+    const schema = StringSchema.create(['Antonio', 'Mark'])
+      .default('Antonio');
 
-    expect.equal<Parameters<typeof schema.default>[0], null | 'Snickers'>(PASSED);
+    const defaultValue = schema.getDefault();
+
+    expect.equal<typeof defaultValue, 'Antonio' | 'Mark'>(PASSED);
+  }
+
+  {
+    const schema = StringSchema.create(['Antonio', 'Mark'])
+      .default(null);
+
+    const defaultValue = schema.getDefault();
+
+    expect.equal<typeof defaultValue, 'Antonio' | 'Mark'>(PASSED);
+  }
+}
+
+/**
+ * Default value and refine
+ */
+{
+  {
+    const schema = StringSchema.create(['Antonio', 'Mark']).refine(['Antonio']);
+
+    expect.equal<Parameters<typeof schema.default>[0], null | 'Antonio'>(PASSED);
   }
 }
 

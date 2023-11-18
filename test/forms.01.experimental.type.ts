@@ -96,15 +96,10 @@ import { expect, PASSED } from './tools/expect';
 
   updateAtPath('friends.0.address.city', 'Moscow');
 
-
   tariffForm.rates.update({ $$append: [{ name: 'abc' }] })
   tariffForm.rates.elements.map()
 
   StringSchema.create().refine();
   ObjectSchema.create().concat({});
   ObjectSchema.create().refine();
-
-
-
-
  */

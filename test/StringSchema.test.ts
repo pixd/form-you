@@ -230,7 +230,7 @@ describe('StringSchema', () => {
     }
 
     {
-      const schema = StringSchema.create(['Antonio', 'Mark']);
+      const schema = StringSchema.create().default('Mark');
 
       const nextSchema = schema.refine(['Antonio']);
 
@@ -238,11 +238,11 @@ describe('StringSchema', () => {
     }
 
     {
-      const schema = StringSchema.create().default('Mark');
+      const schema = StringSchema.create(['Antonio', 'Mark']);
 
-      const nextSchema = schema.refine(['Antonio']);
+      const nextSchema = schema.refine(['Mark']);
 
-      expect(nextSchema.getDefault()).toBe('Antonio');
+      expect(nextSchema.getDefault()).toBe('Mark');
     }
 
     {

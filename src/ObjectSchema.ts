@@ -97,8 +97,10 @@ export default interface ObjectSchema<
   notRequired(): ObjectSchema<TShape, true, true, TContext>;
 
   default(
-    defaultValue: null | _<ShapeData<TShape>>,
+    defaultValue: _<ShapeData<TShape>>,
   ): ObjectSchema<TShape, TOptional, TNullable, TContext>;
+
+  resetDefault(): ObjectSchema<TShape, TOptional, TNullable, TContext>;
 }
 
 export default class ObjectSchema<
@@ -109,26 +111,14 @@ export default class ObjectSchema<
 > extends BaseSchema<_<ShapeData<TShape>>, TOptional, TNullable, TContext> {
   protected override patternValue: null | Shape = null;
 
-  protected override defaultValue: null | _<ShapeData<TShape>> = null;
-
-  protected defaultValueSchema: Shape = {};
+  protected override defaultValue: null | { data: _<ShapeData<TShape>> } = null;
 
   protected override selfConstructor: {
     new (): ObjectSchema;
   } = ObjectSchema;
 
-  protected override selfRich(
-    schema: ObjectSchema<TShape, TOptional, TNullable, TContext>,
-    props: SchemaCloneProps<SafetyType<TShape, {}>, _<ShapeData<TShape>>>,
-  ) {
-    if ('defaultValue' in props) {
-      if (props.defaultValue == null) {
-        schema.defaultValueSchema = this.patternValue ?? {};
-      }
-      else {
-        schema.defaultValueSchema = {};
-      }
-    }
+  protected override selfRich() {
+    return;
   }
 
   public static create<
@@ -140,8 +130,6 @@ export default class ObjectSchema<
     const schema = new ObjectSchema();
 
     schema.patternValue = shape ?? null;
-
-    schema.defaultValueSchema = shape ?? {};
 
     return schema as ObjectSchema<TShape, false, false, TContext>;
   }
@@ -155,10 +143,15 @@ export default class ObjectSchema<
       ...this.patternValue,
       ...shape,
     } as TNextShape & SafetyType<TShape, {}>;
-    const defaultValue = {
-      ...this.defaultValueSchema,
-      ...shape,
-    } as _<ShapeData<TShape>>;
+
+    let defaultValue: null | { data: _<ShapeData<TShape>> } = null;
+
+    if (this.defaultValue) {
+      defaultValue = { data: { ...this.defaultValue.data } };
+      Object.keys(shape).forEach((key) => {
+        delete defaultValue?.data[key];
+      });
+    }
 
     return this.apply({
       patternValue,
@@ -167,15 +160,15 @@ export default class ObjectSchema<
   }
 
   public override getDefault(): _<ShapeData<TShape>> {
-    const defaultValue = Object.entries(this.defaultValueSchema)
+    const defaultValue = Object.entries(this.patternValue ?? {})
       .reduce((defaultValue, [key, schema]) => {
         defaultValue[key] = schema.getDefault();
         return defaultValue;
       }, {});
 
     return {
-      ...this.defaultValue,
       ...defaultValue,
+      ...this.defaultValue?.data,
     } as _<ShapeData<TShape>>;
   }
 

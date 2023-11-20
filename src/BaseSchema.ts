@@ -80,7 +80,7 @@ export type SchemaCloneProps<
   TRejectNull extends null | string = null | string,
 > = {
   patternValue?: TPatternValue;
-  defaultValue?: null | TDefaultValue;
+  defaultValue?: null | { data: TDefaultValue };
   rejectUndefined?: TRejectUndefined;
   rejectNull?: TRejectNull;
 };
@@ -129,7 +129,7 @@ export default abstract class BaseSchema<
 
   protected patternValue: any = null;
 
-  protected abstract defaultValue: null | TData;
+  protected abstract defaultValue: null | { data: TData };
 
   protected rejectUndefined: null | string = '';
 
@@ -180,7 +180,7 @@ export default abstract class BaseSchema<
     if (props) {
       Object.assign(schema, props);
     }
-    
+
     this.selfRich(schema, props ?? {});
 
     return schema;
@@ -276,10 +276,16 @@ export default abstract class BaseSchema<
   // }
 
   public default(
-    defaultValue: null | TData,
+    data: TData,
   ): BaseSchema {
     return this.apply({
-      defaultValue,
+      defaultValue: { data },
+    });
+  }
+
+  public resetDefault(): BaseSchema {
+    return this.apply({
+      defaultValue: null,
     });
   }
 

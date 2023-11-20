@@ -3,7 +3,7 @@ import { isNotOptionalMessage, isNotNullableMessage, mustBeAnStringMessage } fro
 import testSchemaValidation from './tools/testSchemaValidation';
 
 describe('StringSchema', () => {
-  it('should validate', () => {
+  it('should validate)', () => {
     const schema = StringSchema.create();
     testSchemaValidation(schema, undefined, isNotOptionalMessage);
     testSchemaValidation(schema, null, isNotNullableMessage);
@@ -12,7 +12,7 @@ describe('StringSchema', () => {
     testSchemaValidation(schema, 0, mustBeAnStringMessage);
   });
 
-  it('should validate with .optional()', () => {
+  it('should validate optional data', () => {
     const schema = StringSchema.create()
       .optional();
 
@@ -38,7 +38,7 @@ describe('StringSchema', () => {
     // testSchemaValidation(schema.null(), '', mustBeNullMessage);
   });
 
-  it('should validate with .notOptional()', () => {
+  it('should validate not-optional data', () => {
     const schema = StringSchema.create()
       .notOptional();
 
@@ -64,7 +64,7 @@ describe('StringSchema', () => {
     // testSchemaValidation(schema.null(), '', mustBeNullMessage);
   });
 
-  it('should validate with .nullable()', () => {
+  it('should validate nullable data', () => {
     const schema = StringSchema.create()
       .nullable();
 
@@ -90,7 +90,7 @@ describe('StringSchema', () => {
     // testSchemaValidation(schema.null(), '', mustBeNullMessage);
   });
 
-  it('should validate with .notNullable()', () => {
+  it('should validate not-nullable data', () => {
     const schema = StringSchema.create()
       .notNullable();
 
@@ -116,7 +116,7 @@ describe('StringSchema', () => {
     // testSchemaValidation(schema.null(), '', mustBeNullMessage);
   });
 
-  it('should validate with .required()', () => {
+  it('should validate required data', () => {
     const schema = StringSchema.create()
       .required();
 
@@ -145,7 +145,7 @@ describe('StringSchema', () => {
     // testSchemaValidation(schema.null(), '', mustBeNullMessage);
   });
 
-  it('should validate with .notRequired()', () => {
+  it('should validate not-required data', () => {
     const schema = StringSchema.create()
       .notRequired();
 
@@ -174,7 +174,7 @@ describe('StringSchema', () => {
     // testSchemaValidation(schema.null(), '', mustBeNullMessage);
   });
 
-  it('should clone', () => {
+  it('should clone with .clone()', () => {
     const schema = StringSchema.create();
 
     testSchemaValidation(schema.clone(), undefined, isNotOptionalMessage);
@@ -188,7 +188,7 @@ describe('StringSchema', () => {
     testSchemaValidation(schema.nullable().clone(), '');
   });
 
-  it('should get default value with .getDefault()', () => {
+  it('should return default value on .getDefault()', () => {
     const schema = StringSchema.create();
 
     expect(schema.getDefault()).toBe('');
@@ -251,6 +251,26 @@ describe('StringSchema', () => {
       const nextSchema = schema.refine(['Antonio']);
 
       expect(nextSchema.getDefault()).toBe('Antonio');
+    }
+  });
+
+  it('should reset default with .resetDefault()', () => {
+    {
+      const schema = StringSchema.create().default('Antonio').resetDefault();
+
+      expect(schema.getDefault()).toBe('');
+    }
+
+    {
+      const schema = StringSchema.create(['Antonio', 'Mark']).resetDefault();
+
+      expect(schema.getDefault()).toBe('Antonio');
+    }
+
+    {
+      const schema = StringSchema.create(['Antonio', 'Mark']).default('Mark').resetDefault();
+
+      expect(schema.getDefault()).toBe('Antonio');
     }
   });
 

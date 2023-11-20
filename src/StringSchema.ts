@@ -60,8 +60,10 @@ export default interface StringSchema<
   notRequired(): StringSchema<TPattern, true, true, TContext>;
 
   default(
-    defaultValue: null | PatternData<TPattern>,
+    defaultValue: PatternData<TPattern>,
   ): StringSchema<TPattern, TOptional, TNullable, TContext>;
+
+  resetDefault(): StringSchema<TPattern, TOptional, TNullable, TContext>;
 }
 
 export default class StringSchema<
@@ -72,7 +74,7 @@ export default class StringSchema<
 > extends BaseSchema<PatternData<TPattern>, TOptional, TNullable, TContext> {
   protected override patternValue: null | string[] = null;
 
-  protected override defaultValue: null | PatternData<TPattern> = null;
+  protected override defaultValue: null | { data: PatternData<TPattern> } = null;
 
   protected override selfConstructor: {
     new (): StringSchema;
@@ -100,19 +102,23 @@ export default class StringSchema<
   >(
     patternValue: TNextPattern[],
   ): StringSchema<TNextPattern, TOptional, TNullable, TContext> {
-    const defaultValue = patternValue.includes(this.defaultValue as TNextPattern)
-      ? this.defaultValue
-      : null;
+    let defaultValue: null | { data: PatternData<TPattern> } = null;
+
+    if (this.defaultValue) {
+      defaultValue = patternValue.includes(this.defaultValue.data as TNextPattern)
+        ? this.defaultValue
+        : null;
+    }
 
     return this.apply({
-      defaultValue,
       patternValue,
+      defaultValue,
     });
   }
 
   public override getDefault(): PatternData<TPattern> {
-    if (this.defaultValue != null) {
-      return this.defaultValue;
+    if (this.defaultValue) {
+      return this.defaultValue.data;
     }
     else if (this.patternValue) {
       return (this.patternValue[0] ?? '') as PatternData<TPattern>;

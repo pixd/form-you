@@ -13,7 +13,7 @@ describe('ObjectSchema', () => {
     testSchemaValidation(schema, '', mustBeAnObjectMessage);
   });
 
-  it('should validate with .optional()', () => {
+  it('should validate optional data', () => {
     const schema = ObjectSchema.create()
       .optional();
 
@@ -39,7 +39,7 @@ describe('ObjectSchema', () => {
     // testSchemaValidation(schema.null(), {}, mustBeNullMessage);
   });
 
-  it('should validate with .notOptional()', () => {
+  it('should validate not-optional data', () => {
     const schema = ObjectSchema.create()
       .notOptional();
 
@@ -65,7 +65,7 @@ describe('ObjectSchema', () => {
     // testSchemaValidation(schema.null(), {}, mustBeNullMessage);
   });
 
-  it('should validate with .nullable()', () => {
+  it('should validate nullable data', () => {
     const schema = ObjectSchema.create()
       .nullable();
 
@@ -91,7 +91,7 @@ describe('ObjectSchema', () => {
     // testSchemaValidation(schema.null(), {}, mustBeNullMessage);
   });
 
-  it('should validate with .notNullable()', () => {
+  it('should validate not-nullable data', () => {
     const schema = ObjectSchema.create()
       .notNullable();
 
@@ -117,7 +117,7 @@ describe('ObjectSchema', () => {
     // testSchemaValidation(schema.null(), {}, mustBeNullMessage);
   });
 
-  it('should validate with .required()', () => {
+  it('should validate required data', () => {
     const schema = ObjectSchema.create()
       .required();
 
@@ -146,7 +146,7 @@ describe('ObjectSchema', () => {
     // testSchemaValidation(schema.null(), {}, mustBeNullMessage);
   });
 
-  it('should validate with .notRequired()', () => {
+  it('should validate not-required data', () => {
     const schema = ObjectSchema.create()
       .notRequired();
 
@@ -175,7 +175,7 @@ describe('ObjectSchema', () => {
     // testSchemaValidation(schema.null(), {}, mustBeNullMessage);
   });
 
-  it('should clone', () => {
+  it('should clone with .clone()', () => {
     const schema = ObjectSchema.create();
 
     testSchemaValidation(schema.clone(), undefined, isNotOptionalMessage);
@@ -189,7 +189,7 @@ describe('ObjectSchema', () => {
     testSchemaValidation(schema.nullable().clone(), {});
   });
 
-  it('should get default value with .getDefault()', () => {
+  it('should return default value on .getDefault()', () => {
     const schema = ObjectSchema.create();
 
     expect(schema.getDefault()).toStrictEqual({});
@@ -305,6 +305,10 @@ describe('ObjectSchema', () => {
         name: 'Antonio',
       });
     }
+  });
+
+  it('should reset default with .resetDefault()', () => {
+    // code goes here
   });
 
   it('should mutate with .mutate()', () => {

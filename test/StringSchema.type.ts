@@ -235,37 +235,40 @@ import { expect, PASSED } from './tools/expect';
 
     expect.equal<typeof defaultValue, string>(PASSED);
 
-    expect.equal<Parameters<typeof schema.default>[0], null | string>(PASSED);
+    expect.equal<Parameters<typeof schema.default>[0], string>(PASSED);
   }
 
   {
-    const schema = StringSchema.create().optional();
+    const schema = StringSchema.create()
+      .optional();
 
     const defaultValue = schema.getDefault();
 
     expect.equal<typeof defaultValue, string>(PASSED);
 
-    expect.equal<Parameters<typeof schema.default>[0], null | string>(PASSED);
+    expect.equal<Parameters<typeof schema.default>[0], string>(PASSED);
   }
 
   {
-    const schema = StringSchema.create().nullable();
+    const schema = StringSchema.create()
+      .nullable();
 
     const defaultValue = schema.getDefault();
 
     expect.equal<typeof defaultValue, string>(PASSED);
 
-    expect.equal<Parameters<typeof schema.default>[0], null | string>(PASSED);
+    expect.equal<Parameters<typeof schema.default>[0], string>(PASSED);
   }
 
   {
-    const schema = StringSchema.create().notRequired();
+    const schema = StringSchema.create()
+      .notRequired();
 
     const defaultValue = schema.getDefault();
 
     expect.equal<typeof defaultValue, string>(PASSED);
 
-    expect.equal<Parameters<typeof schema.default>[0], null | string>(PASSED);
+    expect.equal<Parameters<typeof schema.default>[0], string>(PASSED);
   }
 
   {
@@ -275,21 +278,12 @@ import { expect, PASSED } from './tools/expect';
 
     expect.equal<typeof defaultValue, 'Antonio' | 'Mark'>(PASSED);
 
-    expect.equal<Parameters<typeof schema.default>[0], null | 'Antonio' | 'Mark'>(PASSED);
+    expect.equal<Parameters<typeof schema.default>[0], 'Antonio' | 'Mark'>(PASSED);
   }
 
   {
     const schema = StringSchema.create(['Antonio', 'Mark'])
       .default('Antonio');
-
-    const defaultValue = schema.getDefault();
-
-    expect.equal<typeof defaultValue, 'Antonio' | 'Mark'>(PASSED);
-  }
-
-  {
-    const schema = StringSchema.create(['Antonio', 'Mark'])
-      .default(null);
 
     const defaultValue = schema.getDefault();
 
@@ -302,9 +296,33 @@ import { expect, PASSED } from './tools/expect';
  */
 {
   {
-    const schema = StringSchema.create(['Antonio', 'Mark']).refine(['Antonio']);
+    const schema = StringSchema.create()
+      .refine(['Antonio']);
 
-    expect.equal<Parameters<typeof schema.default>[0], null | 'Antonio'>(PASSED);
+    expect.equal<Parameters<typeof schema.default>[0], 'Antonio'>(PASSED);
+  }
+
+  {
+    const schema = StringSchema.create()
+      .default('Mark')
+      .refine(['Antonio']);
+
+    expect.equal<Parameters<typeof schema.default>[0], 'Antonio'>(PASSED);
+  }
+
+  {
+    const schema = StringSchema.create(['Antonio', 'Mark'])
+      .refine(['Mark']);
+
+    expect.equal<Parameters<typeof schema.default>[0], 'Mark'>(PASSED);
+  }
+
+  {
+    const schema = StringSchema.create(['Antonio', 'Mark'])
+      .default('Mark')
+      .refine(['Antonio']);
+
+    expect.equal<Parameters<typeof schema.default>[0], 'Antonio'>(PASSED);
   }
 }
 

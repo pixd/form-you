@@ -190,9 +190,29 @@ describe('ObjectSchema', () => {
   });
 
   it('should return default value on .getDefault()', () => {
-    const schema = ObjectSchema.create();
+    {
+      const schema = ObjectSchema.create();
 
-    expect(schema.getDefault()).toStrictEqual({});
+      expect(schema.getDefault()).toStrictEqual({});
+    }
+
+    {
+      const schema = ObjectSchema.create().optional();
+
+      expect(schema.getDefault()).toBe(undefined);
+    }
+
+    {
+      const schema = ObjectSchema.create().nullable();
+
+      expect(schema.getDefault()).toBe(null);
+    }
+
+    {
+      const schema = ObjectSchema.create().notRequired();
+
+      expect(schema.getDefault()).toBe(undefined);
+    }
   });
 
   it('should set default value with .default()', () => {
@@ -308,7 +328,40 @@ describe('ObjectSchema', () => {
   });
 
   it('should reset default with .resetDefault()', () => {
-    // code goes here
+    {
+      const schema = ObjectSchema.create()
+        .default({ name: 'Antonio' })
+        .resetDefault();
+
+      expect(schema.getDefault()).toStrictEqual({});
+    }
+
+    {
+      const schema = ObjectSchema.create()
+        .optional()
+        .default({ name: 'Antonio' })
+        .resetDefault();
+
+      expect(schema.getDefault()).toBe(undefined);
+    }
+
+    {
+      const schema = ObjectSchema.create()
+        .nullable()
+        .default({ name: 'Antonio' })
+        .resetDefault();
+
+      expect(schema.getDefault()).toBe(null);
+    }
+
+    {
+      const schema = ObjectSchema.create()
+        .notRequired()
+        .default({ name: 'Antonio' })
+        .resetDefault();
+
+      expect(schema.getDefault()).toBe(undefined);
+    }
   });
 
   it('should mutate with .mutate()', () => {

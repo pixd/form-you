@@ -297,37 +297,40 @@ import { expect, PASSED } from './tools/expect';
 
     expect.equal<typeof defaultValue, Record<string, any>>(PASSED);
 
+    expect.equal<Parameters<typeof schema.default>[0], Record<string, any>>(PASSED);
+  }
+
+  {
+    const schema = ObjectSchema.create()
+      .optional();
+
+    const defaultValue = schema.getDefault();
+
+    expect.equal<typeof defaultValue, undefined | Record<string, any>>(PASSED);
+
+    expect.equal<Parameters<typeof schema.default>[0], undefined | Record<string, any>>(PASSED);
+  }
+
+  {
+    const schema = ObjectSchema.create()
+      .nullable();
+
+    const defaultValue = schema.getDefault();
+
+    expect.equal<typeof defaultValue, null | Record<string, any>>(PASSED);
+
     expect.equal<Parameters<typeof schema.default>[0], null | Record<string, any>>(PASSED);
   }
 
   {
-    const schema = ObjectSchema.create().optional();
+    const schema = ObjectSchema.create()
+      .notRequired();
 
     const defaultValue = schema.getDefault();
 
-    expect.equal<typeof defaultValue, Record<string, any>>(PASSED);
+    expect.equal<typeof defaultValue, undefined | null | Record<string, any>>(PASSED);
 
-    expect.equal<Parameters<typeof schema.default>[0], null | Record<string, any>>(PASSED);
-  }
-
-  {
-    const schema = ObjectSchema.create().nullable();
-
-    const defaultValue = schema.getDefault();
-
-    expect.equal<typeof defaultValue, Record<string, any>>(PASSED);
-
-    expect.equal<Parameters<typeof schema.default>[0], null | Record<string, any>>(PASSED);
-  }
-
-  {
-    const schema = ObjectSchema.create().notRequired();
-
-    const defaultValue = schema.getDefault();
-
-    expect.equal<typeof defaultValue, Record<string, any>>(PASSED);
-
-    expect.equal<Parameters<typeof schema.default>[0], null | Record<string, any>>(PASSED);
+    expect.equal<Parameters<typeof schema.default>[0], undefined | null | Record<string, any>>(PASSED);
   }
 
   {
@@ -337,7 +340,7 @@ import { expect, PASSED } from './tools/expect';
 
     expect.equal<typeof defaultValue, Record<string, never>>(PASSED);
 
-    expect.equal<Parameters<typeof schema.default>[0], null | Record<string, never>>(PASSED);
+    expect.equal<Parameters<typeof schema.default>[0], Record<string, never>>(PASSED);
   }
 
   {
@@ -349,43 +352,46 @@ import { expect, PASSED } from './tools/expect';
 
     expect.equal<typeof defaultValue, { name: string }>(PASSED);
 
-    expect.equal<Parameters<typeof schema.default>[0], null | { name: string }>(PASSED);
+    expect.equal<Parameters<typeof schema.default>[0], { name: string }>(PASSED);
   }
 
   {
     const schema = ObjectSchema.create({
-      name: StringSchema.create().optional(),
+      name: StringSchema.create()
+        .optional(),
     });
 
     const defaultValue = schema.getDefault();
 
     expect.equal<typeof defaultValue, { name?: string }>(PASSED);
 
-    expect.equal<Parameters<typeof schema.default>[0], null | { name?: string }>(PASSED);
+    expect.equal<Parameters<typeof schema.default>[0], { name?: string }>(PASSED);
   }
 
   {
     const schema = ObjectSchema.create({
-      name: StringSchema.create().nullable(),
+      name: StringSchema.create()
+        .nullable(),
     });
 
     const defaultValue = schema.getDefault();
 
     expect.equal<typeof defaultValue, { name: null | string }>(PASSED);
 
-    expect.equal<Parameters<typeof schema.default>[0], null | { name: null | string }>(PASSED);
+    expect.equal<Parameters<typeof schema.default>[0], { name: null | string }>(PASSED);
   }
 
   {
     const schema = ObjectSchema.create({
-      name: StringSchema.create().notRequired(),
+      name: StringSchema.create()
+        .notRequired(),
     });
 
     const defaultValue = schema.getDefault();
 
     expect.equal<typeof defaultValue, { name?: null | string }>(PASSED);
 
-    expect.equal<Parameters<typeof schema.default>[0], null | { name?: null | string }>(PASSED);
+    expect.equal<Parameters<typeof schema.default>[0], { name?: null | string }>(PASSED);
   }
 
   {
@@ -403,7 +409,8 @@ import { expect, PASSED } from './tools/expect';
 
   {
     const schema = ObjectSchema.create({
-      name: StringSchema.create().optional(),
+      name: StringSchema.create()
+        .optional(),
     })
       .default({
         name: 'Antonio',
@@ -416,7 +423,8 @@ import { expect, PASSED } from './tools/expect';
 
   {
     const schema = ObjectSchema.create({
-      name: StringSchema.create().nullable(),
+      name: StringSchema.create()
+        .nullable(),
     })
       .default({
         name: 'Antonio',
@@ -429,7 +437,8 @@ import { expect, PASSED } from './tools/expect';
 
   {
     const schema = ObjectSchema.create({
-      name: StringSchema.create().notRequired(),
+      name: StringSchema.create()
+        .notRequired(),
     })
       .default({
         name: 'Antonio',
@@ -444,11 +453,42 @@ import { expect, PASSED } from './tools/expect';
     const schema = ObjectSchema.create({
       name: StringSchema.create(),
     })
-      .default(null);
+      .default({
+        name: 'Antonio',
+      })
+      .optional();
 
     const defaultValue = schema.getDefault();
 
-    expect.equal<typeof defaultValue, { name: string }>(PASSED);
+    expect.equal<typeof defaultValue, undefined | { name: string }>(PASSED);
+  }
+
+  {
+    const schema = ObjectSchema.create({
+      name: StringSchema.create(),
+    })
+      .default({
+        name: 'Antonio',
+      })
+      .nullable();
+
+    const defaultValue = schema.getDefault();
+
+    expect.equal<typeof defaultValue, null | { name: string }>(PASSED);
+  }
+
+  {
+    const schema = ObjectSchema.create({
+      name: StringSchema.create(),
+    })
+      .default({
+        name: 'Antonio',
+      })
+      .notRequired();
+
+    const defaultValue = schema.getDefault();
+
+    expect.equal<typeof defaultValue, undefined | null | { name: string }>(PASSED);
   }
 }
 

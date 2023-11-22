@@ -82,13 +82,15 @@ import { expect, PASSED } from './tools/expect';
 
   <Input {...userForm.name.control} />
   <Input {...userForm.company.address.city.field.props} />
-  -- <Input {...userForm.friends[].address.city.field.props} />
+  -- <Input {...userForm.friends[0].address.city.field.props} />
   <Input {...userForm.friends(0).address.city.field.props} />
   <Input {...userForm.friends.at(0).address.city.field.props} />
   <Input {...userForm.friends.state.at(0).address.city.field.props} />
   <Input {...userForm.friends.asArray().at(0).address.city.field.props} />
   <Input {...userForm.friends(0).as<Friend>().address.city.field.props} />
   <Input {...userForm.friend.as<Boss>().address.city.field.props} />
+
+  <Input {...userForm.control('friend.address.city').field.props} />
 
   {isBoss(userForm.friend)
     ? <Boss {...userForm.friend.as<Boss>()} />

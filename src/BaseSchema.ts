@@ -75,12 +75,12 @@ type Test = [string, TestFn];
 
 export type SchemaCloneProps<
   TPatternValue extends any = any,
-  TDefaultValue extends any = any,
+  TDefaultData extends any = any,
   TRejectUndefined extends null | string = null | string,
   TRejectNull extends null | string = null | string,
 > = {
   patternValue?: TPatternValue;
-  defaultValue?: null | { data: TDefaultValue };
+  defaultValue?: DefaultValue<TDefaultData>;
   rejectUndefined?: TRejectUndefined;
   rejectNull?: TRejectNull;
 };
@@ -103,6 +103,12 @@ export type SchemaData<
       ? null
       : never
     );
+
+export type DefaultValue<
+  TData extends any = any,
+  TOptional extends boolean = false,
+  TNullable extends boolean = false,
+> = null | { data: SchemaData<TData, TOptional, TNullable> };
 
 export type RejectType<
   TSource extends null | string = never,
@@ -129,7 +135,7 @@ export default abstract class BaseSchema<
 
   protected patternValue: any = null;
 
-  protected abstract defaultValue: null | { data: TData };
+  protected abstract defaultValue: DefaultValue<TData, TOptional, TNullable>;
 
   protected rejectUndefined: null | string = '';
 
@@ -142,14 +148,6 @@ export default abstract class BaseSchema<
   protected abstract selfConstructor: {
     new (): BaseSchema;
   };
-
-  protected pattern(
-    pattern: any,
-  ): BaseSchema {
-    return this.apply({
-      patternValue: pattern,
-    });
-  }
 
   public apply(
     props?: SchemaCloneProps<any, TData>,
@@ -289,7 +287,22 @@ export default abstract class BaseSchema<
     });
   }
 
-  public abstract getDefault(): TData
+  public abstract getDefault(): SchemaData<TData, TOptional, TNullable>
+
+  protected getDefaultBase(): null | { data: SchemaData<TData, TOptional, TNullable> } {
+    if (this.defaultValue && this.defaultValue.data == null) {
+      return this.defaultValue;
+    }
+    else if (this.rejectUndefined == null) {
+      return { data: undefined } as { data: SchemaData<TData, TOptional, TNullable> };
+    }
+    else if (this.rejectNull == null) {
+      return { data: null } as { data: SchemaData<TData, TOptional, TNullable> };
+    }
+    else {
+      return null;
+    }
+  }
 
   public validate<
     TValue extends any = any,

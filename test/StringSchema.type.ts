@@ -244,9 +244,9 @@ import { expect, PASSED } from './tools/expect';
 
     const defaultValue = schema.getDefault();
 
-    expect.equal<typeof defaultValue, string>(PASSED);
+    expect.equal<typeof defaultValue, undefined | string>(PASSED);
 
-    expect.equal<Parameters<typeof schema.default>[0], string>(PASSED);
+    expect.equal<Parameters<typeof schema.default>[0], undefined | string>(PASSED);
   }
 
   {
@@ -255,9 +255,9 @@ import { expect, PASSED } from './tools/expect';
 
     const defaultValue = schema.getDefault();
 
-    expect.equal<typeof defaultValue, string>(PASSED);
+    expect.equal<typeof defaultValue, null | string>(PASSED);
 
-    expect.equal<Parameters<typeof schema.default>[0], string>(PASSED);
+    expect.equal<Parameters<typeof schema.default>[0], null | string>(PASSED);
   }
 
   {
@@ -266,9 +266,9 @@ import { expect, PASSED } from './tools/expect';
 
     const defaultValue = schema.getDefault();
 
-    expect.equal<typeof defaultValue, string>(PASSED);
+    expect.equal<typeof defaultValue, undefined | null | string>(PASSED);
 
-    expect.equal<Parameters<typeof schema.default>[0], string>(PASSED);
+    expect.equal<Parameters<typeof schema.default>[0], undefined | null | string>(PASSED);
   }
 
   {
@@ -288,6 +288,36 @@ import { expect, PASSED } from './tools/expect';
     const defaultValue = schema.getDefault();
 
     expect.equal<typeof defaultValue, 'Antonio' | 'Mark'>(PASSED);
+  }
+
+  {
+    const schema = StringSchema.create(['Antonio', 'Mark'])
+      .default('Antonio')
+      .optional();
+
+    const defaultValue = schema.getDefault();
+
+    expect.equal<typeof defaultValue, undefined | 'Antonio' | 'Mark'>(PASSED);
+  }
+
+  {
+    const schema = StringSchema.create(['Antonio', 'Mark'])
+      .default('Antonio')
+      .nullable();
+
+    const defaultValue = schema.getDefault();
+
+    expect.equal<typeof defaultValue, null | 'Antonio' | 'Mark'>(PASSED);
+  }
+
+  {
+    const schema = StringSchema.create(['Antonio', 'Mark'])
+      .default('Antonio')
+      .notRequired();
+
+    const defaultValue = schema.getDefault();
+
+    expect.equal<typeof defaultValue, undefined | null | 'Antonio' | 'Mark'>(PASSED);
   }
 }
 

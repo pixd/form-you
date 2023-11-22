@@ -3,7 +3,7 @@ import { isNotOptionalMessage, isNotNullableMessage, mustBeAnStringMessage } fro
 import testSchemaValidation from './tools/testSchemaValidation';
 
 describe('StringSchema', () => {
-  it('should validate)', () => {
+  it('should validate', () => {
     const schema = StringSchema.create();
     testSchemaValidation(schema, undefined, isNotOptionalMessage);
     testSchemaValidation(schema, null, isNotNullableMessage);
@@ -189,9 +189,29 @@ describe('StringSchema', () => {
   });
 
   it('should return default value on .getDefault()', () => {
-    const schema = StringSchema.create();
+    {
+      const schema = StringSchema.create();
 
-    expect(schema.getDefault()).toBe('');
+      expect(schema.getDefault()).toBe('');
+    }
+
+    {
+      const schema = StringSchema.create().optional();
+
+      expect(schema.getDefault()).toBe(undefined);
+    }
+
+    {
+      const schema = StringSchema.create().nullable();
+
+      expect(schema.getDefault()).toBe(null);
+    }
+
+    {
+      const schema = StringSchema.create().notRequired();
+
+      expect(schema.getDefault()).toBe(undefined);
+    }
   });
 
   it('should set default value with .default()', () => {
@@ -256,19 +276,44 @@ describe('StringSchema', () => {
 
   it('should reset default with .resetDefault()', () => {
     {
-      const schema = StringSchema.create().default('Antonio').resetDefault();
+      const schema = StringSchema.create()
+        .default('Antonio')
+        .resetDefault();
 
       expect(schema.getDefault()).toBe('');
     }
 
     {
-      const schema = StringSchema.create(['Antonio', 'Mark']).resetDefault();
+      const schema = StringSchema.create()
+        .optional()
+        .default('Antonio')
+        .resetDefault();
 
-      expect(schema.getDefault()).toBe('Antonio');
+      expect(schema.getDefault()).toBe(undefined);
     }
 
     {
-      const schema = StringSchema.create(['Antonio', 'Mark']).default('Mark').resetDefault();
+      const schema = StringSchema.create()
+        .nullable()
+        .default('Antonio')
+        .resetDefault();
+
+      expect(schema.getDefault()).toBe(null);
+    }
+
+    {
+      const schema = StringSchema.create()
+        .notRequired()
+        .default('Antonio')
+        .resetDefault();
+
+      expect(schema.getDefault()).toBe(undefined);
+    }
+
+    {
+      const schema = StringSchema.create(['Antonio', 'Mark'])
+        .default('Mark')
+        .resetDefault();
 
       expect(schema.getDefault()).toBe('Antonio');
     }

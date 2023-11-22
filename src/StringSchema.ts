@@ -1,8 +1,15 @@
-import BaseSchema, { RejectType, SafetyType, SchemaCloneProps } from './BaseSchema';
+import BaseSchema, { DefaultValue, RejectType, SafetyType, SchemaCloneProps,
+  SchemaData } from './BaseSchema';
 import errorMessages, { prepareErrorMessage } from './error-messages';
 import ValidationError, { PredefinedValidationTestName } from './ValidationError';
 
-type PatternData<TPattern extends string = string> = `${TPattern}`;
+export type PatternData<TPattern extends string = string> = `${TPattern}`;
+
+type DefaultData<
+  TPattern extends string = string,
+  TOptional extends boolean = false,
+  TNullable extends boolean = false,
+> = SchemaData<PatternData<TPattern>, TOptional, TNullable>;
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 export default interface StringSchema<
@@ -13,7 +20,7 @@ export default interface StringSchema<
 > extends BaseSchema<PatternData<TPattern>, TOptional, TNullable, TContext> {
   apply<
     TNextPattern extends TPattern = TPattern,
-    TDefaultValue extends PatternData<TPattern> = PatternData<TPattern>,
+    TDefaultValue extends DefaultData<TPattern, TOptional, TNullable> = DefaultData<TPattern, TOptional, TNullable>,
     TRejectUndefined extends null | string = never,
     TRejectNull extends null | string = never,
   >(
@@ -22,7 +29,7 @@ export default interface StringSchema<
 
   clone<
     TNextPattern extends TPattern = TPattern,
-    TDefaultValue extends PatternData<TPattern> = PatternData<TPattern>,
+    TDefaultValue extends DefaultData<TPattern, TOptional, TNullable> = DefaultData<TPattern, TOptional, TNullable>,
     TRejectUndefined extends null | string = never,
     TRejectNull extends null | string = never,
   >(
@@ -60,7 +67,7 @@ export default interface StringSchema<
   notRequired(): StringSchema<TPattern, true, true, TContext>;
 
   default(
-    defaultValue: PatternData<TPattern>,
+    defaultData: DefaultData<TPattern, TOptional, TNullable>,
   ): StringSchema<TPattern, TOptional, TNullable, TContext>;
 
   resetDefault(): StringSchema<TPattern, TOptional, TNullable, TContext>;
@@ -74,7 +81,7 @@ export default class StringSchema<
 > extends BaseSchema<PatternData<TPattern>, TOptional, TNullable, TContext> {
   protected override patternValue: null | string[] = null;
 
-  protected override defaultValue: null | { data: PatternData<TPattern> } = null;
+  protected override defaultValue: DefaultValue<PatternData<TPattern>, TOptional, TNullable> = null;
 
   protected override selfConstructor: {
     new (): StringSchema;
@@ -102,9 +109,9 @@ export default class StringSchema<
   >(
     patternValue: TNextPattern[],
   ): StringSchema<TNextPattern, TOptional, TNullable, TContext> {
-    let defaultValue: null | { data: PatternData<TPattern> } = null;
+    let defaultValue = this.defaultValue;
 
-    if (this.defaultValue) {
+    if (this.defaultValue?.data != null) {
       defaultValue = patternValue.includes(this.defaultValue.data as TNextPattern)
         ? this.defaultValue
         : null;
@@ -116,15 +123,19 @@ export default class StringSchema<
     });
   }
 
-  public override getDefault(): PatternData<TPattern> {
-    if (this.defaultValue) {
+  public override getDefault(): DefaultData<TPattern, TOptional, TNullable> {
+    if (this.defaultValue?.data != null) {
       return this.defaultValue.data;
     }
-    else if (this.patternValue) {
-      return (this.patternValue[0] ?? '') as PatternData<TPattern>;
-    }
     else {
-      return '' as PatternData<TPattern>;
+      const defaultData = super.getDefaultBase();
+
+      if (defaultData) {
+        return defaultData.data;
+      }
+      else {
+        return (this.patternValue?.[0] ?? '') as DefaultData<TPattern, TOptional, TNullable>;
+      }
     }
   }
 

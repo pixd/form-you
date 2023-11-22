@@ -1,4 +1,5 @@
-import BaseSchema, { RejectType, SafetyType, SchemaCloneProps } from './BaseSchema';
+import BaseSchema, { DefaultValue, RejectType, SafetyType, SchemaCloneProps,
+  SchemaData } from './BaseSchema';
 import errorMessages, { prepareErrorMessage } from './error-messages';
 import { _, AnySchema, SchemaDataType } from './types';
 import ValidationError, { PredefinedValidationTestName } from './ValidationError';
@@ -6,6 +7,15 @@ import ValidationError, { PredefinedValidationTestName } from './ValidationError
 export type Shape = {
   [key in string]: AnySchema;
 };
+
+type MergeShape<
+  TShape extends Shape = Shape,
+  TNextShape extends ConcatenatedShape<TShape> = ConcatenatedShape<TShape>,
+> = TNextShape & SafetyType<TShape, {}>;
+
+type ConcatenatedShape<
+  TShape extends Shape = Shape,
+> = SafetyType<TShape, Shape, object & Partial<TShape>>
 
 type DefinedShapeProps<
   TShape extends Shape = Shape,
@@ -41,6 +51,12 @@ export type ShapeData<
       & Partial<_ShapeData<Pick<TShape, OptionalShapeProps<TShape>>>>
     );
 
+type DefaultData<
+  TShape extends Shape = Shape,
+  TOptional extends boolean = false,
+  TNullable extends boolean = false,
+> = SchemaData<_<ShapeData<TShape>>, TOptional, TNullable>;
+
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 export default interface ObjectSchema<
   TShape extends Shape = never,
@@ -50,7 +66,7 @@ export default interface ObjectSchema<
 > extends BaseSchema<_<ShapeData<TShape>>, TOptional, TNullable, TContext> {
   apply<
     TNextShape extends SafetyType<TShape, {}> = SafetyType<TShape, {}>,
-    TDefaultValue extends _<ShapeData<TShape>> = _<ShapeData<TShape>>,
+    TDefaultValue extends DefaultData<TShape, TOptional, TNullable> = DefaultData<TShape, TOptional, TNullable>,
     TRejectUndefined extends null | string = never,
     TRejectNull extends null | string = never,
   >(
@@ -59,7 +75,7 @@ export default interface ObjectSchema<
 
   clone<
     TNextShape extends SafetyType<TShape, {}> = SafetyType<TShape, {}>,
-    TDefaultValue extends _<ShapeData<TShape>> = _<ShapeData<TShape>>,
+    TDefaultValue extends DefaultData<TShape, TOptional, TNullable> = DefaultData<TShape, TOptional, TNullable>,
     TRejectUndefined extends null | string = never,
     TRejectNull extends null | string = never,
   >(
@@ -97,7 +113,7 @@ export default interface ObjectSchema<
   notRequired(): ObjectSchema<TShape, true, true, TContext>;
 
   default(
-    defaultValue: _<ShapeData<TShape>>,
+    defaultData: DefaultData<TShape, TOptional, TNullable>,
   ): ObjectSchema<TShape, TOptional, TNullable, TContext>;
 
   resetDefault(): ObjectSchema<TShape, TOptional, TNullable, TContext>;
@@ -111,7 +127,7 @@ export default class ObjectSchema<
 > extends BaseSchema<_<ShapeData<TShape>>, TOptional, TNullable, TContext> {
   protected override patternValue: null | Shape = null;
 
-  protected override defaultValue: null | { data: _<ShapeData<TShape>> } = null;
+  protected override defaultValue: DefaultValue<_<ShapeData<TShape>>, TOptional, TNullable> = null;
 
   protected override selfConstructor: {
     new (): ObjectSchema;
@@ -127,30 +143,31 @@ export default class ObjectSchema<
   >(
     shape?: TShape,
   ): ObjectSchema<TShape, false, false, TContext> {
-    const schema = new ObjectSchema();
+    const schema = new ObjectSchema<TShape, false, false, TContext>();
 
     schema.patternValue = shape ?? null;
 
-    return schema as ObjectSchema<TShape, false, false, TContext>;
+    return schema;
   }
 
   public concat<
-    TNextShape extends SafetyType<TShape, Shape, object & Partial<TShape>> = TShape,
+    TNextShape extends ConcatenatedShape<TShape> = TShape,
   >(
     shape: TNextShape,
-  ): ObjectSchema<TNextShape & SafetyType<TShape, {}>, TOptional, TNullable, TContext> {
+  ): ObjectSchema<MergeShape<TShape, TNextShape>, TOptional, TNullable, TContext> {
     const patternValue = {
       ...this.patternValue,
       ...shape,
-    } as TNextShape & SafetyType<TShape, {}>;
+    } as MergeShape<TShape, TNextShape>;
 
-    let defaultValue: null | { data: _<ShapeData<TShape>> } = null;
+    let defaultValue = this.defaultValue;
 
-    if (this.defaultValue) {
-      defaultValue = { data: { ...this.defaultValue.data } };
-      Object.keys(shape).forEach((key) => {
-        delete defaultValue?.data[key];
-      });
+    if (this.defaultValue?.data != null) {
+      const defaultData = Object.keys(shape).reduce((defaultData, key) => {
+        delete defaultData[key];
+        return defaultData;
+      }, { ...this.defaultValue.data });
+      defaultValue = { data: defaultData };
     }
 
     return this.apply({
@@ -159,17 +176,24 @@ export default class ObjectSchema<
     });
   }
 
-  public override getDefault(): _<ShapeData<TShape>> {
-    const defaultValue = Object.entries(this.patternValue ?? {})
-      .reduce((defaultValue, [key, schema]) => {
-        defaultValue[key] = schema.getDefault();
-        return defaultValue;
-      }, {});
+  public override getDefault(): DefaultData<TShape, TOptional, TNullable> {
+    if (this.defaultValue?.data != null) {
+      const defaultData = calculateDefaultData(this.patternValue);
+      return {
+        ...defaultData,
+        ...this.defaultValue.data,
+      };
+    }
+    else {
+      const defaultData = super.getDefaultBase();
 
-    return {
-      ...defaultValue,
-      ...this.defaultValue?.data,
-    } as _<ShapeData<TShape>>;
+      if (defaultData) {
+        return defaultData.data;
+      }
+      else {
+        return calculateDefaultData(this.patternValue) as DefaultData<TShape, TOptional, TNullable>;
+      }
+    }
   }
 
   public override validate<
@@ -190,4 +214,12 @@ export default class ObjectSchema<
 
     return value;
   }
+}
+
+function calculateDefaultData(patternValue: null | Shape) {
+  return Object.entries(patternValue ?? {})
+    .reduce((defaultValue, [key, schema]) => {
+      defaultValue[key] = schema.getDefault();
+      return defaultValue;
+    }, {});
 }

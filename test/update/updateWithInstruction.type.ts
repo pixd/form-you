@@ -1,4 +1,4 @@
-import { updateWithInstruction } from '../src/update';
+import { updateWithInstruction } from '../../src/update/update';
 
 type User = {
   id: number;

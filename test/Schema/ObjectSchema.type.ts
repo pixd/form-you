@@ -1,8 +1,8 @@
-import BaseSchema from '../src/BaseSchema';
-import ObjectSchema from '../src/ObjectSchema';
-import StringSchema from '../src/StringSchema';
-import { AnySchema, SchemaContextType, SchemaDataType } from '../src/types';
-import { expect, PASSED } from './tools/expect';
+import BaseSchema from '../../src/Schema/BaseSchema';
+import ObjectSchema from '../../src/Schema/ObjectSchema';
+import StringSchema from '../../src/Schema/StringSchema';
+import { AnySchema, SchemaContextType, SchemaDataType } from '../../src/types';
+import { expect, PASSED } from '../tools/expect';
 
 /**
  * Schema inheritance

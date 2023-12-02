@@ -1,4 +1,4 @@
-import BaseSchema from '../../src/BaseSchema';
+import BaseSchema from '../../src/Schema/BaseSchema';
 
 export default function testSchemaValidation(schema: BaseSchema, value: any, error?: string) {
   if (error) {

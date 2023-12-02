@@ -1,6 +1,6 @@
-import BaseSchema from './BaseSchema';
-import ObjectSchema from './ObjectSchema';
-import StringSchema from './StringSchema';
+import BaseSchema from './Schema/BaseSchema';
+import ObjectSchema from './Schema/ObjectSchema';
+import StringSchema from './Schema/StringSchema';
 
 export type AnySchema =
   | StringSchema

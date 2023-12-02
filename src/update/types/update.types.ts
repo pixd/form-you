@@ -1,8 +1,8 @@
-import { AnyPath, NodeValue, PossiblePath, PossibleValue } from './path.types';
+import { AnyPath, NodeValue, PossiblePath, PossibleValue } from '../../path/path.types';
 import { AppendCommand, DeleteCommand, ExcludeCommand,
   ExcludeRowCommand, ExtractCommand, ExtractRowCommand,
   MergeCommand, MergeAllCommand, MoveCommand, PrependCommand,
-  SetCommand, SwapCommand, UnsetCommand } from './update-command';
+  SetCommand, SwapCommand, UnsetCommand } from '../tools/update-command';
 
 type CanBeDeletedKeys<
   TData extends any,

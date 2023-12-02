@@ -1,214 +1,221 @@
-import StringSchema from '../src/StringSchema';
-import { isNotOptionalMessage, isNotNullableMessage, mustBeAnStringMessage } from './tools/checkMessage';
-import testSchemaValidation from './tools/testSchemaValidation';
+import ObjectSchema from '../../src/Schema/ObjectSchema';
+import StringSchema from '../../src/Schema/StringSchema';
+import { isNotOptionalMessage, isNotNullableMessage, mustBeAnObjectMessage } from '../tools/checkMessage';
+import testSchemaValidation from '../tools/testSchemaValidation';
 
-describe('StringSchema', () => {
+describe('ObjectSchema', () => {
   it('should validate', () => {
-    const schema = StringSchema.create();
+    const schema = ObjectSchema.create();
     testSchemaValidation(schema, undefined, isNotOptionalMessage);
     testSchemaValidation(schema, null, isNotNullableMessage);
-    testSchemaValidation(schema, '');
-    testSchemaValidation(schema, {}, mustBeAnStringMessage);
-    testSchemaValidation(schema, 0, mustBeAnStringMessage);
+    testSchemaValidation(schema, {});
+    testSchemaValidation(schema, 0, mustBeAnObjectMessage);
+    testSchemaValidation(schema, '', mustBeAnObjectMessage);
   });
 
   it('should validate optional data', () => {
-    const schema = StringSchema.create()
+    const schema = ObjectSchema.create()
       .optional();
 
     testSchemaValidation(schema, undefined);
     testSchemaValidation(schema, null, isNotNullableMessage);
-    testSchemaValidation(schema, '');
+    testSchemaValidation(schema, {});
 
     testSchemaValidation(schema.notOptional(), undefined, isNotOptionalMessage);
     testSchemaValidation(schema.notOptional(), null, isNotNullableMessage);
-    testSchemaValidation(schema.notOptional(), '');
+    testSchemaValidation(schema.notOptional(), {});
     testSchemaValidation(schema.nullable(), undefined);
     testSchemaValidation(schema.nullable(), null);
-    testSchemaValidation(schema.nullable(), '');
+    testSchemaValidation(schema.nullable(), {});
     testSchemaValidation(schema.notNullable(), undefined);
     testSchemaValidation(schema.notNullable(), null, isNotNullableMessage);
-    testSchemaValidation(schema.notNullable(), '');
+    testSchemaValidation(schema.notNullable(), {});
 
     // testSchemaValidation(schema.undefined(), undefined);
     // testSchemaValidation(schema.undefined(), null, isNotNullableMessage);
-    // testSchemaValidation(schema.undefined(), '', mustBeUndefinedMessage);
+    // testSchemaValidation(schema.undefined(), {}, mustBeUndefinedMessage);
     // testSchemaValidation(schema.null(), undefined, mustBeNullMessage);
     // testSchemaValidation(schema.null(), null, isNotNullableMessage);
-    // testSchemaValidation(schema.null(), '', mustBeNullMessage);
+    // testSchemaValidation(schema.null(), {}, mustBeNullMessage);
   });
 
   it('should validate not-optional data', () => {
-    const schema = StringSchema.create()
+    const schema = ObjectSchema.create()
       .notOptional();
 
     testSchemaValidation(schema, undefined, isNotOptionalMessage);
     testSchemaValidation(schema, null, isNotNullableMessage);
-    testSchemaValidation(schema, '');
+    testSchemaValidation(schema, {});
 
     testSchemaValidation(schema.optional(), undefined);
     testSchemaValidation(schema.optional(), null, isNotNullableMessage);
-    testSchemaValidation(schema.optional(), '');
+    testSchemaValidation(schema.optional(), {});
     testSchemaValidation(schema.nullable(), undefined, isNotOptionalMessage);
     testSchemaValidation(schema.nullable(), null);
-    testSchemaValidation(schema.nullable(), '');
+    testSchemaValidation(schema.nullable(), {});
     testSchemaValidation(schema.notNullable(), undefined, isNotOptionalMessage);
     testSchemaValidation(schema.notNullable(), null, isNotNullableMessage);
-    testSchemaValidation(schema.notNullable(), '');
+    testSchemaValidation(schema.notNullable(), {});
 
     // testSchemaValidation(schema.undefined(), undefined, isNotOptionalMessage);
     // testSchemaValidation(schema.undefined(), null, isNotNullableMessage);
-    // testSchemaValidation(schema.undefined(), '', mustBeUndefinedMessage);
+    // testSchemaValidation(schema.undefined(), {}, mustBeUndefinedMessage);
     // testSchemaValidation(schema.null(), undefined, isNotOptionalMessage);
     // testSchemaValidation(schema.null(), null, isNotNullableMessage);
-    // testSchemaValidation(schema.null(), '', mustBeNullMessage);
+    // testSchemaValidation(schema.null(), {}, mustBeNullMessage);
   });
 
   it('should validate nullable data', () => {
-    const schema = StringSchema.create()
+    const schema = ObjectSchema.create()
       .nullable();
 
     testSchemaValidation(schema, undefined, isNotOptionalMessage);
     testSchemaValidation(schema, null);
-    testSchemaValidation(schema, '');
+    testSchemaValidation(schema, {});
 
     testSchemaValidation(schema.optional(), undefined);
     testSchemaValidation(schema.optional(), null);
-    testSchemaValidation(schema.optional(), '');
+    testSchemaValidation(schema.optional(), {});
     testSchemaValidation(schema.notOptional(), undefined, isNotOptionalMessage);
     testSchemaValidation(schema.notOptional(), null);
-    testSchemaValidation(schema.notOptional(), '');
+    testSchemaValidation(schema.notOptional(), {});
     testSchemaValidation(schema.notNullable(), undefined, isNotOptionalMessage);
     testSchemaValidation(schema.notNullable(), null, isNotNullableMessage);
-    testSchemaValidation(schema.notNullable(), '');
+    testSchemaValidation(schema.notNullable(), {});
 
     // testSchemaValidation(schema.undefined(), undefined, isNotOptionalMessage);
     // testSchemaValidation(schema.undefined(), null, mustBeUndefinedMessage);
-    // testSchemaValidation(schema.undefined(), '', mustBeUndefinedMessage);
+    // testSchemaValidation(schema.undefined(), {}, mustBeUndefinedMessage);
     // testSchemaValidation(schema.null(), undefined, isNotOptionalMessage);
     // testSchemaValidation(schema.null(), null);
-    // testSchemaValidation(schema.null(), '', mustBeNullMessage);
+    // testSchemaValidation(schema.null(), {}, mustBeNullMessage);
   });
 
   it('should validate not-nullable data', () => {
-    const schema = StringSchema.create()
+    const schema = ObjectSchema.create()
       .notNullable();
 
     testSchemaValidation(schema, undefined, isNotOptionalMessage);
     testSchemaValidation(schema, null, isNotNullableMessage);
-    testSchemaValidation(schema, '');
+    testSchemaValidation(schema, {});
 
     testSchemaValidation(schema.optional(), undefined);
     testSchemaValidation(schema.optional(), null, isNotNullableMessage);
-    testSchemaValidation(schema.optional(), '');
+    testSchemaValidation(schema.optional(), {});
     testSchemaValidation(schema.notOptional(), undefined, isNotOptionalMessage);
     testSchemaValidation(schema.notOptional(), null, isNotNullableMessage);
-    testSchemaValidation(schema.notOptional(), '');
+    testSchemaValidation(schema.notOptional(), {});
     testSchemaValidation(schema.nullable(), undefined, isNotOptionalMessage);
     testSchemaValidation(schema.nullable(), null);
-    testSchemaValidation(schema.nullable(), '');
+    testSchemaValidation(schema.nullable(), {});
 
     // testSchemaValidation(schema.undefined(), undefined, isNotOptionalMessage);
     // testSchemaValidation(schema.undefined(), null, isNotNullableMessage);
-    // testSchemaValidation(schema.undefined(), '', mustBeUndefinedMessage);
+    // testSchemaValidation(schema.undefined(), {}, mustBeUndefinedMessage);
     // testSchemaValidation(schema.null(), undefined, isNotOptionalMessage);
     // testSchemaValidation(schema.null(), null, isNotNullableMessage);
-    // testSchemaValidation(schema.null(), '', mustBeNullMessage);
+    // testSchemaValidation(schema.null(), {}, mustBeNullMessage);
   });
 
   it('should validate required data', () => {
-    const schema = StringSchema.create()
+    const schema = ObjectSchema.create()
       .required();
 
     testSchemaValidation(schema, undefined, isNotOptionalMessage);
     testSchemaValidation(schema, null, isNotNullableMessage);
-    testSchemaValidation(schema, '');
+    testSchemaValidation(schema, {});
 
     testSchemaValidation(schema.optional(), undefined);
     testSchemaValidation(schema.optional(), null, isNotNullableMessage);
-    testSchemaValidation(schema.optional(), '');
+    testSchemaValidation(schema.optional(), {});
     testSchemaValidation(schema.notOptional(), undefined, isNotOptionalMessage);
     testSchemaValidation(schema.notOptional(), null, isNotNullableMessage);
-    testSchemaValidation(schema.notOptional(), '');
+    testSchemaValidation(schema.notOptional(), {});
     testSchemaValidation(schema.nullable(), undefined, isNotOptionalMessage);
     testSchemaValidation(schema.nullable(), null);
-    testSchemaValidation(schema.nullable(), '');
+    testSchemaValidation(schema.nullable(), {});
     testSchemaValidation(schema.notNullable(), undefined, isNotOptionalMessage);
     testSchemaValidation(schema.notNullable(), null, isNotNullableMessage);
-    testSchemaValidation(schema.notNullable(), '');
+    testSchemaValidation(schema.notNullable(), {});
 
     // testSchemaValidation(schema.undefined(), undefined, isNotOptionalMessage);
     // testSchemaValidation(schema.undefined(), null, isNotNullableMessage);
-    // testSchemaValidation(schema.undefined(), '', mustBeUndefinedMessage);
+    // testSchemaValidation(schema.undefined(), {}, mustBeUndefinedMessage);
     // testSchemaValidation(schema.null(), undefined, isNotOptionalMessage);
     // testSchemaValidation(schema.null(), null, isNotNullableMessage);
-    // testSchemaValidation(schema.null(), '', mustBeNullMessage);
+    // testSchemaValidation(schema.null(), {}, mustBeNullMessage);
   });
 
   it('should validate not-required data', () => {
-    const schema = StringSchema.create()
+    const schema = ObjectSchema.create()
       .notRequired();
 
     testSchemaValidation(schema, undefined);
     testSchemaValidation(schema, null);
-    testSchemaValidation(schema, '');
+    testSchemaValidation(schema, {});
 
     testSchemaValidation(schema.optional(), undefined);
     testSchemaValidation(schema.optional(), null);
-    testSchemaValidation(schema.optional(), '');
+    testSchemaValidation(schema.optional(), {});
     testSchemaValidation(schema.notOptional(), undefined, isNotOptionalMessage);
     testSchemaValidation(schema.notOptional(), null);
-    testSchemaValidation(schema.notOptional(), '');
+    testSchemaValidation(schema.notOptional(), {});
     testSchemaValidation(schema.nullable(), undefined);
     testSchemaValidation(schema.nullable(), null);
-    testSchemaValidation(schema.nullable(), '');
+    testSchemaValidation(schema.nullable(), {});
     testSchemaValidation(schema.notNullable(), undefined);
     testSchemaValidation(schema.notNullable(), null, isNotNullableMessage);
-    testSchemaValidation(schema.notNullable(), '');
+    testSchemaValidation(schema.notNullable(), {});
 
     // testSchemaValidation(schema.undefined(), undefined);
     // testSchemaValidation(schema.undefined(), null, mustBeUndefinedMessage);
-    // testSchemaValidation(schema.undefined(), '', mustBeUndefinedMessage);
+    // testSchemaValidation(schema.undefined(), {}, mustBeUndefinedMessage);
     // testSchemaValidation(schema.null(), undefined, mustBeNullMessage);
     // testSchemaValidation(schema.null(), null);
-    // testSchemaValidation(schema.null(), '', mustBeNullMessage);
+    // testSchemaValidation(schema.null(), {}, mustBeNullMessage);
   });
 
   it('should clone with .clone()', () => {
-    const schema = StringSchema.create();
+    const schema = ObjectSchema.create();
 
     testSchemaValidation(schema.clone(), undefined, isNotOptionalMessage);
     testSchemaValidation(schema.clone(), null, isNotNullableMessage);
-    testSchemaValidation(schema.clone(), '');
+    testSchemaValidation(schema.clone(), {});
     testSchemaValidation(schema.optional().clone(), undefined);
     testSchemaValidation(schema.optional().clone(), null, isNotNullableMessage);
-    testSchemaValidation(schema.optional().clone(), '');
+    testSchemaValidation(schema.optional().clone(), {});
     testSchemaValidation(schema.nullable().clone(), undefined, isNotOptionalMessage);
     testSchemaValidation(schema.nullable().clone(), null);
-    testSchemaValidation(schema.nullable().clone(), '');
+    testSchemaValidation(schema.nullable().clone(), {});
   });
 
   it('should return default value on .getDefault()', () => {
     {
-      const schema = StringSchema.create();
+      const schema = ObjectSchema.create();
 
-      expect(schema.getDefault()).toBe('');
+      expect(schema.getDefault()).toStrictEqual({});
     }
 
     {
-      const schema = StringSchema.create().optional();
+      const schema = ObjectSchema.create({});
+
+      expect(schema.getDefault()).toStrictEqual({});
+    }
+
+    {
+      const schema = ObjectSchema.create().optional();
 
       expect(schema.getDefault()).toBe(undefined);
     }
 
     {
-      const schema = StringSchema.create().nullable();
+      const schema = ObjectSchema.create().nullable();
 
       expect(schema.getDefault()).toBe(null);
     }
 
     {
-      const schema = StringSchema.create().notRequired();
+      const schema = ObjectSchema.create().notRequired();
 
       expect(schema.getDefault()).toBe(undefined);
     }
@@ -216,71 +223,175 @@ describe('StringSchema', () => {
 
   it('should set default value with .default()', () => {
     {
-      const schema = StringSchema.create()
-        .default('Antonio');
+      const schema = ObjectSchema.create()
+        .default({ price: 100 });
 
-      expect(schema.getDefault()).toBe('Antonio');
+      expect(schema.getDefault()).toStrictEqual({
+        price: 100,
+      });
     }
 
     {
-      const schema = StringSchema.create()
+      const schema = ObjectSchema.create()
         .optional()
-        .default('Antonio')
+        .default({ price: 100 })
         .default(undefined);
 
       expect(schema.getDefault()).toBe(undefined);
     }
 
     {
-      const schema = StringSchema.create()
+      const schema = ObjectSchema.create()
         .nullable()
-        .default('Antonio')
+        .default({ price: 100 })
         .default(null);
 
       expect(schema.getDefault()).toBe(null);
     }
 
     {
-      const schema = StringSchema.create()
+      const schema = ObjectSchema.create()
         .notRequired()
-        .default('Antonio')
+        .default({ price: 100 })
         .default(null);
 
       expect(schema.getDefault()).toBe(null);
     }
   });
 
-  it('should reset default with .resetDefault()', () => {
+  it('should use shape to calculate default value', () => {
     {
-      const schema = StringSchema.create()
-        .default('Antonio')
-        .resetDefault();
+      const schema = ObjectSchema.create();
 
-      expect(schema.getDefault()).toBe('');
+      expect(schema.getDefault()).toStrictEqual({});
     }
 
     {
-      const schema = StringSchema.create()
+      const schema = ObjectSchema.create({});
+
+      expect(schema.getDefault()).toStrictEqual({});
+    }
+
+    {
+      const priceSchema = ObjectSchema.create();
+
+      const schema = ObjectSchema.create({
+        price: priceSchema,
+      });
+
+      expect(schema.getDefault()).toStrictEqual({
+        price: {},
+      });
+    }
+  });
+
+  it('should change default value after .concat()', () => {
+    {
+      const schema = ObjectSchema.create();
+
+      const nextSchema = schema.concat({
+        name: StringSchema.create(),
+      });
+
+      expect(nextSchema.getDefault()).toStrictEqual({
+        name: '',
+      });
+    }
+
+    {
+      const schema = ObjectSchema.create({});
+
+      const nextSchema = schema.concat({
+        name: StringSchema.create(),
+      });
+
+      expect(nextSchema.getDefault()).toStrictEqual({
+        name: '',
+      });
+    }
+
+    {
+      const schema = ObjectSchema.create({
+        name: StringSchema.create(),
+      });
+
+      const nextSchema = schema.concat({
+        id: StringSchema.create(),
+      });
+
+      expect(nextSchema.getDefault()).toStrictEqual({
+        id: '',
+        name: '',
+      });
+    }
+
+    {
+      const schema = ObjectSchema.create({
+        name: StringSchema.create(),
+      })
+        .default({
+          name: 'Antonio',
+        });
+
+      const nextSchema = schema.concat({
+        name: StringSchema.create(),
+      });
+
+      expect(nextSchema.getDefault()).toStrictEqual({
+        name: '',
+      });
+    }
+
+    {
+      const schema = ObjectSchema.create({
+        name: StringSchema.create(),
+      })
+        .default({
+          name: 'Antonio',
+        });
+
+      const nextSchema = schema.concat({
+        id: StringSchema.create(),
+      });
+
+      expect(nextSchema.getDefault()).toStrictEqual({
+        id: '',
+        name: 'Antonio',
+      });
+    }
+  });
+
+  it('should reset default with .resetDefault()', () => {
+    {
+      const schema = ObjectSchema.create()
+        .default({ name: 'Antonio' })
+        .resetDefault();
+
+      expect(schema.getDefault()).toStrictEqual({});
+    }
+
+    {
+      const schema = ObjectSchema.create()
         .optional()
-        .default('Antonio')
+        .default({ name: 'Antonio' })
         .resetDefault();
 
       expect(schema.getDefault()).toBe(undefined);
     }
 
     {
-      const schema = StringSchema.create()
+      const schema = ObjectSchema.create()
         .nullable()
-        .default('Antonio')
+        .default({ name: 'Antonio' })
         .resetDefault();
 
       expect(schema.getDefault()).toBe(null);
     }
 
     {
-      const schema = StringSchema.create()
+      const schema = ObjectSchema.create()
         .notRequired()
-        .default('Antonio')
+        .default({ name: 'Antonio' })
         .resetDefault();
 
       expect(schema.getDefault()).toBe(undefined);
@@ -289,7 +400,7 @@ describe('StringSchema', () => {
 
   it('should mutate with .mutate()', () => {
     {
-      const schema = StringSchema.create();
+      const schema = ObjectSchema.create();
 
       testSchemaValidation(schema, undefined, isNotOptionalMessage);
 
@@ -302,7 +413,7 @@ describe('StringSchema', () => {
     }
 
     {
-      const schema = StringSchema.create();
+      const schema = ObjectSchema.create();
 
       testSchemaValidation(schema, null, isNotNullableMessage);
 
@@ -315,7 +426,7 @@ describe('StringSchema', () => {
     }
 
     {
-      const schema = StringSchema.create();
+      const schema = ObjectSchema.create();
 
       testSchemaValidation(schema, undefined, isNotOptionalMessage);
       testSchemaValidation(schema, null, isNotNullableMessage);
@@ -331,16 +442,16 @@ describe('StringSchema', () => {
     }
 
     {
-      const schema = StringSchema.create();
+      const schema = ObjectSchema.create();
 
-      expect(schema.getDefault()).toBe('');
+      expect(schema.getDefault()).toStrictEqual({});
 
-      const nextSchema = schema.mutate((schema) => schema.default('Antonio'));
+      const nextSchema = schema.mutate((schema) => schema.default({ id: 0 }));
 
       expect(schema).toBe(nextSchema);
 
-      expect(schema.getDefault()).toBe('Antonio');
-      expect(nextSchema.getDefault()).toBe('Antonio');
+      expect(schema.getDefault()).toStrictEqual({ id: 0 });
+      expect(nextSchema.getDefault()).toStrictEqual({ id: 0 });
     }
   });
 });

@@ -1,7 +1,7 @@
-import BaseSchema from '../src/BaseSchema';
-import StringSchema from '../src/StringSchema';
-import { SchemaContextType, SchemaDataType } from '../src/types';
-import { expect, PASSED } from './tools/expect';
+import BaseSchema from '../../src/Schema/BaseSchema';
+import StringSchema from '../../src/Schema/StringSchema';
+import { SchemaContextType, SchemaDataType } from '../../src/types';
+import { expect, PASSED } from '../tools/expect';
 
 /**
  * Schema inheritance

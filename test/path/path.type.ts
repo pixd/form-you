@@ -1,6 +1,6 @@
-import { getAtPath } from '../src/path';
-import { NodeValue, PossiblePath, PossibleValue } from '../src/path.types';
-import { expect, PASSED } from './tools/expect';
+import { getAtPath } from '../../src/path/path';
+import { NodeValue, PossiblePath, PossibleValue } from '../../src/path/path.types';
+import { expect, PASSED } from '../tools/expect';
 
 /**
  * getAtPath

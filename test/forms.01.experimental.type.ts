@@ -1,5 +1,5 @@
-import ObjectSchema from '../src/ObjectSchema';
-import StringSchema from '../src/StringSchema';
+import ObjectSchema from '../src/Schema/ObjectSchema';
+import StringSchema from '../src/Schema/StringSchema';
 import { SchemaDataType, SchemaContextType } from '../src/types';
 import { expect, PASSED } from './tools/expect';
 

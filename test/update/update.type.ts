@@ -1,4 +1,4 @@
-import { update } from '../src/update';
+import { update } from '../../src/update/update';
 
 type User = {
   id: number;

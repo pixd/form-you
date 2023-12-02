@@ -1,4 +1,4 @@
-import { updateAtPath } from '../src/update';
+import { updateAtPath } from '../../src/update/update';
 
 type User = {
   id: number;

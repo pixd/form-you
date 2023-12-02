@@ -1,8 +1,8 @@
 import BaseSchema, { DefaultValue, RejectType, SafetyType, SchemaCloneProps,
   SchemaData } from './BaseSchema';
-import errorMessages, { prepareErrorMessage } from './error-messages';
-import { _, AnySchema, SchemaDataType } from './types';
-import ValidationError, { PredefinedValidationTestName } from './ValidationError';
+import errorMessages, { prepareErrorMessage } from '../error-messages';
+import { _, AnySchema, SchemaDataType } from '../types';
+import ValidationError, { PredefinedValidationTestName } from '../ValidationError';
 
 export type Shape = {
   [key in string]: AnySchema;

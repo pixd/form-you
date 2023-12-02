@@ -1,4 +1,4 @@
-import { UpdatePayload } from './update.types';
+import { UpdatePayload } from '../types/update.types';
 
 export const COMMAND_KEYS = [
   '$$set',

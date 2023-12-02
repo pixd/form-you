@@ -1,5 +1,5 @@
-import errorMessages, { prepareErrorMessage } from './error-messages';
-import ValidationError, { PredefinedValidationTestName } from './ValidationError';
+import errorMessages, { prepareErrorMessage } from '../error-messages';
+import ValidationError, { PredefinedValidationTestName } from '../ValidationError';
 
 function rejectUndefinedTest(
   message: string,

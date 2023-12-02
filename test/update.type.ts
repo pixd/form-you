@@ -703,9 +703,7 @@ ARRAY_OF_OBJECTS: {
   // @ts-expect-error
   update(users, { '0': { $$unset: false } });
   update(users, { '0': { $$unset: undefined } });
-  // @ts-expect-error
   update(users, { '0': { $$delete: true } });
-  // @ts-expect-error
   update(users, { '0': { $$delete: false } });
   update(users, { '0': { $$delete: undefined } });
 }
@@ -730,9 +728,7 @@ ARRAY_OF_OBJECTS_AND_UNDEFINED_VALUES: {
   update(users, { '0': { $$unset: true } });
   update(users, { '0': { $$unset: false } });
   update(users, { '0': { $$unset: undefined } });
-  // @ts-expect-error
   update(users, { '0': { $$delete: true } });
-  // @ts-expect-error
   update(users, { '0': { $$delete: false } });
   update(users, { '0': { $$delete: undefined } });
 }
@@ -755,9 +751,7 @@ ARRAY_OF_SCALARS: {
   // @ts-expect-error
   update(users, { '0': { $$unset: false } });
   update(users, { '0': { $$unset: undefined } });
-  // @ts-expect-error
   update(users, { '0': { $$delete: true } });
-  // @ts-expect-error
   update(users, { '0': { $$delete: false } });
   update(users, { '0': { $$delete: undefined } });
 }
@@ -777,9 +771,7 @@ ARRAY_OF_SCALARS_AND_UNDEFINED_VALUES: {
   update(users, { '0': { $$unset: true } });
   update(users, { '0': { $$unset: false } });
   update(users, { '0': { $$unset: undefined } });
-  // @ts-expect-error
   update(users, { '0': { $$delete: true } });
-  // @ts-expect-error
   update(users, { '0': { $$delete: false } });
   update(users, { '0': { $$delete: undefined } });
 }
@@ -833,9 +825,7 @@ TUPLE_OF_OBJECTS: {
   // @ts-expect-error
   update(users, { '0': { $$unset: false } });
   update(users, { '0': { $$unset: undefined } });
-  // @ts-expect-error
   update(users, { '0': { $$delete: true } });
-  // @ts-expect-error
   update(users, { '0': { $$delete: false } });
   update(users, { '0': { $$delete: undefined } });
 }
@@ -875,9 +865,7 @@ TUPLE_OF_OBJECTS_AND_UNDEFINED_VALUES: {
   update(users, { '0': { $$unset: true } });
   update(users, { '0': { $$unset: false } });
   update(users, { '0': { $$unset: undefined } });
-  // @ts-expect-error
   update(users, { '0': { $$delete: true } });
-  // @ts-expect-error
   update(users, { '0': { $$delete: false } });
   update(users, { '0': { $$delete: undefined } });
 }
@@ -915,9 +903,7 @@ TUPLE_OF_SCALARS: {
   // @ts-expect-error
   update(users, { '0': { $$unset: false } });
   update(users, { '0': { $$unset: undefined } });
-  // @ts-expect-error
   update(users, { '0': { $$delete: true } });
-  // @ts-expect-error
   update(users, { '0': { $$delete: false } });
   update(users, { '0': { $$delete: undefined } });
 }
@@ -952,9 +938,7 @@ TUPLE_OF_SCALARS_AND_UNDEFINED_VALUES: {
   update(users, { '0': { $$unset: true } });
   update(users, { '0': { $$unset: false } });
   update(users, { '0': { $$unset: undefined } });
-  // @ts-expect-error
   update(users, { '0': { $$delete: true } });
-  // @ts-expect-error
   update(users, { '0': { $$delete: false } });
   update(users, { '0': { $$delete: undefined } });
 }

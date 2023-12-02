@@ -168,3 +168,39 @@ export function isMergeAllCommand<
 ): instruction is MergeAllCommand<TData> {
   return !!instruction && instruction.$$mergeAll !== undefined;
 }
+
+/**
+ * $$append: Member[], skip?: number
+ * $$prepend: Member[], skip?: number
+ * $$exclude: number[]
+ * $$exclude: number, skip?: number
+ * $$extract: number[]
+ * $$extract: number, skip?: number
+ * $$move: [number, number]
+ * $$swap: [number, number]
+ * $$merge: UpdatePayload<Member>[], at?: number
+ * $$mergeAll: UpdatePayload<Member>
+ *
+ *
+ * $$append: Member[], skip?: number
+ * $$prepend: Member[], skip?: number
+ * $$exclude: number[]
+ * $$exclude: number, skip?: number
+ * $$extract: number[]
+ * $$extract: number, skip?: number
+ * $$move: [number, number]
+ * $$swap: [number, number]
+ * $$apply: UpdatePayload<Member>, length: number, skip?: number
+ *
+ *
+ * $$append: Member[], skip?: number
+ * $$prepend: Member[], skip?: number
+ * $$exclude: number[]
+ * $$exclude: number, at?: number
+ * $$extract: number[]
+ * $$extract: number, at?: number
+ * $$move: [number, number]
+ * $$swap: [number, number]
+ * $$merge: UpdatePayload<Member>[], at?: number
+ * $$mergeAll: UpdatePayload<Member>
+ */

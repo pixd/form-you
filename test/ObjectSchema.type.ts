@@ -912,7 +912,7 @@ import { expect, PASSED } from './tools/expect';
 }
 
 /**
- * Refine
+ * Concat
  */
 {
   {

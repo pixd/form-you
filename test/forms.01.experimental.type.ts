@@ -111,20 +111,18 @@ import { expect, PASSED } from './tools/expect';
     productId: StringSchema.create(),
   }).refine();
 
-  StringSchema.create({
-    positive: 'positive',
-    negative: 'negative',
+  refine(schema)
+  refine(fn)
+
+  refine('path', schema)
+  refine('path', fn)
+
+  update({
+    [prop]: update
   })
-    .update({
-      product: {
-        price: (schema) => {
-          return schema.required();
-        },
-        category: {
-          brand: (schema) => {
-            return schema.required();
-          },
-        },
-      },
-    });
+  update({
+    [prop]: fn
+  })
+
+  BooleanSchema NumberSchema  StringSchema  ArraySchema   ObjectSchema  OneOfSchema
  */

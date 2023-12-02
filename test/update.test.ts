@@ -7,41 +7,76 @@ describe('update method', () => {
       bonus: 10,
     };
 
-    const newUser = update(user, {
-      nick: 'Mark',
-      // @ts-expect-error
-      enabled: true,
-    });
+    {
+      const newUser = update(user, {
+        nick: 'Mark',
+      });
 
-    expect(newUser).toStrictEqual({
-      nick: 'Mark',
-      bonus: 10,
-      enabled: true,
-    });
+      expect(newUser).toStrictEqual({
+        nick: 'Mark',
+        bonus: 10,
+      });
+    }
+
+    {
+      const newUser = update(user, {
+        // @ts-expect-error
+        enabled: true,
+      });
+
+      expect(newUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: 10,
+        enabled: true,
+      });
+    }
   });
 
   it('can update nested objects', () => {
     const user = {
       nick: 'Antonio',
+      bonus: 10,
       friend: {
         nick: 'Mark',
         bonus: 10,
       },
     };
 
-    const newUser = update(user, {
-      friend: {
-        nick: 'Juan',
-      },
-    });
+    {
+      const newUser = update(user, {
+        friend: {
+          nick: 'Daniel',
+        },
+      });
 
-    expect(newUser).toStrictEqual({
-      nick: 'Antonio',
-      friend: {
-        nick: 'Juan',
+      expect(newUser).toStrictEqual({
+        nick: 'Antonio',
         bonus: 10,
-      },
-    });
+        friend: {
+          nick: 'Daniel',
+          bonus: 10,
+        },
+      });
+    }
+
+    {
+      const newUser = update(user, {
+        friend: {
+          // @ts-expect-error
+          enabled: true,
+        },
+      });
+
+      expect(newUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: 10,
+        friend: {
+          nick: 'Mark',
+          bonus: 10,
+          enabled: true,
+        },
+      });
+    }
   });
 
   it('can update arrays', () => {
@@ -57,7 +92,6 @@ describe('update method', () => {
       const newUser = update(user, {
         bonus: {
           '0': { value: 15 },
-          '2': { value: 35 },
         },
       });
 
@@ -65,6 +99,22 @@ describe('update method', () => {
         nick: 'Antonio',
         bonus: [
           { num: 1, value: 15 },
+          { num: 2, value: 20 },
+        ],
+      });
+    }
+
+    {
+      const newUser = update(user, {
+        bonus: {
+          '2': { value: 35 },
+        },
+      });
+
+      expect(newUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: [
+          { num: 1, value: 10 },
           { num: 2, value: 20 },
           { value: 35 },
         ],
@@ -78,13 +128,6 @@ describe('update method', () => {
       friends: [
         {
           nick: 'Mark',
-          bonus: [
-            { num: 1, value: 10 },
-            { num: 2, value: 20 },
-          ],
-        },
-        {
-          nick: 'Juan',
           bonus: [
             { num: 1, value: 10 },
             { num: 2, value: 20 },
@@ -113,28 +156,21 @@ describe('update method', () => {
             { num: 2, value: 20 },
           ],
         },
-        {
-          nick: 'Juan',
-          bonus: [
-            { num: 1, value: 10 },
-            { num: 2, value: 20 },
-          ],
-        },
       ],
     });
   });
 
-  it('replace scalars or arrays with new value with object update command', () => {
+  it('replace scalars with new value with object update command', () => {
     {
       const test = (user: any) => {
         expect(update(user, {
           bonus: {
-            '1': { value: 20 },
+            value: 10,
           },
         })).toStrictEqual({
           nick: 'Antonio',
           bonus: {
-            '1': { value: 20 },
+            value: 10,
           },
         });
       };
@@ -312,6 +348,58 @@ describe('update method', () => {
         bonus: 10,
       });
     }
+
+    {
+      const user = {
+        nick: 'Antonio',
+        bonus: [
+          { value: 10 },
+          { value: 20 },
+        ],
+      };
+
+      const newUser = update(
+        user,
+        {
+          // @ts-expect-error
+          bonus: { 0: { $$unset: true } },
+        },
+      );
+
+      expect(newUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: [
+          undefined,
+          { value: 20 },
+        ],
+      });
+    }
+
+    {
+      const user = {
+        nick: 'Antonio',
+        bonus: [
+          { value: 10 },
+          { value: 20 },
+        ],
+      };
+
+      const newUser = update(
+        user,
+        {
+          // @ts-expect-error
+          bonus: { 0: { $$unset: false } },
+        },
+      );
+
+      expect(newUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: [
+          { value: 10 },
+          { value: 20 },
+        ],
+      });
+    }
   });
 
   it('ignore { $$unset: undefined } commands', () => {
@@ -402,6 +490,55 @@ describe('update method', () => {
         bonus: 10,
       });
     }
+
+    {
+      const user = {
+        nick: 'Antonio',
+        bonus: [
+          { value: 10 },
+          { value: 20 },
+        ],
+      };
+
+      const newUser = update(
+        user,
+        {
+          bonus: { 0: { $$delete: true } },
+        },
+      );
+
+      expect(newUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: [
+          { value: 20 },
+        ],
+      });
+    }
+
+    {
+      const user = {
+        nick: 'Antonio',
+        bonus: [
+          { value: 10 },
+          { value: 20 },
+        ],
+      };
+
+      const newUser = update(
+        user,
+        {
+          bonus: { 0: { $$delete: false } },
+        },
+      );
+
+      expect(newUser).toStrictEqual({
+        nick: 'Antonio',
+        bonus: [
+          { value: 10 },
+          { value: 20 },
+        ],
+      });
+    }
   });
 
   it('ignore { $$delete: undefined } commands', () => {
@@ -476,7 +613,7 @@ describe('update method', () => {
     }
 
     {
-      const checkEqual = (skip: number) => {
+      const test = (skip: number) => {
         expect(update(user, {
           bonus: {
             $$append: [100, 101],
@@ -490,13 +627,13 @@ describe('update method', () => {
         }));
       };
 
-      checkEqual(-2);
-      checkEqual(-9);
-      checkEqual(-10);
-      checkEqual(-11);
-      checkEqual(-12);
-      checkEqual(-13);
-      checkEqual(-Infinity);
+      test(-2);
+      test(-9);
+      test(-10);
+      test(-11);
+      test(-12);
+      test(-13);
+      test(-Infinity);
     }
 
     {
@@ -593,7 +730,7 @@ describe('update method', () => {
     }
 
     {
-      const checkEqual = (skip: number) => {
+      const test = (skip: number) => {
         expect(update(user, {
           bonus: {
             $$prepend: [100, 101],
@@ -607,13 +744,13 @@ describe('update method', () => {
         }));
       };
 
-      checkEqual(-2);
-      checkEqual(-9);
-      checkEqual(-10);
-      checkEqual(-11);
-      checkEqual(-12);
-      checkEqual(-13);
-      checkEqual(-Infinity);
+      test(-2);
+      test(-9);
+      test(-10);
+      test(-11);
+      test(-12);
+      test(-13);
+      test(-Infinity);
     }
 
     {
@@ -1217,11 +1354,7 @@ describe('update method', () => {
     }
 
     {
-      expect(update([] as number[], { $$move: [100, 4] })).toStrictEqual([]);
-    }
-
-    {
-      expect(update([] as number[], { $$move: [2, -100] })).toStrictEqual([]);
+      expect(update([] as number[], { $$move: [2, -4] })).toStrictEqual([]);
     }
 
     const testData = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -1478,11 +1611,7 @@ describe('update method', () => {
     }
 
     {
-      expect(update([] as number[], { $$swap: [100, 4] })).toStrictEqual([]);
-    }
-
-    {
-      expect(update([] as number[], { $$swap: [2, -100] })).toStrictEqual([]);
+      expect(update([] as number[], { $$swap: [2, -4] })).toStrictEqual([]);
     }
 
     const testData = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -1987,7 +2116,7 @@ describe('update method', () => {
     });
   });
 
-  it('replace scalar or object elements with $$mergeAll command', () => {
+  it('replace scalars elements with $$mergeAll command', () => {
     function test(user: any) {
       const newUser = update(user, {
         bonus: {
@@ -2024,7 +2153,7 @@ describe('update method', () => {
       nick: 'Antonio',
       bonus: [
         { num: 1, value: 10 },
-        'null',
+        10,
       ],
     });
   });

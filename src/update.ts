@@ -120,28 +120,22 @@ export function update(
     else if (isDeleteCommand(updatePayload)) {
       throw new Error('$$delete command can not be used in update method');
     }
-    else if (isPrependCommand(updatePayload)) {
+    else if (isAppendCommand(updatePayload)) {
       if (Array.isArray(data)) {
         const skip = Math.max(0, updatePayload.skip ?? 0);
         const nextData = [...data];
-        nextData.splice(
-          // Yes, we know about this corner case, these two values give the same:
-          // `skip` and `Math.max(0, skip)`
-          Math.max(0, skip),
-          0,
-          ...updatePayload.$$prepend,
-        );
+        nextData.splice(Math.max(0, data.length - skip), 0, ...updatePayload.$$append);
         return nextData;
       }
       else {
         return data;
       }
     }
-    else if (isAppendCommand(updatePayload)) {
+    else if (isPrependCommand(updatePayload)) {
       if (Array.isArray(data)) {
         const skip = Math.max(0, updatePayload.skip ?? 0);
         const nextData = [...data];
-        nextData.splice(Math.max(0, data.length - skip), 0, ...updatePayload.$$append);
+        nextData.splice(skip, 0, ...updatePayload.$$prepend);
         return nextData;
       }
       else {
@@ -160,8 +154,7 @@ export function update(
           }
         });
 
-        return nextArray
-          .filter((element) => element !== excludeElement);
+        return nextArray.filter((element) => element !== excludeElement);
       }
       else {
         return data;
@@ -189,18 +182,13 @@ export function update(
     else if (isExtractCommand(updatePayload)) {
       if (Array.isArray(data)) {
         const { $$extract: extract } = updatePayload;
-        const extractElement = Symbol('extractElement');
 
-        const nextArray = [...data];
-        extract.forEach((key) => {
-          if (key in nextArray) {
-            nextArray[key] = { extract: extractElement, value: data[key] };
+        return extract.reduce((nextArray, key) => {
+          if (key in data) {
+            nextArray.push(data[key]);
           }
-        });
-
-        return nextArray
-          .filter((element) => (element && element.extract === extractElement))
-          .map((element) => element.value);
+          return nextArray;
+        }, [] as any[]);
       }
       else {
         return data;
@@ -296,7 +284,7 @@ export function update(
             }
             return data;
           }, [...data])
-          .filter((element) => element?.value !== removeElement);
+          .filter((element) => element !== removeElement);
       }
       else {
         return Object.keys(updatePayload)
@@ -369,10 +357,9 @@ function getStartEndIndex<T>(
       return nothing;
     }
     else {
-      startIndex = Math.max(0, startIndex);
-      endIndex = Math.min(dataLength - 1, endIndex);
-
-      return { start: startIndex, end: endIndex };
+      const start = Math.max(0, startIndex);
+      const end = Math.min(dataLength - 1, endIndex);
+      return { start, end };
     }
   }
 }
@@ -385,12 +372,12 @@ function moveElement<T>(
   if (shouldMove(...move, data.length)) {
     const [aIndex, bIndex] = getPositiveIndexPair([move[0], move[1]], data.length);
 
-    const shiftValue = swapResponseAction && shouldMove(move[1], move[0], data.length)
+    const shift = swapResponseAction && shouldMove(move[1], move[0], data.length)
       ? Math.sign(bIndex - aIndex)
       : 0;
 
     const nextArray = [...data];
-    nextArray.splice(bIndex, 0, nextArray.splice(aIndex + shiftValue, 1)[0]);
+    nextArray.splice(bIndex, 0, nextArray.splice(aIndex + shift, 1)[0]);
     return nextArray;
   }
   else {

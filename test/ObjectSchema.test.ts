@@ -197,6 +197,12 @@ describe('ObjectSchema', () => {
     }
 
     {
+      const schema = ObjectSchema.create({});
+
+      expect(schema.getDefault()).toStrictEqual({});
+    }
+
+    {
       const schema = ObjectSchema.create().optional();
 
       expect(schema.getDefault()).toBe(undefined);

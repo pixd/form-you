@@ -60,11 +60,9 @@ type Set<
 
 type Unset<
   TData extends any,
-> = undefined extends TData
-  ? UnsetCommand
-    & { $$set?: never; $$delete?: never; [key: number]: never }
-    & ExcludeDataKeys<TData>
-  : never;
+> = UnsetCommand
+  & { $$set?: never; $$delete?: never; [key: number]: never }
+  & ExcludeDataKeys<TData>;
 
 type Delete<
   TData extends any,
@@ -74,11 +72,16 @@ type Delete<
 
 export type UpdatePayload<
   TData extends any,
-> = undefined | Set<TData> | Unset<TData> | (
+> = undefined | Set<TData> | (undefined extends TData ? Unset<TData> : never) | (
   TData extends (infer I)[]
     ?
       | I[]
-      | PreventControls<{ [key in number]: undefined | UpdatePayload<I> }> & ExcludeDataKeys<I>
+      | PreventControls<{
+          [key in number]:
+            | undefined
+            | UpdatePayload<I>
+            | Delete<I>
+        }> & ExcludeDataKeys<I>
       | PreventControls<AppendCommand<I>>
       | PreventControls<PrependCommand<I>>
       | PreventControls<ExcludeCommand>
@@ -90,9 +93,10 @@ export type UpdatePayload<
       | PreventControls<MergeCommand<I>>
       | PreventControls<MergeAllCommand<I>>
     : TData extends Record<string, any>
-      ? { [TKey in keyof TData]?:
-          | GetCommand<Delete<TData[TKey]>, TKey, CanBeDeletedKeys<TData>>
-          | UpdatePayload<TData[TKey]>
+      ? {
+          [TKey in keyof TData]?:
+            | GetCommand<Delete<TData[TKey]>, TKey, CanBeDeletedKeys<TData>>
+            | UpdatePayload<TData[TKey]>
         } & { $$set?: never; $$unset?: never; $$delete?: never }
       : (TData | { $$set?: never; $$unset?: never; $$delete?: never })
 );

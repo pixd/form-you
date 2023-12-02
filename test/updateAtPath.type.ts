@@ -197,9 +197,7 @@ ARRAY_OF_OBJECTS: {
   // @ts-expect-error
   updateAtPath(state, 'users', { '0': { $$unset: false } });
   updateAtPath(state, 'users', { '0': { $$unset: undefined } });
-  // @ts-expect-error
   updateAtPath(state, 'users', { '0': { $$delete: true } });
-  // @ts-expect-error
   updateAtPath(state, 'users', { '0': { $$delete: false } });
   updateAtPath(state, 'users', { '0': { $$delete: undefined } });
 }
@@ -245,9 +243,7 @@ ARRAY_OF_OBJECTS_AND_UNDEFINED_VALUES: {
   updateAtPath(state, 'users', { '0': { $$unset: true } });
   updateAtPath(state, 'users', { '0': { $$unset: false } });
   updateAtPath(state, 'users', { '0': { $$unset: undefined } });
-  // @ts-expect-error
   updateAtPath(state, 'users', { '0': { $$delete: true } });
-  // @ts-expect-error
   updateAtPath(state, 'users', { '0': { $$delete: false } });
   updateAtPath(state, 'users', { '0': { $$delete: undefined } });
 }
@@ -291,9 +287,7 @@ ARRAY_OF_SCALARS: {
   // @ts-expect-error
   updateAtPath(state, 'users', { '0': { $$unset: false } });
   updateAtPath(state, 'users', { '0': { $$unset: undefined } });
-  // @ts-expect-error
   updateAtPath(state, 'users', { '0': { $$delete: true } });
-  // @ts-expect-error
   updateAtPath(state, 'users', { '0': { $$delete: false } });
   updateAtPath(state, 'users', { '0': { $$delete: undefined } });
 }
@@ -332,9 +326,7 @@ ARRAY_OF_SCALARS_AND_UNDEFINED_VALUES: {
   updateAtPath(state, 'users', { '0': { $$unset: true } });
   updateAtPath(state, 'users', { '0': { $$unset: false } });
   updateAtPath(state, 'users', { '0': { $$unset: undefined } });
-  // @ts-expect-error
   updateAtPath(state, 'users', { '0': { $$delete: true } });
-  // @ts-expect-error
   updateAtPath(state, 'users', { '0': { $$delete: false } });
   updateAtPath(state, 'users', { '0': { $$delete: undefined } });
 }
@@ -469,9 +461,7 @@ TUPLE_OF_OBJECTS: {
   // @ts-expect-error
   updateAtPath(state, 'users', { '0': { $$unset: false } });
   updateAtPath(state, 'users', { '0': { $$unset: undefined } });
-  // @ts-expect-error
   updateAtPath(state, 'users', { '0': { $$delete: true } });
-  // @ts-expect-error
   updateAtPath(state, 'users', { '0': { $$delete: false } });
   updateAtPath(state, 'users', { '0': { $$delete: undefined } });
   updateAtPath(state, 'users', { '1': { $$set: { id: 10, nick: 'Mark' } } });
@@ -486,9 +476,7 @@ TUPLE_OF_OBJECTS: {
   // @ts-expect-error
   updateAtPath(state, 'users', { '1': { $$unset: false } });
   updateAtPath(state, 'users', { '1': { $$unset: undefined } });
-  // @ts-expect-error
   updateAtPath(state, 'users', { '1': { $$delete: true } });
-  // @ts-expect-error
   updateAtPath(state, 'users', { '1': { $$delete: false } });
   updateAtPath(state, 'users', { '1': { $$delete: undefined } });
   updateAtPath(state, 'users', { '2': { $$set: { id: 10, nick: 'Mark' } } });
@@ -503,9 +491,7 @@ TUPLE_OF_OBJECTS: {
   // @ts-expect-error
   updateAtPath(state, 'users', { '2': { $$unset: false } });
   updateAtPath(state, 'users', { '2': { $$unset: undefined } });
-  // @ts-expect-error
   updateAtPath(state, 'users', { '2': { $$delete: true } });
-  // @ts-expect-error
   updateAtPath(state, 'users', { '2': { $$delete: false } });
   updateAtPath(state, 'users', { '2': { $$delete: undefined } });
 }
@@ -635,9 +621,7 @@ TUPLE_OF_OBJECTS_AND_UNDEFINED_VALUES: {
   updateAtPath(state, 'users', { '0': { $$unset: true } });
   updateAtPath(state, 'users', { '0': { $$unset: false } });
   updateAtPath(state, 'users', { '0': { $$unset: undefined } });
-  // @ts-expect-error
   updateAtPath(state, 'users', { '0': { $$delete: true } });
-  // @ts-expect-error
   updateAtPath(state, 'users', { '0': { $$delete: false } });
   updateAtPath(state, 'users', { '0': { $$delete: undefined } });
   updateAtPath(state, 'users', { '1': { $$set: { id: 10, nick: 'Mark' } } });
@@ -650,9 +634,7 @@ TUPLE_OF_OBJECTS_AND_UNDEFINED_VALUES: {
   updateAtPath(state, 'users', { '1': { $$unset: true } });
   updateAtPath(state, 'users', { '1': { $$unset: false } });
   updateAtPath(state, 'users', { '1': { $$unset: undefined } });
-  // @ts-expect-error
   updateAtPath(state, 'users', { '1': { $$delete: true } });
-  // @ts-expect-error
   updateAtPath(state, 'users', { '1': { $$delete: false } });
   updateAtPath(state, 'users', { '1': { $$delete: undefined } });
   updateAtPath(state, 'users', { '2': { $$set: { id: 10, nick: 'Mark' } } });
@@ -665,9 +647,7 @@ TUPLE_OF_OBJECTS_AND_UNDEFINED_VALUES: {
   updateAtPath(state, 'users', { '2': { $$unset: true } });
   updateAtPath(state, 'users', { '2': { $$unset: false } });
   updateAtPath(state, 'users', { '2': { $$unset: undefined } });
-  // @ts-expect-error
   updateAtPath(state, 'users', { '2': { $$delete: true } });
-  // @ts-expect-error
   updateAtPath(state, 'users', { '2': { $$delete: false } });
   updateAtPath(state, 'users', { '2': { $$delete: undefined } });
 }
@@ -703,9 +683,7 @@ TUPLE_OF_SCALARS: {
   // @ts-expect-error
   updateAtPath(state, 'user', { '0': { $$unset: false } });
   updateAtPath(state, 'user', { '0': { $$unset: undefined } });
-  // @ts-expect-error
   updateAtPath(state, 'user', { '0': { $$delete: true } });
-  // @ts-expect-error
   updateAtPath(state, 'user', { '0': { $$delete: false } });
   updateAtPath(state, 'user', { '0': { $$delete: undefined } });
   updateAtPath(state, 'user', { '1': { $$set: 'Mark' } });
@@ -716,9 +694,7 @@ TUPLE_OF_SCALARS: {
   // @ts-expect-error
   updateAtPath(state, 'user', { '1': { $$unset: false } });
   updateAtPath(state, 'user', { '1': { $$unset: undefined } });
-  // @ts-expect-error
   updateAtPath(state, 'user', { '1': { $$delete: true } });
-  // @ts-expect-error
   updateAtPath(state, 'user', { '1': { $$delete: false } });
   updateAtPath(state, 'user', { '1': { $$delete: undefined } });
   updateAtPath(state, 'user', { '2': { $$set: 'Mark' } });
@@ -729,9 +705,7 @@ TUPLE_OF_SCALARS: {
   // @ts-expect-error
   updateAtPath(state, 'user', { '2': { $$unset: false } });
   updateAtPath(state, 'user', { '2': { $$unset: undefined } });
-  // @ts-expect-error
   updateAtPath(state, 'user', { '2': { $$delete: true } });
-  // @ts-expect-error
   updateAtPath(state, 'user', { '2': { $$delete: false } });
   updateAtPath(state, 'user', { '2': { $$delete: undefined } });
 }
@@ -764,9 +738,7 @@ TUPLE_OF_SCALARS_AND_UNDEFINED_VALUES: {
   updateAtPath(state, 'user', { '0': { $$unset: true } });
   updateAtPath(state, 'user', { '0': { $$unset: false } });
   updateAtPath(state, 'user', { '0': { $$unset: undefined } });
-  // @ts-expect-error
   updateAtPath(state, 'user', { '0': { $$delete: true } });
-  // @ts-expect-error
   updateAtPath(state, 'user', { '0': { $$delete: false } });
   updateAtPath(state, 'user', { '0': { $$delete: undefined } });
   updateAtPath(state, 'user', { '1': { $$set: 'Mark' } });
@@ -775,9 +747,7 @@ TUPLE_OF_SCALARS_AND_UNDEFINED_VALUES: {
   updateAtPath(state, 'user', { '1': { $$unset: true } });
   updateAtPath(state, 'user', { '1': { $$unset: false } });
   updateAtPath(state, 'user', { '1': { $$unset: undefined } });
-  // @ts-expect-error
   updateAtPath(state, 'user', { '1': { $$delete: true } });
-  // @ts-expect-error
   updateAtPath(state, 'user', { '1': { $$delete: false } });
   updateAtPath(state, 'user', { '1': { $$delete: undefined } });
   updateAtPath(state, 'user', { '2': { $$set: 'Mark' } });
@@ -786,9 +756,7 @@ TUPLE_OF_SCALARS_AND_UNDEFINED_VALUES: {
   updateAtPath(state, 'user', { '2': { $$unset: true } });
   updateAtPath(state, 'user', { '2': { $$unset: false } });
   updateAtPath(state, 'user', { '2': { $$unset: undefined } });
-  // @ts-expect-error
   updateAtPath(state, 'user', { '2': { $$delete: true } });
-  // @ts-expect-error
   updateAtPath(state, 'user', { '2': { $$delete: false } });
   updateAtPath(state, 'user', { '2': { $$delete: undefined } });
 }

@@ -216,13 +216,41 @@ describe('ObjectSchema', () => {
   });
 
   it('should set default value with .default()', () => {
-    const schema = ObjectSchema.create().default({
-      price: 100,
-    });
+    {
+      const schema = ObjectSchema.create()
+        .default({ price: 100 });
 
-    expect(schema.getDefault()).toStrictEqual({
-      price: 100,
-    });
+      expect(schema.getDefault()).toStrictEqual({
+        price: 100,
+      });
+    }
+
+    {
+      const schema = ObjectSchema.create()
+        .optional()
+        .default({ price: 100 })
+        .default(undefined);
+
+      expect(schema.getDefault()).toBe(undefined);
+    }
+
+    {
+      const schema = ObjectSchema.create()
+        .nullable()
+        .default({ price: 100 })
+        .default(null);
+
+      expect(schema.getDefault()).toBe(null);
+    }
+
+    {
+      const schema = ObjectSchema.create()
+        .notRequired()
+        .default({ price: 100 })
+        .default(null);
+
+      expect(schema.getDefault()).toBe(null);
+    }
   });
 
   it('should use shape to calculate default value', () => {

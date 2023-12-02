@@ -177,21 +177,21 @@ export default class ObjectSchema<
   }
 
   public override getDefault(): DefaultData<TShape, TOptional, TNullable> {
-    if (this.defaultValue?.data != null) {
-      const defaultData = calculateDefaultData(this.patternValue);
-      return {
-        ...defaultData,
-        ...this.defaultValue.data,
-      };
+    const defaultData = super.getDefaultBase();
+
+    if (defaultData) {
+      return defaultData.data;
     }
     else {
-      const defaultData = super.getDefaultBase();
-
-      if (defaultData) {
-        return defaultData.data;
+      const defaultData = getDefaultData(this.patternValue);
+      if (this.defaultValue?.data != null) {
+        return {
+          ...defaultData,
+          ...this.defaultValue.data,
+        };
       }
       else {
-        return calculateDefaultData(this.patternValue) as DefaultData<TShape, TOptional, TNullable>;
+        return defaultData as DefaultData<TShape, TOptional, TNullable>;
       }
     }
   }
@@ -216,7 +216,7 @@ export default class ObjectSchema<
   }
 }
 
-function calculateDefaultData(patternValue: null | Shape) {
+function getDefaultData(patternValue: null | Shape) {
   return Object.entries(patternValue ?? {})
     .reduce((defaultValue, [key, schema]) => {
       defaultValue[key] = schema.getDefault();

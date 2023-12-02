@@ -43,41 +43,7 @@ import { expect, PASSED } from './tools/expect';
   }
 
   {
-    const schema = StringSchema.create(['Antonio']);
-
-    expect.safety.extends<BaseSchema, typeof schema>(PASSED);
-    expect.safety.extends<StringSchema, typeof schema>(PASSED);
-    expect.safety.extends<typeof defaultSchema, typeof schema>(PASSED);
-    expect.safety.not.extends<typeof schema, typeof defaultSchema>(PASSED);
-    expect.safety.extends<SchemaDataType<typeof defaultSchema>, SchemaDataType<typeof schema>>(PASSED);
-    expect.safety.not.extends<SchemaDataType<typeof schema>, SchemaDataType<typeof defaultSchema>>(PASSED);
-  }
-
-  {
-    const schemaA = StringSchema.create(['Antonio', 'Mark']);
-    const schemaB = StringSchema.create(['Antonio']);
-
-    expect.safety.not.extends<typeof schemaB, typeof schemaA>(PASSED);
-    expect.safety.extends<typeof schemaA, typeof schemaB>(PASSED);
-    expect.safety.not.extends<SchemaDataType<typeof schemaB>, SchemaDataType<typeof schemaA>>(PASSED);
-    expect.safety.extends<SchemaDataType<typeof schemaA>, SchemaDataType<typeof schemaB>>(PASSED);
-  }
-
-  {
-    const schema = StringSchema.create(['Antonio', 'Mark']);
-    const nextSchema = schema.refine(['Antonio']);
-
-    expect.safety.extends<BaseSchema, typeof schema>(PASSED);
-    expect.safety.extends<StringSchema, typeof schema>(PASSED);
-    expect.safety.not.extends<typeof nextSchema, typeof schema>(PASSED);
-    expect.safety.extends<typeof schema, typeof nextSchema>(PASSED);
-    expect.safety.not.extends<SchemaDataType<typeof nextSchema>, SchemaDataType<typeof schema>>(PASSED);
-    expect.safety.extends<SchemaDataType<typeof schema>, SchemaDataType<typeof nextSchema>>(PASSED);
-  }
-
-  {
     const schema = StringSchema.create().context<{ price: number }>();
-    const defaultSchema = StringSchema.create();
 
     expect.safety.extends<BaseSchema, typeof schema>(PASSED);
     expect.safety.extends<StringSchema, typeof schema>(PASSED);
@@ -269,90 +235,6 @@ import { expect, PASSED } from './tools/expect';
     expect.equal<typeof defaultValue, undefined | null | string>(PASSED);
 
     expect.equal<Parameters<typeof schema.default>[0], undefined | null | string>(PASSED);
-  }
-
-  {
-    const schema = StringSchema.create(['Antonio', 'Mark']);
-
-    const defaultValue = schema.getDefault();
-
-    expect.equal<typeof defaultValue, 'Antonio' | 'Mark'>(PASSED);
-
-    expect.equal<Parameters<typeof schema.default>[0], 'Antonio' | 'Mark'>(PASSED);
-  }
-
-  {
-    const schema = StringSchema.create(['Antonio', 'Mark'])
-      .default('Antonio');
-
-    const defaultValue = schema.getDefault();
-
-    expect.equal<typeof defaultValue, 'Antonio' | 'Mark'>(PASSED);
-  }
-
-  {
-    const schema = StringSchema.create(['Antonio', 'Mark'])
-      .default('Antonio')
-      .optional();
-
-    const defaultValue = schema.getDefault();
-
-    expect.equal<typeof defaultValue, undefined | 'Antonio' | 'Mark'>(PASSED);
-  }
-
-  {
-    const schema = StringSchema.create(['Antonio', 'Mark'])
-      .default('Antonio')
-      .nullable();
-
-    const defaultValue = schema.getDefault();
-
-    expect.equal<typeof defaultValue, null | 'Antonio' | 'Mark'>(PASSED);
-  }
-
-  {
-    const schema = StringSchema.create(['Antonio', 'Mark'])
-      .default('Antonio')
-      .notRequired();
-
-    const defaultValue = schema.getDefault();
-
-    expect.equal<typeof defaultValue, undefined | null | 'Antonio' | 'Mark'>(PASSED);
-  }
-}
-
-/**
- * Default value and refine
- */
-{
-  {
-    const schema = StringSchema.create()
-      .refine(['Antonio']);
-
-    expect.equal<Parameters<typeof schema.default>[0], 'Antonio'>(PASSED);
-  }
-
-  {
-    const schema = StringSchema.create()
-      .default('Mark')
-      .refine(['Antonio']);
-
-    expect.equal<Parameters<typeof schema.default>[0], 'Antonio'>(PASSED);
-  }
-
-  {
-    const schema = StringSchema.create(['Antonio', 'Mark'])
-      .refine(['Mark']);
-
-    expect.equal<Parameters<typeof schema.default>[0], 'Mark'>(PASSED);
-  }
-
-  {
-    const schema = StringSchema.create(['Antonio', 'Mark'])
-      .default('Mark')
-      .refine(['Antonio']);
-
-    expect.equal<Parameters<typeof schema.default>[0], 'Antonio'>(PASSED);
   }
 }
 
@@ -606,7 +488,7 @@ import { expect, PASSED } from './tools/expect';
 
     // @ts-ignore I don't know why, but this is not working...
     expect.equal<ContextType, { sale: number[] }>(PASSED);
-    // ... so let's write it like this
+    // ... so let's write it this way
     expect.equal<ContextType, { sale: number[] & (string | number)[] }>(PASSED);
   }
 
@@ -685,33 +567,5 @@ import { expect, PASSED } from './tools/expect';
     type NextDataType = SchemaDataType<typeof nextSchema>;
 
     expect.equal<NextDataType, undefined | null | string>(PASSED);
-  }
-}
-
-/**
- * Refine
- */
-{
-  {
-    const schema = StringSchema.create();
-
-    const nextSchema = schema.refine(['Antonio']);
-
-    expect.equal<SchemaDataType<typeof nextSchema>, 'Antonio'>(PASSED);
-  }
-
-  {
-    const schema = StringSchema.create(['Antonio', 'Mark']);
-
-    const nextSchema = schema.refine(['Antonio']);
-
-    expect.equal<SchemaDataType<typeof nextSchema>, 'Antonio'>(PASSED);
-  }
-
-  {
-    const schema = StringSchema.create(['Antonio']);
-
-    // @ts-expect-error
-    schema.refine(['Antonio', 'Mark']);
   }
 }

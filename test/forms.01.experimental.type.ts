@@ -102,6 +102,29 @@ import { expect, PASSED } from './tools/expect';
   tariffForm.rates.elements.map()
 
   StringSchema.create().refine();
-  ObjectSchema.create().concat({});
+
   ObjectSchema.create().refine();
+  ObjectSchema.create().concat({});
+
+  OneOfSchema.create({
+    product: ObjectSchema.create(),
+    productId: StringSchema.create(),
+  }).refine();
+
+  StringSchema.create({
+    positive: 'positive',
+    negative: 'negative',
+  })
+    .update({
+      product: {
+        price: (schema) => {
+          return schema.required();
+        },
+        category: {
+          brand: (schema) => {
+            return schema.required();
+          },
+        },
+      },
+    });
  */

@@ -92,49 +92,25 @@ export default class StringSchema<
   }
 
   public static create<
-    TPattern extends string = string,
     TContext extends Record<string, any> = object,
-  >(
-    pattern?: TPattern[],
-  ): StringSchema<TPattern, false, false, TContext> {
-    const schema = new StringSchema<TPattern, false, false, TContext>();
-
-    schema.patternValue = pattern ?? null;
+  >(): StringSchema<string, false, false, TContext> {
+    const schema = new StringSchema<string, false, false, TContext>();
 
     return schema;
   }
 
-  public refine<
-    TNextPattern extends TPattern = TPattern,
-  >(
-    patternValue: TNextPattern[],
-  ): StringSchema<TNextPattern, TOptional, TNullable, TContext> {
-    let defaultValue = this.defaultValue;
-
-    if (this.defaultValue?.data != null) {
-      defaultValue = patternValue.includes(this.defaultValue.data as TNextPattern)
-        ? this.defaultValue
-        : null;
-    }
-
-    return this.apply({
-      patternValue,
-      defaultValue,
-    });
-  }
-
   public override getDefault(): DefaultData<TPattern, TOptional, TNullable> {
-    if (this.defaultValue?.data != null) {
-      return this.defaultValue.data;
+    const defaultData = super.getDefaultBase();
+
+    if (defaultData) {
+      return defaultData.data;
     }
     else {
-      const defaultData = super.getDefaultBase();
-
-      if (defaultData) {
-        return defaultData.data;
+      if (this.defaultValue?.data != null) {
+        return this.defaultValue.data;
       }
       else {
-        return (this.patternValue?.[0] ?? '') as DefaultData<TPattern, TOptional, TNullable>;
+        return '' as DefaultData<TPattern, TOptional, TNullable>;
       }
     }
   }

@@ -19,7 +19,7 @@ type UnknownType = 'UNKNOWN_TYPE';
 type AnyType = 'ANY_TYPE';
 
 export function expectEqual<TX, TY>(
-  ..._a: Equal<TX, TY> extends true
+  ..._args: Equal<TX, TY> extends true
     ? [typeof PASSED]
     : Equal<TX, never> extends true
       ? [[NeverType, TY]]
@@ -33,7 +33,7 @@ export function expectEqual<TX, TY>(
 }
 
 export function expectNotEqual<TX, TY>(
-  ..._a: Equal<TX, TY> extends false
+  ..._args: Equal<TX, TY> extends false
     ? [typeof PASSED]
     : Equal<TX, never> extends true
       ? [[NeverType, TY]]
@@ -79,7 +79,11 @@ export type Equal<
   TY,
   TTrue extends boolean = true,
   TFalse extends boolean = false,
-> = (<T>() => T extends TX ? 1 : 2) extends (<T>() => T extends TY ? 1 : 2) ? TTrue : TFalse;
+> = (<T>() => T extends (TX & T) | T ? true : false) extends (<T>() => T extends (TY & T) | T ? true : false)
+  ? ([TX] extends [never] ? true : false) extends ([TY] extends [never] ? true : false)
+    ? TTrue
+    : TFalse
+  : TFalse
 
 export type NotEqual<
   TX,

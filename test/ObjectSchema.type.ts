@@ -503,9 +503,12 @@ import { expect, PASSED } from './tools/expect';
       id: StringSchema.create(),
     });
 
-    const defaultValue = schema.getDefault();
+    expect.equal<Parameters<typeof schema.default>[0], {
+      id: string;
+      name: string;
+    }>(PASSED);
 
-    expect.equal<typeof defaultValue, {
+    expect.equal<ReturnType<typeof schema.getDefault>, {
       id: string;
       name: string;
     }>(PASSED);
@@ -518,9 +521,11 @@ import { expect, PASSED } from './tools/expect';
       name: StringSchema.create(),
     });
 
-    const defaultValue = schema.getDefault();
+    expect.equal<Parameters<typeof schema.default>[0], {
+      name: string;
+    }>(PASSED);
 
-    expect.equal<typeof defaultValue, {
+    expect.equal<ReturnType<typeof schema.getDefault>, {
       name: string;
     }>(PASSED);
   }
@@ -532,9 +537,11 @@ import { expect, PASSED } from './tools/expect';
       name: StringSchema.create(),
     });
 
-    const defaultValue = schema.getDefault();
+    expect.equal<Parameters<typeof schema.default>[0], {
+      name: string;
+    }>(PASSED);
 
-    expect.equal<typeof defaultValue, {
+    expect.equal<ReturnType<typeof schema.getDefault>, {
       name: string;
     }>(PASSED);
   }
@@ -546,9 +553,11 @@ import { expect, PASSED } from './tools/expect';
       name: StringSchema.create().optional(),
     });
 
-    const defaultValue = schema.getDefault();
+    expect.equal<Parameters<typeof schema.default>[0], {
+      name?: string;
+    }>(PASSED);
 
-    expect.equal<typeof defaultValue, {
+    expect.equal<ReturnType<typeof schema.getDefault>, {
       name?: string;
     }>(PASSED);
   }
@@ -560,9 +569,11 @@ import { expect, PASSED } from './tools/expect';
       name: StringSchema.create().nullable(),
     });
 
-    const defaultValue = schema.getDefault();
+    expect.equal<Parameters<typeof schema.default>[0], {
+      name: null | string;
+    }>(PASSED);
 
-    expect.equal<typeof defaultValue, {
+    expect.equal<ReturnType<typeof schema.getDefault>, {
       name: null | string;
     }>(PASSED);
   }
@@ -818,7 +829,7 @@ import { expect, PASSED } from './tools/expect';
 
     // @ts-ignore I don't know why, but this is not working...
     expect.equal<ContextType, { sale: number[] }>(PASSED);
-    // ... so let's write it like this
+    // ... so let's write it this way
     expect.equal<ContextType, { sale: number[] & (string | number)[] }>(PASSED);
   }
 

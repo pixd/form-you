@@ -215,62 +215,38 @@ describe('StringSchema', () => {
   });
 
   it('should set default value with .default()', () => {
-    const schema = StringSchema.create().default('Antonio');
-
-    expect(schema.getDefault()).toBe('Antonio');
-  });
-
-  it('should use pattern to calculate default value', () => {
     {
-      const schema = StringSchema.create();
-
-      expect(schema.getDefault()).toBe('');
-    }
-
-    {
-      const schema = StringSchema.create(['Antonio']);
+      const schema = StringSchema.create()
+        .default('Antonio');
 
       expect(schema.getDefault()).toBe('Antonio');
     }
 
     {
-      const schema = StringSchema.create(['Antonio', 'Mark']);
+      const schema = StringSchema.create()
+        .optional()
+        .default('Antonio')
+        .default(undefined);
 
-      expect(schema.getDefault()).toBe('Antonio');
-    }
-  });
-
-  it('should change default value after .refine()', () => {
-    {
-      const schema = StringSchema.create();
-
-      const nextSchema = schema.refine(['Antonio']);
-
-      expect(nextSchema.getDefault()).toBe('Antonio');
+      expect(schema.getDefault()).toBe(undefined);
     }
 
     {
-      const schema = StringSchema.create().default('Mark');
+      const schema = StringSchema.create()
+        .nullable()
+        .default('Antonio')
+        .default(null);
 
-      const nextSchema = schema.refine(['Antonio']);
-
-      expect(nextSchema.getDefault()).toBe('Antonio');
+      expect(schema.getDefault()).toBe(null);
     }
 
     {
-      const schema = StringSchema.create(['Antonio', 'Mark']);
+      const schema = StringSchema.create()
+        .notRequired()
+        .default('Antonio')
+        .default(null);
 
-      const nextSchema = schema.refine(['Mark']);
-
-      expect(nextSchema.getDefault()).toBe('Mark');
-    }
-
-    {
-      const schema = StringSchema.create(['Antonio', 'Mark']).default('Mark');
-
-      const nextSchema = schema.refine(['Antonio']);
-
-      expect(nextSchema.getDefault()).toBe('Antonio');
+      expect(schema.getDefault()).toBe(null);
     }
   });
 
@@ -308,14 +284,6 @@ describe('StringSchema', () => {
         .resetDefault();
 
       expect(schema.getDefault()).toBe(undefined);
-    }
-
-    {
-      const schema = StringSchema.create(['Antonio', 'Mark'])
-        .default('Mark')
-        .resetDefault();
-
-      expect(schema.getDefault()).toBe('Antonio');
     }
   });
 

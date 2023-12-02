@@ -290,8 +290,13 @@ export default abstract class BaseSchema<
   public abstract getDefault(): SchemaData<TData, TOptional, TNullable>
 
   protected getDefaultBase(): null | { data: SchemaData<TData, TOptional, TNullable> } {
-    if (this.defaultValue && this.defaultValue.data == null) {
-      return this.defaultValue;
+    if (this.defaultValue) {
+      if (this.defaultValue.data == null) {
+        return this.defaultValue;
+      }
+      else {
+        return null;
+      }
     }
     else if (this.rejectUndefined == null) {
       return { data: undefined } as { data: SchemaData<TData, TOptional, TNullable> };

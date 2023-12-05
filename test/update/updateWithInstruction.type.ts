@@ -1,4 +1,4 @@
-import { updateWithInstruction } from '../../src/update/update';
+import { updateWithInstruction } from '../../src/update/updateWithInstruction';
 
 type User = {
   id: number;
@@ -201,9 +201,7 @@ ARRAY_OF_OBJECTS: {
   // @ts-expect-error
   updateWithInstruction(state, { path: 'users', update: { '0': { $$unset: false } } });
   updateWithInstruction(state, { path: 'users', update: { '0': { $$unset: undefined } } });
-  // @ts-expect-error
   updateWithInstruction(state, { path: 'users', update: { '0': { $$delete: true } } });
-  // @ts-expect-error
   updateWithInstruction(state, { path: 'users', update: { '0': { $$delete: false } } });
   updateWithInstruction(state, { path: 'users', update: { '0': { $$delete: undefined } } });
 }
@@ -249,9 +247,7 @@ ARRAY_OF_OBJECTS_AND_UNDEFINED_VALUES: {
   updateWithInstruction(state, { path: 'users', update: { '0': { $$unset: true } } });
   updateWithInstruction(state, { path: 'users', update: { '0': { $$unset: false } } });
   updateWithInstruction(state, { path: 'users', update: { '0': { $$unset: undefined } } });
-  // @ts-expect-error
   updateWithInstruction(state, { path: 'users', update: { '0': { $$delete: true } } });
-  // @ts-expect-error
   updateWithInstruction(state, { path: 'users', update: { '0': { $$delete: false } } });
   updateWithInstruction(state, { path: 'users', update: { '0': { $$delete: undefined } } });
 }
@@ -295,9 +291,7 @@ ARRAY_OF_SCALARS: {
   // @ts-expect-error
   updateWithInstruction(state, { path: 'users', update: { '0': { $$unset: false } } });
   updateWithInstruction(state, { path: 'users', update: { '0': { $$unset: undefined } } });
-  // @ts-expect-error
   updateWithInstruction(state, { path: 'users', update: { '0': { $$delete: true } } });
-  // @ts-expect-error
   updateWithInstruction(state, { path: 'users', update: { '0': { $$delete: false } } });
   updateWithInstruction(state, { path: 'users', update: { '0': { $$delete: undefined } } });
 }
@@ -336,9 +330,7 @@ ARRAY_OF_SCALARS_AND_UNDEFINED_VALUES: {
   updateWithInstruction(state, { path: 'users', update: { '0': { $$unset: true } } });
   updateWithInstruction(state, { path: 'users', update: { '0': { $$unset: false } } });
   updateWithInstruction(state, { path: 'users', update: { '0': { $$unset: undefined } } });
-  // @ts-expect-error
   updateWithInstruction(state, { path: 'users', update: { '0': { $$delete: true } } });
-  // @ts-expect-error
   updateWithInstruction(state, { path: 'users', update: { '0': { $$delete: false } } });
   updateWithInstruction(state, { path: 'users', update: { '0': { $$delete: undefined } } });
 }
@@ -473,9 +465,7 @@ TUPLE_OF_OBJECTS: {
   // @ts-expect-error
   updateWithInstruction(state, { path: 'users', update: { '0': { $$unset: false } } });
   updateWithInstruction(state, { path: 'users', update: { '0': { $$unset: undefined } } });
-  // @ts-expect-error
   updateWithInstruction(state, { path: 'users', update: { '0': { $$delete: true } } });
-  // @ts-expect-error
   updateWithInstruction(state, { path: 'users', update: { '0': { $$delete: false } } });
   updateWithInstruction(state, { path: 'users', update: { '0': { $$delete: undefined } } });
   updateWithInstruction(state, { path: 'users', update: { '1': { $$set: { id: 10, nick: 'Mark' } } } });
@@ -490,9 +480,7 @@ TUPLE_OF_OBJECTS: {
   // @ts-expect-error
   updateWithInstruction(state, { path: 'users', update: { '1': { $$unset: false } } });
   updateWithInstruction(state, { path: 'users', update: { '1': { $$unset: undefined } } });
-  // @ts-expect-error
   updateWithInstruction(state, { path: 'users', update: { '1': { $$delete: true } } });
-  // @ts-expect-error
   updateWithInstruction(state, { path: 'users', update: { '1': { $$delete: false } } });
   updateWithInstruction(state, { path: 'users', update: { '1': { $$delete: undefined } } });
   updateWithInstruction(state, { path: 'users', update: { '2': { $$set: { id: 10, nick: 'Mark' } } } });
@@ -507,9 +495,7 @@ TUPLE_OF_OBJECTS: {
   // @ts-expect-error
   updateWithInstruction(state, { path: 'users', update: { '2': { $$unset: false } } });
   updateWithInstruction(state, { path: 'users', update: { '2': { $$unset: undefined } } });
-  // @ts-expect-error
   updateWithInstruction(state, { path: 'users', update: { '2': { $$delete: true } } });
-  // @ts-expect-error
   updateWithInstruction(state, { path: 'users', update: { '2': { $$delete: false } } });
   updateWithInstruction(state, { path: 'users', update: { '2': { $$delete: undefined } } });
 }
@@ -639,9 +625,7 @@ TUPLE_OF_OBJECTS_AND_UNDEFINED_VALUES: {
   updateWithInstruction(state, { path: 'users', update: { '0': { $$unset: true } } });
   updateWithInstruction(state, { path: 'users', update: { '0': { $$unset: false } } });
   updateWithInstruction(state, { path: 'users', update: { '0': { $$unset: undefined } } });
-  // @ts-expect-error
   updateWithInstruction(state, { path: 'users', update: { '0': { $$delete: true } } });
-  // @ts-expect-error
   updateWithInstruction(state, { path: 'users', update: { '0': { $$delete: false } } });
   updateWithInstruction(state, { path: 'users', update: { '0': { $$delete: undefined } } });
   updateWithInstruction(state, { path: 'users', update: { '1': { $$set: { id: 10, nick: 'Mark' } } } });
@@ -654,9 +638,7 @@ TUPLE_OF_OBJECTS_AND_UNDEFINED_VALUES: {
   updateWithInstruction(state, { path: 'users', update: { '1': { $$unset: true } } });
   updateWithInstruction(state, { path: 'users', update: { '1': { $$unset: false } } });
   updateWithInstruction(state, { path: 'users', update: { '1': { $$unset: undefined } } });
-  // @ts-expect-error
   updateWithInstruction(state, { path: 'users', update: { '1': { $$delete: true } } });
-  // @ts-expect-error
   updateWithInstruction(state, { path: 'users', update: { '1': { $$delete: false } } });
   updateWithInstruction(state, { path: 'users', update: { '1': { $$delete: undefined } } });
   updateWithInstruction(state, { path: 'users', update: { '2': { $$set: { id: 10, nick: 'Mark' } } } });
@@ -669,9 +651,7 @@ TUPLE_OF_OBJECTS_AND_UNDEFINED_VALUES: {
   updateWithInstruction(state, { path: 'users', update: { '2': { $$unset: true } } });
   updateWithInstruction(state, { path: 'users', update: { '2': { $$unset: false } } });
   updateWithInstruction(state, { path: 'users', update: { '2': { $$unset: undefined } } });
-  // @ts-expect-error
   updateWithInstruction(state, { path: 'users', update: { '2': { $$delete: true } } });
-  // @ts-expect-error
   updateWithInstruction(state, { path: 'users', update: { '2': { $$delete: false } } });
   updateWithInstruction(state, { path: 'users', update: { '2': { $$delete: undefined } } });
 }
@@ -707,9 +687,7 @@ TUPLE_OF_SCALARS: {
   // @ts-expect-error
   updateWithInstruction(state, { path: 'user', update: { '0': { $$unset: false } } });
   updateWithInstruction(state, { path: 'user', update: { '0': { $$unset: undefined } } });
-  // @ts-expect-error
   updateWithInstruction(state, { path: 'user', update: { '0': { $$delete: true } } });
-  // @ts-expect-error
   updateWithInstruction(state, { path: 'user', update: { '0': { $$delete: false } } });
   updateWithInstruction(state, { path: 'user', update: { '0': { $$delete: undefined } } });
   updateWithInstruction(state, { path: 'user', update: { '1': { $$set: 'Mark' } } });
@@ -720,9 +698,7 @@ TUPLE_OF_SCALARS: {
   // @ts-expect-error
   updateWithInstruction(state, { path: 'user', update: { '1': { $$unset: false } } });
   updateWithInstruction(state, { path: 'user', update: { '1': { $$unset: undefined } } });
-  // @ts-expect-error
   updateWithInstruction(state, { path: 'user', update: { '1': { $$delete: true } } });
-  // @ts-expect-error
   updateWithInstruction(state, { path: 'user', update: { '1': { $$delete: false } } });
   updateWithInstruction(state, { path: 'user', update: { '1': { $$delete: undefined } } });
   updateWithInstruction(state, { path: 'user', update: { '2': { $$set: 'Mark' } } });
@@ -733,9 +709,7 @@ TUPLE_OF_SCALARS: {
   // @ts-expect-error
   updateWithInstruction(state, { path: 'user', update: { '2': { $$unset: false } } });
   updateWithInstruction(state, { path: 'user', update: { '2': { $$unset: undefined } } });
-  // @ts-expect-error
   updateWithInstruction(state, { path: 'user', update: { '2': { $$delete: true } } });
-  // @ts-expect-error
   updateWithInstruction(state, { path: 'user', update: { '2': { $$delete: false } } });
   updateWithInstruction(state, { path: 'user', update: { '2': { $$delete: undefined } } });
 }
@@ -768,9 +742,7 @@ TUPLE_OF_SCALARS_AND_UNDEFINED_VALUES: {
   updateWithInstruction(state, { path: 'user', update: { '0': { $$unset: true } } });
   updateWithInstruction(state, { path: 'user', update: { '0': { $$unset: false } } });
   updateWithInstruction(state, { path: 'user', update: { '0': { $$unset: undefined } } });
-  // @ts-expect-error
   updateWithInstruction(state, { path: 'user', update: { '0': { $$delete: true } } });
-  // @ts-expect-error
   updateWithInstruction(state, { path: 'user', update: { '0': { $$delete: false } } });
   updateWithInstruction(state, { path: 'user', update: { '0': { $$delete: undefined } } });
   updateWithInstruction(state, { path: 'user', update: { '1': { $$set: 'Mark' } } });
@@ -779,9 +751,7 @@ TUPLE_OF_SCALARS_AND_UNDEFINED_VALUES: {
   updateWithInstruction(state, { path: 'user', update: { '1': { $$unset: true } } });
   updateWithInstruction(state, { path: 'user', update: { '1': { $$unset: false } } });
   updateWithInstruction(state, { path: 'user', update: { '1': { $$unset: undefined } } });
-  // @ts-expect-error
   updateWithInstruction(state, { path: 'user', update: { '1': { $$delete: true } } });
-  // @ts-expect-error
   updateWithInstruction(state, { path: 'user', update: { '1': { $$delete: false } } });
   updateWithInstruction(state, { path: 'user', update: { '1': { $$delete: undefined } } });
   updateWithInstruction(state, { path: 'user', update: { '2': { $$set: 'Mark' } } });
@@ -790,9 +760,7 @@ TUPLE_OF_SCALARS_AND_UNDEFINED_VALUES: {
   updateWithInstruction(state, { path: 'user', update: { '2': { $$unset: true } } });
   updateWithInstruction(state, { path: 'user', update: { '2': { $$unset: false } } });
   updateWithInstruction(state, { path: 'user', update: { '2': { $$unset: undefined } } });
-  // @ts-expect-error
   updateWithInstruction(state, { path: 'user', update: { '2': { $$delete: true } } });
-  // @ts-expect-error
   updateWithInstruction(state, { path: 'user', update: { '2': { $$delete: false } } });
   updateWithInstruction(state, { path: 'user', update: { '2': { $$delete: undefined } } });
 }

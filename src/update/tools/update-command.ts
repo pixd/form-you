@@ -4,15 +4,35 @@ export const COMMAND_KEYS = [
   '$$set',
   '$$unset',
   '$$delete',
+
   '$$append',
   '$$prepend',
   '$$exclude',
   '$$extract',
   '$$move',
   '$$swap',
-  '$$merge',
-  '$$mergeAll',
+  '$$apply',
 ];
+
+export type Controls = {
+  $$set?: never;
+  $$unset?: never;
+  $$delete?: never;
+
+  $$append?: never;
+  $$prepend?: never;
+  $$exclude?: never;
+  $$extract?: never;
+  $$move?: never;
+  $$swap?: never;
+  $$apply?: never;
+
+  length?: never;
+  skip?: never;
+  at?: never;
+
+  [key: number]: never;
+};
 
 export type SetCommand<
   TData extends any = any,
@@ -140,36 +160,24 @@ export function isSwapCommand(
   return !!instruction && instruction.$$swap !== undefined;
 }
 
-export type MergeCommand<
+export type ApplyCommand<
   TData extends any = any,
 > = {
-  $$merge: UpdatePayload<TData>[];
-  at?: undefined | null | number;
+  $$apply: UpdatePayload<TData>;
+  length: number;
+  skip?: number;
 };
 
-export function isMergeCommand<
+export function isApplyCommand<
   TData extends any = any,
 >(
   instruction: any,
-): instruction is MergeCommand<TData> {
-  return !!instruction && Array.isArray(instruction.$$merge);
-}
-
-export type MergeAllCommand<
-  TData extends any = any,
-> = {
-  $$mergeAll: UpdatePayload<TData>;
-};
-
-export function isMergeAllCommand<
-  TData extends any = any,
->(
-  instruction: any,
-): instruction is MergeAllCommand<TData> {
-  return !!instruction && instruction.$$mergeAll !== undefined;
+): instruction is ApplyCommand<TData> {
+  return !!instruction && instruction.$$apply !== undefined;
 }
 
 /**
+ * First variant:
  * $$append: Member[], skip?: number
  * $$prepend: Member[], skip?: number
  * $$exclude: number[]
@@ -181,26 +189,14 @@ export function isMergeAllCommand<
  * $$merge: UpdatePayload<Member>[], at?: number
  * $$mergeAll: UpdatePayload<Member>
  *
- *
- * $$append: Member[], skip?: number
- * $$prepend: Member[], skip?: number
+ * Second variant (current):
+ * $$append: Member[], skip?: number = 0
+ * $$prepend: Member[], skip?: number = 0
  * $$exclude: number[]
- * $$exclude: number, skip?: number
+ * $$exclude: number, skip?: number = 0
  * $$extract: number[]
- * $$extract: number, skip?: number
+ * $$extract: number, skip?: number = 0
  * $$move: [number, number]
  * $$swap: [number, number]
- * $$apply: UpdatePayload<Member>, length: number, skip?: number
- *
- *
- * $$append: Member[], skip?: number
- * $$prepend: Member[], skip?: number
- * $$exclude: number[]
- * $$exclude: number, at?: number
- * $$extract: number[]
- * $$extract: number, at?: number
- * $$move: [number, number]
- * $$swap: [number, number]
- * $$merge: UpdatePayload<Member>[], at?: number
- * $$mergeAll: UpdatePayload<Member>
+ * $$apply: UpdatePayload<Member>, length: number, skip?: number = 0
  */

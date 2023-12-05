@@ -163,42 +163,23 @@ describe('updateAtPath', () => {
     });
   });
 
-  it('can merge data', () => {
+  it('can apply data', () => {
     const newUser = updateAtPath(
       user,
       'bonus',
       {
-        $$merge: [
-          { value: 15 },
-        ],
+        $$apply: { value: 15 },
+        length: 1,
+        skip: 1,
       },
     );
 
     expect(newUser).toStrictEqual({
       nick: 'Antonio',
       bonus: [
-        { num: 1, value: 15 },
-        { num: 2, value: 20 },
+        { num: 1, value: 10 },
+        { num: 2, value: 15 },
         { num: 3, value: 30 },
-      ],
-    });
-  });
-
-  it('can merge all data', () => {
-    const newUser = updateAtPath(
-      user,
-      'bonus',
-      {
-        $$mergeAll: { value: 70 },
-      },
-    );
-
-    expect(newUser).toStrictEqual({
-      nick: 'Antonio',
-      bonus: [
-        { num: 1, value: 70 },
-        { num: 2, value: 70 },
-        { num: 3, value: 70 },
       ],
     });
   });

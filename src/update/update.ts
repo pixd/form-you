@@ -1,8 +1,9 @@
 import { UpdatePayload } from './types/update.types';
-import { isSetCommand, isUnsetCommand, isDeleteCommand, isPrependCommand,
-  isAppendCommand, isExcludeCommand, isExcludeRowCommand, isExtractCommand,
-  isExtractRowCommand, isMoveCommand, isSwapCommand, isMergeCommand,
-  isMergeAllCommand, COMMAND_KEYS } from './tools/update-command';
+import { COMMAND_KEYS } from './tools/update-command';
+import { isAppendCommand, isApplyCommand, isDeleteCommand, isExcludeCommand,
+  isExcludeRowCommand, isExtractCommand, isExtractRowCommand, isMoveCommand,
+  isPrependCommand, isSetCommand, isSwapCommand, isUnsetCommand } from './tools/update-command';
+
 
 export function update<
   TData extends any,
@@ -146,44 +147,39 @@ export function update(
         return data;
       }
     }
-    else if (isMergeCommand(updatePayload)) {
+    else if (isApplyCommand(updatePayload)) {
       if (Array.isArray(data)) {
-        let { $$merge: merge, at } = updatePayload;
-        at = at ?? 0;
-
-        let startIndex = at >= 0 ? at : data.length + at;
-        if (startIndex < 0) {
-          merge = merge.slice(-startIndex);
-          startIndex = 0;
-        }
-
+        const { $$apply: apply, length, skip } = updatePayload;
         const nextData = [...data];
 
-        merge.some((mergeItemInstruction, index) => {
-          const dataIndex = startIndex + index;
-          if (dataIndex > nextData.length - 1) {
-            return true;
+        const removeElement = Symbol('removeElement');
+
+        const startEndIndex = getStartEndIndex(data.length, length, skip ?? 0, true, false);
+
+        if (typeof startEndIndex === 'boolean') {
+          if (startEndIndex) {
+            return nextData.map((element) => (
+              isDeleteCommand(apply)
+                ? apply.$$delete ? removeElement : element
+                : update(element, apply)
+            ))
+              .filter((element) => element !== removeElement);
           }
           else {
-            if (shouldGoFurther(mergeItemInstruction, nextData, dataIndex)) {
-              nextData[dataIndex] = update(nextData[dataIndex], mergeItemInstruction);
-            }
-            return false;
+            return nextData;
           }
-        });
-
-        return nextData;
-      }
-      else {
-        return data;
-      }
-    }
-    else if (isMergeAllCommand(updatePayload)) {
-      if (Array.isArray(data)) {
-        const { $$mergeAll: mergeAll } = updatePayload;
-        return data.map((item) => {
-          return update(item, mergeAll);
-        });
+        }
+        else {
+          const sliceData = nextData.slice(startEndIndex.start, startEndIndex.end + 1)
+            .map((element) => (
+              isDeleteCommand(apply)
+                ? apply.$$delete ? removeElement : element
+                : update(element, apply)
+            ))
+            .filter((element) => element !== removeElement);
+          nextData.splice(startEndIndex.start, startEndIndex.end - startEndIndex.start + 1, ...sliceData);
+          return nextData;
+        }
       }
       else {
         return data;
@@ -195,9 +191,9 @@ export function update(
         return Object.keys(updatePayload)
           .filter((key) => !COMMAND_KEYS.includes(key))
           .reduce((data, key) => {
-            if (shouldGoFurther(updatePayload[key], data, key, { value: removeElement })) {
-              data[key] = update(data[key], updatePayload[key]);
-            }
+            isDeleteCommand(updatePayload[key])
+              ? updatePayload[key].$$delete && (data[key] = removeElement)
+              : (data[key] = update(data[key], updatePayload[key]));
             return data;
           }, [...data])
           .filter((element) => element !== removeElement);
@@ -206,9 +202,9 @@ export function update(
         return Object.keys(updatePayload)
           .filter((key) => !COMMAND_KEYS.includes(key))
           .reduce((data, key) => {
-            if (shouldGoFurther(updatePayload[key], data, key)) {
-              data[key] = update(data[key], updatePayload[key]);
-            }
+            isDeleteCommand(updatePayload[key])
+              ? updatePayload[key].$$delete && (delete data[key])
+              : (data[key] = update(data[key], updatePayload[key]));
             return data;
           }, data && typeof data === 'object' ? { ...data } : {});
       }
@@ -245,9 +241,9 @@ function getStartEndIndex<T>(
   dataLength: number,
   length: number,
   skip: undefined | number,
-  all: T[],
-  nothing: T[],
-): T[] | { start: number; end: number } {
+  all: T,
+  nothing: T,
+): T | { start: number; end: number } {
   skip = skip ?? 0;
 
   if (length === 0) {
@@ -329,27 +325,5 @@ function shouldMove(
     else {
       return true;
     }
-  }
-}
-
-function shouldGoFurther(
-  instruction: any,
-  data: Record<string, any>,
-  key: number | string,
-  defaultValue?: { value: any }
-): boolean {
-  if (isDeleteCommand(instruction)) {
-    if (instruction.$$delete) {
-      if (defaultValue) {
-        data[key] = defaultValue.value;
-      }
-      else {
-        delete data[key];
-      }
-    }
-    return false;
-  }
-  else {
-    return true;
   }
 }

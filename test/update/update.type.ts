@@ -1004,24 +1004,12 @@ $$MOVE_$$SWAP: {
   update(users, { $$move: undefined, $$swap: [0, 1] });
 }
 
-$$MERGE: {
-  update(users, { $$merge: [{ id: 10, nick: 'Antonio' }] });
-  update(users, { $$merge: [{ id: 10 }] });
-  update(users, { $$merge: [{ id: 10 }], at: undefined });
-  update(users, { $$merge: [{ id: 10 }], at: null });
-  update(users, { $$merge: [{ id: 10 }], at: 10 });
+$$APPLY: {
+  update(users, { $$apply: { id: 10, nick: 'Antonio' }, length: 1 });
+  update(users, { $$apply: { id: 10 }, length: 1 });
   // @ts-expect-error
-  update(users, { $$merge: { id: 10, nick: 'Antonio' } });
-  update(users, { $$merge: [undefined] });
-  update(users, { $$merge: undefined });
-}
-
-$$MERGE_ALL: {
+  update(users, { $$apply: { id: 10 }, length: undefined });
   // @ts-expect-error
-  update(users, { $$mergeAll: [{ id: 10, nick: 'Antonio' }] });
-  update(users, { $$mergeAll: { id: 10, nick: 'Antonio' } });
-  update(users, { $$mergeAll: { id: 10 } });
-  // @ts-expect-error
-  update(users, { $$mergeAll: [undefined] });
-  update(users, { $$mergeAll: undefined });
+  update(users, { $$apply: { id: 10 }, length: null });
+  update(users, { $$apply: undefined });
 }

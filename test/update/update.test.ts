@@ -1803,413 +1803,148 @@ describe('update', () => {
     }
   });
 
-  it('use $$merge command to update arrays', () => {
+  it('use $$apply command to update arrays', () => {
     {
       const user = {
-        nick: 'Antonio',
-        bonus: [
-          { num: 1, value: 10 },
-          { num: 2, value: 20 },
-          { num: 3, value: 30 },
-          { num: 4, value: 40 },
-        ],
+        name: 'Antonio',
+        bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
       };
 
       const newUser = update(user, {
-        bonus: {
-          $$merge: [
-            { value: 15 },
-            { value: 25 },
-          ],
-        },
+        bonus: { $$apply: 10, length: 2, skip: 1 },
       });
 
       expect(newUser).toStrictEqual({
-        nick: 'Antonio',
-        bonus: [
-          { num: 1, value: 15 },
-          { num: 2, value: 25 },
-          { num: 3, value: 30 },
-          { num: 4, value: 40 },
-        ],
+        name: 'Antonio',
+        bonus: [0, 10, 10, 3, 4, 5, 6, 7, 8, 9],
       });
     }
 
     {
-      const merge = [{ value: 15 }, { value: 25 }];
-      expect(update([], { $$merge: merge, at: 4 })).toStrictEqual([]);
+      expect(update([] as number[], { $$apply: 2, length: 2 })).toStrictEqual([]);
     }
 
-    const testData = [
-      { num: 1, value: 10 },
-      { num: 2, value: 20 },
-      { num: 3, value: 30 },
-      { num: 4, value: 40 },
-    ];
-
-    const merge = [{ value: 15 }, { value: 25 }];
-    function test(at: number, expectData: ({ num: number; value: number })[]) {
-      expect(update(testData, { $$merge: merge, at })).toStrictEqual(expectData);
+    {
+      expect(update([] as number[], { $$apply: 2, length: 2, skip: 2 })).toStrictEqual([]);
     }
 
-    test(0, [
-      { num: 1, value: 15 },
-      { num: 2, value: 25 },
-      { num: 3, value: 30 },
-      { num: 4, value: 40 },
-    ]);
-    test(1, [
-      { num: 1, value: 10 },
-      { num: 2, value: 15 },
-      { num: 3, value: 25 },
-      { num: 4, value: 40 },
-    ]);
-    test(2, [
-      { num: 1, value: 10 },
-      { num: 2, value: 20 },
-      { num: 3, value: 15 },
-      { num: 4, value: 25 },
-    ]);
-    test(3, [
-      { num: 1, value: 10 },
-      { num: 2, value: 20 },
-      { num: 3, value: 30 },
-      { num: 4, value: 15 },
-    ]);
-    test(4, [
-      { num: 1, value: 10 },
-      { num: 2, value: 20 },
-      { num: 3, value: 30 },
-      { num: 4, value: 40 },
-    ]);
-    test(5, [
-      { num: 1, value: 10 },
-      { num: 2, value: 20 },
-      { num: 3, value: 30 },
-      { num: 4, value: 40 },
-    ]);
-    test(-1, [
-      { num: 1, value: 10 },
-      { num: 2, value: 20 },
-      { num: 3, value: 30 },
-      { num: 4, value: 15 },
-    ]);
-    test(-2, [
-      { num: 1, value: 10 },
-      { num: 2, value: 20 },
-      { num: 3, value: 15 },
-      { num: 4, value: 25 },
-    ]);
-    test(-3, [
-      { num: 1, value: 10 },
-      { num: 2, value: 15 },
-      { num: 3, value: 25 },
-      { num: 4, value: 40 },
-    ]);
-    test(-4, [
-      { num: 1, value: 15 },
-      { num: 2, value: 25 },
-      { num: 3, value: 30 },
-      { num: 4, value: 40 },
-    ]);
-    test(-5, [
-      { num: 1, value: 25 },
-      { num: 2, value: 20 },
-      { num: 3, value: 30 },
-      { num: 4, value: 40 },
-    ]);
-    test(-6, [
-      { num: 1, value: 10 },
-      { num: 2, value: 20 },
-      { num: 3, value: 30 },
-      { num: 4, value: 40 },
-    ]);
-    test(-7, [
-      { num: 1, value: 10 },
-      { num: 2, value: 20 },
-      { num: 3, value: 30 },
-      { num: 4, value: 40 },
-    ]);
+    const testData = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+    function test(length: number, skip: number, expectData: number[]) {
+      expect(update(testData, { $$apply: 10, length: length, skip })).toStrictEqual(expectData);
+    }
+
+    expect(update(testData, { $$apply: 10, length: 0 })).toStrictEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    expect(update(testData, { $$apply: 10, length: 2 })).toStrictEqual([10, 10, 2, 3, 4, 5, 6, 7, 8, 9]);
+    expect(update(testData, { $$apply: 10, length: -2 })).toStrictEqual([0, 1, 2, 3, 4, 5, 6, 7, 10, 10]);
+
+    test(0, Infinity, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    test(0, -Infinity, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+
+    test(2, 0, [10, 10, 2, 3, 4, 5, 6, 7, 8, 9]);
+    test(2, 1, [0, 10, 10, 3, 4, 5, 6, 7, 8, 9]);
+    test(2, 8, [0, 1, 2, 3, 4, 5, 6, 7, 10, 10]);
+    test(2, 9, [0, 1, 2, 3, 4, 5, 6, 7, 8, 10]);
+    test(2, 10, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    test(2, 11, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    test(2, Infinity, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+
+    test(2, -1, [10, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    test(2, -2, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    test(2, -3, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    test(2, -Infinity, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+
+    test(-2, 0, [0, 1, 2, 3, 4, 5, 6, 7, 10, 10]);
+    test(-2, 1, [0, 1, 2, 3, 4, 5, 6, 10, 10, 9]);
+    test(-2, 8, [10, 10, 2, 3, 4, 5, 6, 7, 8, 9]);
+    test(-2, 9, [10, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    test(-2, 10, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    test(-2, 11, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    test(-2, Infinity, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+
+    test(-2, -1, [0, 1, 2, 3, 4, 5, 6, 7, 8, 10]);
+    test(-2, -2, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    test(-2, -3, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    test(-2, -Infinity, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+
+    test(Infinity, 0, [10, 10, 10, 10, 10, 10, 10, 10, 10, 10]);
+    test(Infinity, Infinity, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    test(Infinity, -Infinity, [10, 10, 10, 10, 10, 10, 10, 10, 10, 10]);
+
+    test(-Infinity, 0, [10, 10, 10, 10, 10, 10, 10, 10, 10, 10]);
+    test(-Infinity, Infinity, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    test(-Infinity, -Infinity, [10, 10, 10, 10, 10, 10, 10, 10, 10, 10]);
   });
 
-  it('ignore { $$merge: undefined } commands', () => {
+  it('remains scalars or objects the same with $$apply command', () => {
     {
       const user = {
-        nick: 'Antonio',
+        name: 'Antonio',
+        bonus: undefined,
+      };
+
+      const newUser = update(
+        user,
+        // @ts-expect-error
+        { bonus: { $$apply: { value: 10 }, length: 2 } },
+      );
+
+      expect(newUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: undefined,
+      });
+    }
+
+    {
+      const user = {
+        name: 'Antonio',
+        bonus: null,
+      };
+
+      const newUser = update(
+        user,
+        // @ts-expect-error
+        { bonus: { $$apply: { value: 10 }, length: 2 } },
+      );
+
+      expect(newUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: null,
+      });
+    }
+
+    {
+      const user = {
+        name: 'Antonio',
         bonus: 10,
       };
 
       const newUser = update(
         user,
         // @ts-expect-error
-        { bonus: { $$merge: undefined } },
+        { bonus: { $$apply: { value: 10 }, length: 2 } },
       );
 
       expect(newUser).toStrictEqual({
-        nick: 'Antonio',
-        bonus: {},
-      });
-    }
-
-    {
-      const user = {
-        nick: 'Antonio',
-        bonus: { value: 10 },
-      };
-
-      const newUser = update(
-        user,
-        // @ts-expect-error
-        { bonus: { $$merge: undefined } },
-      );
-
-      expect(newUser).toStrictEqual({
-        nick: 'Antonio',
-        bonus: { value: 10 },
-      });
-    }
-
-    {
-      const user = {
-        nick: 'Antonio',
-        bonus: { value: 10 },
-      };
-
-      const newUser = update(
-        user,
-        // @ts-expect-error
-        { bonus: { $$merge: undefined, value: 20 } },
-      );
-
-      expect(newUser).toStrictEqual({
-        nick: 'Antonio',
-        bonus: { value: 20 },
-      });
-    }
-  });
-
-  it('use $$mergeAll command to update arrays', () => {
-    {
-      const user = {
-        nick: 'Antonio',
-        bonus: [
-          { num: 1, value: 10 },
-          { num: 2, value: 20 },
-        ],
-      };
-
-      const newUser = update(user, {
-        bonus: {
-          $$mergeAll: { value: 15 },
-        },
-      });
-
-      expect(newUser).toStrictEqual({
-        nick: 'Antonio',
-        bonus: [
-          { num: 1, value: 15 },
-          { num: 2, value: 15 },
-        ],
-      });
-    }
-
-    {
-      const user = {
-        nick: 'Antonio',
-        bonus: [] as ({ num: number; value: number})[],
-      };
-
-      const newUser = update(user, {
-        bonus: {
-          $$mergeAll: { value: 20 },
-        },
-      });
-
-      expect(newUser).toStrictEqual({
-        nick: 'Antonio',
-        bonus: [],
-      });
-    }
-  });
-
-  it('use $$mergeAll command to update nested arrays', () => {
-    {
-      const user = {
-        nick: 'Antonio',
-        friends: [
-          {
-            nick: 'Mark',
-            bonus: [
-              { num: 1, value: 10 },
-              { num: 2, value: 20 },
-            ],
-          },
-          {
-            nick: 'Juan',
-            bonus: [
-              { num: 1, value: 10 },
-              { num: 2, value: 20 },
-            ],
-          },
-        ],
-      };
-
-      const newUser = update(user, {
-        friends: {
-          $$mergeAll: {
-            bonus: {
-              $$mergeAll: { value: 15 },
-            },
-          },
-        },
-      });
-
-      expect(newUser).toStrictEqual({
-        nick: 'Antonio',
-        friends: [
-          {
-            nick: 'Mark',
-            bonus: [
-              { num: 1, value: 15 },
-              { num: 2, value: 15 },
-            ],
-          },
-          {
-            nick: 'Juan',
-            bonus: [
-              { num: 1, value: 15 },
-              { num: 2, value: 15 },
-            ],
-          },
-        ],
-      });
-    }
-  });
-
-  it('remains scalars or objects the same with $$mergeAll command', () => {
-    function test(user: any) {
-      expect(update(user, {
-        bonus: {
-          $$mergeAll: { value: 20 },
-        },
-      })).toStrictEqual(user);
-    }
-
-    test({
-      nick: 'Antonio',
-      bonus: undefined,
-    });
-
-    test({
-      nick: 'Antonio',
-      bonus: null,
-    });
-
-    test({
-      nick: 'Antonio',
-      bonus: 10,
-    });
-
-    test({
-      nick: 'Antonio',
-      bonus: { value: 10 },
-    });
-  });
-
-  it('replace scalars elements with $$mergeAll command', () => {
-    function test(user: any) {
-      const newUser = update(user, {
-        bonus: {
-          $$mergeAll: { value: 20 },
-        },
-      });
-
-      expect(newUser).toStrictEqual({
-        nick: 'Antonio',
-        bonus: [
-          { num: 1, value: 20 },
-          { value: 20 },
-        ],
-      });
-    }
-
-    test({
-      nick: 'Antonio',
-      bonus: [
-        { num: 1, value: 10 },
-        undefined,
-      ],
-    });
-
-    test({
-      nick: 'Antonio',
-      bonus: [
-        { num: 1, value: 10 },
-        null,
-      ],
-    });
-
-    test({
-      nick: 'Antonio',
-      bonus: [
-        { num: 1, value: 10 },
-        10,
-      ],
-    });
-  });
-
-  it('ignore { $$mergeAll: undefined } commands', () => {
-    {
-      const user = {
-        nick: 'Antonio',
+        name: 'Antonio',
         bonus: 10,
-      };
-
-      const newUser = update(
-        user,
-        // @ts-expect-error
-        { bonus: { $$mergeAll: undefined } },
-      );
-
-      expect(newUser).toStrictEqual({
-        nick: 'Antonio',
-        bonus: {},
       });
     }
 
     {
       const user = {
-        nick: 'Antonio',
+        name: 'Antonio',
         bonus: { value: 10 },
       };
 
       const newUser = update(
         user,
         // @ts-expect-error
-        { bonus: { $$mergeAll: undefined } },
+        { bonus: { $$apply: { value: 10 }, length: 2 } },
       );
 
       expect(newUser).toStrictEqual({
-        nick: 'Antonio',
+        name: 'Antonio',
         bonus: { value: 10 },
-      });
-    }
-
-    {
-      const user = {
-        nick: 'Antonio',
-        bonus: { value: 10 },
-      };
-
-      const newUser = update(
-        user,
-        // @ts-expect-error
-        { bonus: { $$mergeAll: undefined, value: 20 } },
-      );
-
-      expect(newUser).toStrictEqual({
-        nick: 'Antonio',
-        bonus: { value: 20 },
       });
     }
   });

@@ -1,8 +1,9 @@
 import { AnyPath, NodeValue, PossiblePath, PossibleValue } from '../../path/path.types';
-import { AppendCommand, DeleteCommand, ExcludeCommand,
-  ExcludeRowCommand, ExtractCommand, ExtractRowCommand,
-  MergeCommand, MergeAllCommand, MoveCommand, PrependCommand,
-  SetCommand, SwapCommand, UnsetCommand } from '../tools/update-command';
+import { Controls } from '../tools/update-command';
+// Commands
+import { AppendCommand, ApplyCommand, DeleteCommand, ExcludeCommand,
+  ExcludeRowCommand, ExtractCommand, ExtractRowCommand, MoveCommand,
+  PrependCommand, SetCommand, SwapCommand, UnsetCommand } from '../tools/update-command';
 
 type CanBeDeletedKeys<
   TData extends any,
@@ -19,28 +20,6 @@ type GetCommand<
 > = TKey extends TAcceptableKey
   ? TCommand
   : never;
-
-type Controls = {
-  $$set?: never;
-  $$unset?: never;
-  $$delete?: never;
-
-  $$append?: never;
-  $$prepend?: never;
-  $$exclude?: never;
-  $$extract?: never;
-  $$move?: never;
-  $$swap?: never;
-  $$merge?: never;
-  $$mergeAll?: never;
-  $$replace?: never;
-  $$replaceAll?: never;
-
-  skip?: never;
-  at?: never;
-
-  [key: number]: never;
-};
 
 type PreventControls<
   T extends Record<string, any>,
@@ -90,8 +69,7 @@ export type UpdatePayload<
       | PreventControls<ExtractRowCommand>
       | PreventControls<MoveCommand>
       | PreventControls<SwapCommand>
-      | PreventControls<MergeCommand<I>>
-      | PreventControls<MergeAllCommand<I>>
+      | PreventControls<ApplyCommand<I>>
     : TData extends Record<string, any>
       ? {
           [TKey in keyof TData]?:

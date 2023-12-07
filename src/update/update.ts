@@ -27,12 +27,7 @@ export function update(
       return updatePayload.$$set;
     }
     else if (isUnsetCommand(updatePayload)) {
-      if (updatePayload.$$unset) {
-        return undefined;
-      }
-      else {
-        return data;
-      }
+      return updatePayload.$$unset ? undefined : data;
     }
     else if (isDeleteCommand(updatePayload)) {
       throw new Error('$$delete command can not be used in update method');
@@ -311,19 +306,9 @@ function shouldMove(
     return false;
   }
   else if (aIndex < 0) {
-    if (bIndex === dataLength + aIndex) {
-      return false;
-    }
-    else {
-      return true;
-    }
+    return bIndex !== dataLength + aIndex;
   }
   else {
-    if (aIndex === dataLength + bIndex) {
-      return false;
-    }
-    else {
-      return true;
-    }
+    return aIndex !== dataLength + bIndex;
   }
 }

@@ -74,12 +74,12 @@ type TestFn = {
 type Test = [string, TestFn];
 
 export type SchemaCloneProps<
-  TPatternValue extends any = any,
+  TShapeValue extends any = any,
   TDefaultData extends any = any,
   TRejectUndefined extends null | string = null | string,
   TRejectNull extends null | string = null | string,
 > = {
-  patternValue?: TPatternValue;
+  shapeValue?: TShapeValue;
   defaultValue?: DefaultValue<TDefaultData>;
   rejectUndefined?: TRejectUndefined;
   rejectNull?: TRejectNull;
@@ -91,13 +91,13 @@ export type SchemaData<
   TNullable extends boolean = false,
 > =
   | TData
-  | (null | TOptional extends null
+  | ([TOptional] extends [never]
     ? never
     : TOptional extends true
       ? undefined
       : never
   )
-  | (null | TNullable extends null
+  | ([TNullable] extends [never]
     ? never
     : TNullable extends true
       ? null
@@ -133,7 +133,9 @@ export default abstract class BaseSchema<
 
   public Context__TypeRef = {} as TContext;
 
-  protected patternValue: any = null;
+  public abstract Shape__TypeRef: any;
+
+  protected abstract shapeValue: any;
 
   protected abstract defaultValue: DefaultValue<TData, TOptional, TNullable>;
 
@@ -169,7 +171,7 @@ export default abstract class BaseSchema<
     schema: BaseSchema,
     props?: SchemaCloneProps<any, TData>,
   ): BaseSchema {
-    schema.patternValue = this.patternValue;
+    schema.shapeValue = this.shapeValue;
     schema.defaultValue = this.defaultValue;
     schema.rejectUndefined = this.rejectUndefined;
     schema.rejectNull = this.rejectNull;

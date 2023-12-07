@@ -1,6 +1,6 @@
 import BaseSchema from '../../src/Schema/BaseSchema';
 import StringSchema from '../../src/Schema/StringSchema';
-import { SchemaContextType, SchemaDataType } from '../../src/types';
+import { SchemaContextType, SchemaDataType, SchemaShapeType } from '../../src/types';
 import { expect, PASSED } from '../tools/expect';
 
 /**
@@ -61,6 +61,27 @@ import { expect, PASSED } from '../tools/expect';
     expect.safety.not.extends<typeof nextSchema, typeof schema>(PASSED);
     expect.safety.extends<SchemaDataType<typeof schema>, SchemaDataType<typeof nextSchema>>(PASSED);
     expect.safety.extends<SchemaDataType<typeof nextSchema>, SchemaDataType<typeof schema>>(PASSED);
+  }
+}
+
+/**
+ * Schema shape type
+ */
+{
+  {
+    expect.equal<Parameters<typeof StringSchema.create>, []>(PASSED)
+  }
+
+  {
+    const userSchema = StringSchema.create();
+
+    expect.equal<SchemaShapeType<typeof userSchema>, string>(PASSED);
+  }
+
+  {
+    const userSchema = StringSchema.create<'Antonio' | 'Mark'>();
+
+    expect.equal<SchemaShapeType<typeof userSchema>, 'Antonio' | 'Mark'>(PASSED);
   }
 }
 

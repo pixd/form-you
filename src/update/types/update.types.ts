@@ -1,4 +1,4 @@
-import { AnyPath, NodeValue, PossiblePath, PossibleValue } from '../../path/path.types';
+import { NodeValue, PossiblePath, PossibleValue } from '../../path/path.types';
 import { Controls } from '../tools/update-command';
 // Commands
 import { AppendCommand, ApplyCommand, DeleteCommand, ExcludeCommand,
@@ -78,6 +78,8 @@ export type UpdatePayload<
         } & { $$set?: never; $$unset?: never; $$delete?: never }
       : (TData | { $$set?: never; $$unset?: never; $$delete?: never })
 );
+
+export type AnyPath = (number | string)[];
 
 export type RootPathUpdateInstruction<
   TData extends Record<string, any>,

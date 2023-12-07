@@ -6,15 +6,22 @@ export type AnySchema =
   | StringSchema
   | ObjectSchema;
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
-export type _<T> = T extends object
-  ? { [k in keyof T]: T[k] }
+export type Simplify<T> = T extends object
+  ? { [TKey in keyof T]: T[TKey] }
+  : T;
+
+export type SimplifyDeep<T> = T extends object
+  ? { [TKey in keyof T]: SimplifyDeep<T[TKey]> }
   : T;
 
 export type SchemaDataType<
   TSchema extends BaseSchema,
-> = _<TSchema['Data__TypeRef']>;
+> = Simplify<TSchema['Data__TypeRef']>;
 
 export type SchemaContextType<
   TSchema extends BaseSchema,
-> = _<TSchema['Context__TypeRef']>;
+> = Simplify<TSchema['Context__TypeRef']>;
+
+export type SchemaShapeType<
+  TSchema extends BaseSchema,
+> = Simplify<TSchema['Shape__TypeRef']>;

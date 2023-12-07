@@ -1,7 +1,7 @@
 import BaseSchema, { DefaultValue, RejectType, SafetyType, SchemaCloneProps,
   SchemaData } from './BaseSchema';
 import errorMessages, { prepareErrorMessage } from '../error-messages';
-import { _, AnySchema, SchemaDataType } from '../types';
+import { Simplify, AnySchema, SchemaDataType } from '../types';
 import ValidationError, { PredefinedValidationTestName } from '../ValidationError';
 
 export type Shape = {
@@ -11,7 +11,7 @@ export type Shape = {
 type MergeShape<
   TShape extends Shape = Shape,
   TNextShape extends ConcatenatedShape<TShape> = ConcatenatedShape<TShape>,
-> = TNextShape & SafetyType<TShape, {}>;
+> = SafetyType<TShape, {}> & TNextShape;
 
 type ConcatenatedShape<
   TShape extends Shape = Shape,
@@ -33,8 +33,7 @@ type OptionalShapeProps<
     : never;
 }[keyof TShape];
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
-type _ShapeData<
+type ShapeDataType<
   TShape extends Shape = Shape,
 > = {
   [TKey in keyof TShape]-?: SchemaDataType<TShape[TKey]>;
@@ -42,20 +41,20 @@ type _ShapeData<
 
 export type ShapeData<
   TShape extends Shape = Shape,
-> = null | TShape extends null
+> = [TShape] extends [never]
   ? Record<string, any>
-  : null | keyof TShape extends null
-    ? Record<string, never>
-    : (
-      & _ShapeData<Pick<TShape, DefinedShapeProps<TShape>>>
-      & Partial<_ShapeData<Pick<TShape, OptionalShapeProps<TShape>>>>
-    );
+  : [keyof TShape] extends [never]
+    ? Record<never, any>
+    : Simplify<(
+        & ShapeDataType<Pick<TShape, DefinedShapeProps<TShape>>>
+        & Partial<ShapeDataType<Pick<TShape, OptionalShapeProps<TShape>>>>
+      )>;
 
 type DefaultData<
   TShape extends Shape = Shape,
   TOptional extends boolean = false,
   TNullable extends boolean = false,
-> = SchemaData<_<ShapeData<TShape>>, TOptional, TNullable>;
+> = SchemaData<ShapeData<TShape>, TOptional, TNullable>;
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 export default interface ObjectSchema<
@@ -63,7 +62,7 @@ export default interface ObjectSchema<
   TOptional extends boolean = any,
   TNullable extends boolean = any,
   TContext extends Record<string, any> = object,
-> extends BaseSchema<_<ShapeData<TShape>>, TOptional, TNullable, TContext> {
+> extends BaseSchema<ShapeData<TShape>, TOptional, TNullable, TContext> {
   apply<
     TNextShape extends SafetyType<TShape, {}> = SafetyType<TShape, {}>,
     TDefaultValue extends DefaultData<TShape, TOptional, TNullable> = DefaultData<TShape, TOptional, TNullable>,
@@ -124,10 +123,12 @@ export default class ObjectSchema<
   TOptional extends boolean = any,
   TNullable extends boolean = any,
   TContext extends Record<string, any> = object,
-> extends BaseSchema<_<ShapeData<TShape>>, TOptional, TNullable, TContext> {
-  protected override patternValue: null | Shape = null;
+> extends BaseSchema<ShapeData<TShape>, TOptional, TNullable, TContext> {
+  public override Shape__TypeRef = {} as [TShape] extends [never] ? Record<never, any> : TShape;
 
-  protected override defaultValue: DefaultValue<_<ShapeData<TShape>>, TOptional, TNullable> = null;
+  protected override shapeValue: null | Shape = null;
+
+  protected override defaultValue: DefaultValue<ShapeData<TShape>, TOptional, TNullable> = null;
 
   protected override selfConstructor: {
     new (): ObjectSchema;
@@ -145,7 +146,7 @@ export default class ObjectSchema<
   ): ObjectSchema<TShape, false, false, TContext> {
     const schema = new ObjectSchema<TShape, false, false, TContext>();
 
-    schema.patternValue = shape ?? null;
+    schema.shapeValue = shape ?? null;
 
     return schema;
   }
@@ -155,8 +156,8 @@ export default class ObjectSchema<
   >(
     shape: TNextShape,
   ): ObjectSchema<MergeShape<TShape, TNextShape>, TOptional, TNullable, TContext> {
-    const patternValue = {
-      ...this.patternValue,
+    const shapeValue = {
+      ...this.shapeValue,
       ...shape,
     } as MergeShape<TShape, TNextShape>;
 
@@ -171,7 +172,7 @@ export default class ObjectSchema<
     }
 
     return this.apply({
-      patternValue,
+      shapeValue,
       defaultValue,
     });
   }
@@ -183,7 +184,7 @@ export default class ObjectSchema<
       return defaultData.data;
     }
     else {
-      const defaultData = getDefaultData(this.patternValue);
+      const defaultData = getDefaultData(this.shapeValue);
       if (this.defaultValue?.data != null) {
         return {
           ...defaultData,
@@ -216,8 +217,8 @@ export default class ObjectSchema<
   }
 }
 
-function getDefaultData(patternValue: null | Shape) {
-  return Object.entries(patternValue ?? {})
+function getDefaultData(shapeValue: null | Shape) {
+  return Object.entries(shapeValue ?? {})
     .reduce((defaultValue, [key, schema]) => {
       defaultValue[key] = schema.getDefault();
       return defaultValue;

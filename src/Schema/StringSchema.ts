@@ -3,85 +3,87 @@ import BaseSchema, { DefaultValue, RejectType, SafetyType, SchemaCloneProps,
 import errorMessages, { prepareErrorMessage } from '../error-messages';
 import ValidationError, { PredefinedValidationTestName } from '../ValidationError';
 
-export type PatternData<TPattern extends string = string> = `${TPattern}`;
+export type ShapeData<TShape extends string = string> = `${TShape}`;
 
 type DefaultData<
-  TPattern extends string = string,
+  TShape extends string = string,
   TOptional extends boolean = false,
   TNullable extends boolean = false,
-> = SchemaData<PatternData<TPattern>, TOptional, TNullable>;
+> = SchemaData<ShapeData<TShape>, TOptional, TNullable>;
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 export default interface StringSchema<
-  TPattern extends string = string,
+  TShape extends string = string,
   TOptional extends boolean = any,
   TNullable extends boolean = any,
   TContext extends Record<string, any> = object,
-> extends BaseSchema<PatternData<TPattern>, TOptional, TNullable, TContext> {
+> extends BaseSchema<ShapeData<TShape>, TOptional, TNullable, TContext> {
   apply<
-    TNextPattern extends TPattern = TPattern,
-    TDefaultValue extends DefaultData<TPattern, TOptional, TNullable> = DefaultData<TPattern, TOptional, TNullable>,
+    TNextShape extends TShape = TShape,
+    TDefaultValue extends DefaultData<TShape, TOptional, TNullable> = DefaultData<TShape, TOptional, TNullable>,
     TRejectUndefined extends null | string = never,
     TRejectNull extends null | string = never,
   >(
-    props?: Partial<SchemaCloneProps<TNextPattern[], TDefaultValue, TRejectUndefined, TRejectNull>>,
-  ): StringSchema<TNextPattern, RejectType<TRejectUndefined, TOptional>, RejectType<TRejectNull, TNullable>, TContext>;
+    props?: Partial<SchemaCloneProps<TNextShape[], TDefaultValue, TRejectUndefined, TRejectNull>>,
+  ): StringSchema<TNextShape, RejectType<TRejectUndefined, TOptional>, RejectType<TRejectNull, TNullable>, TContext>;
 
   clone<
-    TNextPattern extends TPattern = TPattern,
-    TDefaultValue extends DefaultData<TPattern, TOptional, TNullable> = DefaultData<TPattern, TOptional, TNullable>,
+    TNextShape extends TShape = TShape,
+    TDefaultValue extends DefaultData<TShape, TOptional, TNullable> = DefaultData<TShape, TOptional, TNullable>,
     TRejectUndefined extends null | string = never,
     TRejectNull extends null | string = never,
   >(
-    props?: Partial<SchemaCloneProps<TNextPattern[], TDefaultValue, TRejectUndefined, TRejectNull>>,
-  ): StringSchema<TNextPattern, RejectType<TRejectUndefined, TOptional>, RejectType<TRejectNull, TNullable>, TContext>;
+    props?: Partial<SchemaCloneProps<TNextShape[], TDefaultValue, TRejectUndefined, TRejectNull>>,
+  ): StringSchema<TNextShape, RejectType<TRejectUndefined, TOptional>, RejectType<TRejectNull, TNullable>, TContext>;
 
   mutate<
-    TReturned extends StringSchema<TPattern> = StringSchema<TPattern>,
+    TReturned extends StringSchema<TShape> = StringSchema<TShape>,
   >(
     cb: {
-      (schema: StringSchema<TPattern, TOptional, TNullable, TContext>): TReturned;
+      (schema: StringSchema<TShape, TOptional, TNullable, TContext>): TReturned;
     },
   ): TReturned;
 
   context<
     TNextContext extends SafetyType<TContext, Record<string, any>, object & Partial<TContext>> = TContext,
-  >(): StringSchema<TPattern, TOptional, TNullable, SafetyType<TContext, object> & TNextContext>;
+  >(): StringSchema<TShape, TOptional, TNullable, SafetyType<TContext, object> & TNextContext>;
 
-  optional(): StringSchema<TPattern, true, TNullable, TContext>;
+  optional(): StringSchema<TShape, true, TNullable, TContext>;
 
   notOptional(
     message?: string,
-  ): StringSchema<TPattern, false, TNullable, TContext>;
+  ): StringSchema<TShape, false, TNullable, TContext>;
 
-  nullable(): StringSchema<TPattern, TOptional, true, TContext>;
+  nullable(): StringSchema<TShape, TOptional, true, TContext>;
 
   notNullable(
     message?: string,
-  ): StringSchema<TPattern, TOptional, false, TContext>;
+  ): StringSchema<TShape, TOptional, false, TContext>;
 
   required(
     message?: string,
-  ): StringSchema<TPattern, false, false, TContext>;
+  ): StringSchema<TShape, false, false, TContext>;
 
-  notRequired(): StringSchema<TPattern, true, true, TContext>;
+  notRequired(): StringSchema<TShape, true, true, TContext>;
 
   default(
-    defaultData: DefaultData<TPattern, TOptional, TNullable>,
-  ): StringSchema<TPattern, TOptional, TNullable, TContext>;
+    defaultData: DefaultData<TShape, TOptional, TNullable>,
+  ): StringSchema<TShape, TOptional, TNullable, TContext>;
 
-  resetDefault(): StringSchema<TPattern, TOptional, TNullable, TContext>;
+  resetDefault(): StringSchema<TShape, TOptional, TNullable, TContext>;
 }
 
 export default class StringSchema<
-  TPattern extends string = string,
+  TShape extends string = string,
   TOptional extends boolean = any,
   TNullable extends boolean = any,
   TContext extends Record<string, any> = object,
-> extends BaseSchema<PatternData<TPattern>, TOptional, TNullable, TContext> {
-  protected override patternValue: null | string[] = null;
+> extends BaseSchema<ShapeData<TShape>, TOptional, TNullable, TContext> {
+  public override Shape__TypeRef = '' as TShape;
 
-  protected override defaultValue: DefaultValue<PatternData<TPattern>, TOptional, TNullable> = null;
+  protected override shapeValue: null = null;
+
+  protected override defaultValue: DefaultValue<ShapeData<TShape>, TOptional, TNullable> = null;
 
   protected override selfConstructor: {
     new (): StringSchema;
@@ -92,14 +94,15 @@ export default class StringSchema<
   }
 
   public static create<
+    TShape extends string = string,
     TContext extends Record<string, any> = object,
-  >(): StringSchema<string, false, false, TContext> {
-    const schema = new StringSchema<string, false, false, TContext>();
+  >(): StringSchema<TShape, false, false, TContext> {
+    const schema = new StringSchema<TShape, false, false, TContext>();
 
     return schema;
   }
 
-  public override getDefault(): DefaultData<TPattern, TOptional, TNullable> {
+  public override getDefault(): DefaultData<TShape, TOptional, TNullable> {
     const defaultData = super.getDefaultBase();
 
     if (defaultData) {
@@ -110,7 +113,7 @@ export default class StringSchema<
         return this.defaultValue.data;
       }
       else {
-        return '' as DefaultData<TPattern, TOptional, TNullable>;
+        return '' as DefaultData<TShape, TOptional, TNullable>;
       }
     }
   }

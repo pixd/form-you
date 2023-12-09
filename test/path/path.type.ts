@@ -1,5 +1,5 @@
 import { getAtPath } from '../../src/path/path';
-import { NodeValue, PossiblePath, PossibleValue } from '../../src/path/path.types';
+import { PathValue, PossiblePath, PossibleValue } from '../../src/path/path.types';
 import { expect, PASSED } from '../tools/expect';
 
 /**
@@ -8,11 +8,11 @@ import { expect, PASSED } from '../tools/expect';
 {
   {
     type Product = {
-      name: string;
-      category: {
+      nick: string;
+      friend: {
         id: number;
       };
-      brand?: {
+      group?: {
         id: number;
       };
       settings: ['on' | 'off', 'dark' | 'light'];
@@ -22,25 +22,25 @@ import { expect, PASSED } from '../tools/expect';
 
     const product = {} as Product;
 
-    const name = getAtPath(product, 'name');
-    expect.equal<typeof name, string>(PASSED);
+    const nick = getAtPath(product, 'nick');
+    expect.equal<typeof nick, string>(PASSED);
 
-    const unknownNameProp = getAtPath(product, 'name.abc');
+    const unknownNameProp = getAtPath(product, 'nick.abc');
     expect.equal<typeof unknownNameProp, never>(PASSED);
 
-    const lengthNameProp = getAtPath(product, 'name.length');
+    const lengthNameProp = getAtPath(product, 'nick.length');
     expect.equal<typeof lengthNameProp, never>(PASSED);
 
-    const category = getAtPath(product, 'category');
-    expect.equal<typeof category, { id: number }>(PASSED);
+    const friend = getAtPath(product, 'friend');
+    expect.equal<typeof friend, { id: number }>(PASSED);
 
-    const categoryId = getAtPath(product, 'category.id');
+    const categoryId = getAtPath(product, 'friend.id');
     expect.equal<typeof categoryId, number>(PASSED);
 
-    const brand = getAtPath(product, 'brand');
-    expect.equal<typeof brand, undefined | { id: number }>(PASSED);
+    const group = getAtPath(product, 'group');
+    expect.equal<typeof group, undefined | { id: number }>(PASSED);
 
-    const brandId = getAtPath(product, 'brand.id');
+    const brandId = getAtPath(product, 'group.id');
     expect.equal<typeof brandId, number>(PASSED);
 
     const settings = getAtPath(product, 'settings');
@@ -153,9 +153,9 @@ import { expect, PASSED } from '../tools/expect';
  */
 {
   {
-    type Product = {
-      name: string;
-      category: {
+    type User = {
+      nick: string;
+      friend: {
         id: number;
       };
       settings: ['on' | 'off', 'dark' | 'light'];
@@ -163,12 +163,12 @@ import { expect, PASSED } from '../tools/expect';
       sort?: number;
     };
 
-    type Path = PossiblePath<Product>;
+    type Path = PossiblePath<User>;
 
     expect.safety.not.extends<Path, string>(PASSED);
-    expect.safety.extends<Path, 'name'>(PASSED);
-    expect.safety.extends<Path, 'category'>(PASSED);
-    expect.safety.extends<Path, 'category.id'>(PASSED);
+    expect.safety.extends<Path, 'nick'>(PASSED);
+    expect.safety.extends<Path, 'friend'>(PASSED);
+    expect.safety.extends<Path, 'friend.id'>(PASSED);
     expect.safety.extends<Path, 'settings'>(PASSED);
     expect.safety.extends<Path, 'settings.0'>(PASSED);
     expect.safety.extends<Path, 'settings.1'>(PASSED);
@@ -182,29 +182,33 @@ import { expect, PASSED } from '../tools/expect';
   }
 
   {
-    type Product = {
-      name: string;
-      subProduct: {
-        enabled: boolean;
-        item: Product;
+    type User = {
+      nick: string;
+      friend: {
+        id: number;
+        data: User;
       };
     };
 
-    type Path = PossiblePath<Product>;
+    type Path = PossiblePath<User>;
 
-    expect.safety.not.extends<Path, string>(PASSED);
-    expect.safety.extends<Path, 'name'>(PASSED);
-    expect.safety.extends<Path, 'subProduct'>(PASSED);
-    expect.safety.extends<Path, 'subProduct.enabled'>(PASSED);
-    expect.safety.extends<Path, 'subProduct.item'>(PASSED);
-    expect.safety.not.extends<Path, 'subProduct.item.'>(PASSED);
-    expect.safety.not.extends<Path, 'subProduct.item.a'>(PASSED);
-    expect.safety.extends<Path, 'subProduct.item.name'>(PASSED);
-    expect.safety.extends<Path, 'subProduct.item.subProduct'>(PASSED);
-    expect.safety.extends<Path, 'subProduct.item.subProduct.enabled'>(PASSED);
-    expect.safety.extends<Path, 'subProduct.item.subProduct.item'>(PASSED);
-    expect.safety.extends<Path, 'subProduct.item.subProduct.item.'>(PASSED);
-    expect.safety.extends<Path, 'subProduct.item.subProduct.item.a'>(PASSED);
+    type ExpectPath =
+      | 'nick'
+      | 'friend'
+      | 'friend.id'
+      | 'friend.data'
+      | 'friend.data.nick'
+      | 'friend.data.friend'
+      | 'friend.data.friend.id'
+      | 'friend.data.friend.data'
+      | `friend.data.friend.data.${string}`;
+
+    expect.equal<Path, ExpectPath>(PASSED);
+
+    expect.safety.not.extends<Path, 'friend.data.'>(PASSED);
+    expect.safety.not.extends<Path, 'friend.data.a'>(PASSED);
+    expect.safety.extends<Path, 'friend.data.friend.data.'>(PASSED);
+    expect.safety.extends<Path, 'friend.data.friend.data.a'>(PASSED);
   }
 }
 
@@ -213,22 +217,22 @@ import { expect, PASSED } from '../tools/expect';
  */
 {
   {
-    type Product = {
-      name: string;
-      category: {
+    type User = {
+      nick: string;
+      friend: {
         id: number;
       };
       settings: boolean[];
     };
 
-    type Value = PossibleValue<Product>;
+    type Value = PossibleValue<User>;
 
     expect.equal<Value, string | { id: number } | number | boolean[] | boolean>(PASSED);
   }
 
   {
     type User = {
-      phone?: string;
+      nick?: string;
     };
 
     type Value = PossibleValue<User>;
@@ -241,47 +245,47 @@ import { expect, PASSED } from '../tools/expect';
       settings: ['on' | 'off', 'dark' | 'light'];
     };
 
-    type SettingsValue = PossibleValue<User>;
+    type Value = PossibleValue<User>;
 
-    expect.equal<SettingsValue, 'on' | 'off' | 'dark' | 'light' | ['on' | 'off', 'dark' | 'light']>(PASSED);
+    expect.equal<Value, 'on' | 'off' | 'dark' | 'light' | ['on' | 'off', 'dark' | 'light']>(PASSED);
   }
 
   {
     type Settings = ['on' | 'off', 'dark' | 'light'];
 
-    type SettingsValue = PossibleValue<Settings>;
+    type Value = PossibleValue<Settings>;
 
-    expect.equal<SettingsValue, 'on' | 'off' | 'dark' | 'light'>(PASSED);
+    expect.equal<Value, 'on' | 'off' | 'dark' | 'light'>(PASSED);
   }
 
   {
-    type Settings = string[];
+    type Users = string[];
 
-    type SettingsValue = PossibleValue<Settings>;
+    type Value = PossibleValue<Users>;
 
-    expect.equal<SettingsValue, string>(PASSED);
+    expect.equal<Value, string>(PASSED);
   }
 
   {
-    type Settings = undefined | null | boolean | number;
+    type Data = undefined | null | boolean | number;
 
-    type SettingsValue = PossibleValue<Settings>;
+    type Value = PossibleValue<Data>;
 
-    expect.equal<SettingsValue, undefined | null | boolean | number>(PASSED);
+    expect.equal<Value, undefined | null | boolean | number>(PASSED);
   }
 }
 
 /**
- * NodeValue
+ * PathValue
  */
 {
   {
-    type Product = {
-      name: string;
-      category: {
+    type User = {
+      nick: string;
+      friend: {
         id: number;
       };
-      brand?: {
+      group?: {
         id: number;
       };
       settings: ['on' | 'off', 'dark' | 'light'];
@@ -289,49 +293,49 @@ import { expect, PASSED } from '../tools/expect';
       sort?: number;
     };
 
-    expect.equal<NodeValue<Product, 'name'>, string>(PASSED);
-    expect.equal<NodeValue<Product, 'name'>, string>(PASSED);
-    expect.equal<NodeValue<Product, 'category'>, { id: number }>(PASSED);
-    expect.equal<NodeValue<Product, 'category.id'>, number>(PASSED);
-    expect.equal<NodeValue<Product, 'brand'>, undefined | { id: number }>(PASSED);
-    expect.equal<NodeValue<Product, 'brand.id'>, number>(PASSED);
-    expect.equal<NodeValue<Product, 'settings'>, ['on' | 'off', 'dark' | 'light']>(PASSED);
-    expect.equal<NodeValue<Product, 'settings.0'>, 'on' | 'off'>(PASSED);
-    expect.equal<NodeValue<Product, 'settings.1'>, 'dark' | 'light'>(PASSED);
+    expect.equal<PathValue<User, 'nick'>, string>(PASSED);
+    expect.equal<PathValue<User, 'nick'>, string>(PASSED);
+    expect.equal<PathValue<User, 'friend'>, { id: number }>(PASSED);
+    expect.equal<PathValue<User, 'friend.id'>, number>(PASSED);
+    expect.equal<PathValue<User, 'group'>, undefined | { id: number }>(PASSED);
+    expect.equal<PathValue<User, 'group.id'>, number>(PASSED);
+    expect.equal<PathValue<User, 'settings'>, ['on' | 'off', 'dark' | 'light']>(PASSED);
+    expect.equal<PathValue<User, 'settings.0'>, 'on' | 'off'>(PASSED);
+    expect.equal<PathValue<User, 'settings.1'>, 'dark' | 'light'>(PASSED);
     // @ts-expect-error
-    expect.equal<NodeValue<Product, 'settings.2'>, undefined>(
+    expect.equal<PathValue<User, 'settings.2'>, undefined>(
       PASSED,
     );
     // @ts-expect-error
-    expect.equal<NodeValue<Product, 'settings.abc'>, unknown>(
+    expect.equal<PathValue<User, 'settings.abc'>, unknown>(
       PASSED,
     );
     // @ts-expect-error
-    expect.equal<NodeValue<Product, 'settings.length'>, unknown>(
+    expect.equal<PathValue<User, 'settings.length'>, unknown>(
       PASSED,
     );
     // @ts-expect-error
-    expect.equal<NodeValue<Product, 'settings.'>, unknown>(
+    expect.equal<PathValue<User, 'settings.'>, unknown>(
       PASSED,
     );
-    expect.equal<NodeValue<Product, 'tags'>, string[]>(PASSED);
-    expect.equal<NodeValue<Product, 'tags.0'>, string>(PASSED);
-    expect.equal<NodeValue<Product, 'tags.1'>, string>(PASSED);
+    expect.equal<PathValue<User, 'tags'>, string[]>(PASSED);
+    expect.equal<PathValue<User, 'tags.0'>, string>(PASSED);
+    expect.equal<PathValue<User, 'tags.1'>, string>(PASSED);
     // @ts-expect-error
-    expect.equal<NodeValue<Product, 'tags.abc'>, unknown>(
-      PASSED,
-    );
-    // @ts-expect-error
-    expect.equal<NodeValue<Product, 'tags.length'>, unknown>(
+    expect.equal<PathValue<User, 'tags.abc'>, unknown>(
       PASSED,
     );
     // @ts-expect-error
-    expect.equal<NodeValue<Product, 'tags.'>, unknown>(
+    expect.equal<PathValue<User, 'tags.length'>, unknown>(
       PASSED,
     );
-    expect.equal<NodeValue<Product, 'sort'>, undefined | number>(PASSED);
     // @ts-expect-error
-    expect.equal<NodeValue<Product, 'nonexistent'>, unknown>(
+    expect.equal<PathValue<User, 'tags.'>, unknown>(
+      PASSED,
+    );
+    expect.equal<PathValue<User, 'sort'>, undefined | number>(PASSED);
+    // @ts-expect-error
+    expect.equal<PathValue<User, 'nonexistent'>, unknown>(
       PASSED,
     );
   }
@@ -346,12 +350,12 @@ import { expect, PASSED } from '../tools/expect';
       };
     };
 
-    expect.equal<NodeValue<EmptyPropNameTest, ''>, string>(PASSED);
+    expect.equal<PathValue<EmptyPropNameTest, ''>, string>(PASSED);
 
-    expect.equal<NodeValue<EmptyPropNameTest, 'inner.'>, number>(PASSED);
+    expect.equal<PathValue<EmptyPropNameTest, 'inner.'>, number>(PASSED);
 
     // @ts-expect-error
-    expect.equal<NodeValue<EmptyPropNameTest, 'inner..'>, never>(
+    expect.equal<PathValue<EmptyPropNameTest, 'inner..'>, never>(
       PASSED,
     );
   }
@@ -365,10 +369,10 @@ import { expect, PASSED } from '../tools/expect';
       };
     };
 
-    expect.equal<NodeValue<EmptyPropNameTest, '.'>, number>(PASSED);
+    expect.equal<PathValue<EmptyPropNameTest, '.'>, number>(PASSED);
 
     // @ts-expect-error
-    expect.equal<NodeValue<EmptyPropNameTest, '..'>, never>(
+    expect.equal<PathValue<EmptyPropNameTest, '..'>, never>(
       PASSED,
     );
   }
@@ -385,10 +389,10 @@ import { expect, PASSED } from '../tools/expect';
       };
     };
 
-    expect.equal<NodeValue<EmptyPropNameTest, '..'>, number>(PASSED);
+    expect.equal<PathValue<EmptyPropNameTest, '..'>, number>(PASSED);
 
     // @ts-expect-error
-    expect.equal<NodeValue<EmptyPropNameTest, '...'>, never>(
+    expect.equal<PathValue<EmptyPropNameTest, '...'>, never>(
       PASSED,
     );
   }

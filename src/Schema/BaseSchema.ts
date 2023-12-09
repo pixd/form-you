@@ -91,18 +91,8 @@ export type SchemaData<
   TNullable extends boolean = false,
 > =
   | TData
-  | ([TOptional] extends [never]
-    ? never
-    : TOptional extends true
-      ? undefined
-      : never
-  )
-  | ([TNullable] extends [never]
-    ? never
-    : TNullable extends true
-      ? null
-      : never
-    );
+  | (TOptional extends true ? undefined : never)
+  | (TNullable extends true ? null : never);
 
 export type DefaultValue<
   TData extends any = any,
@@ -121,7 +111,7 @@ export type RejectType<
       ? true
       : TDefault;
 
-export type SafetyType<TCheck, TFalse, TTrue = TCheck> = null | TCheck extends null ? TFalse : TTrue;
+export type SafetyType<TCheck, TFalse, TTrue = TCheck> = [TCheck] extends [never] ? TFalse : TTrue;
 
 export default abstract class BaseSchema<
   TData extends any = any,
@@ -156,7 +146,7 @@ export default abstract class BaseSchema<
   ): BaseSchema {
     const schema = this.mutating ? this : new (this.selfConstructor)();
 
-    return this.rich(schema, props);
+    return this.enrich(schema, props);
   }
 
   public clone(
@@ -164,10 +154,10 @@ export default abstract class BaseSchema<
   ): BaseSchema {
     const schema = new (this.selfConstructor)();
 
-    return this.rich(schema, props);
+    return this.enrich(schema, props);
   }
 
-  protected rich(
+  protected enrich(
     schema: BaseSchema,
     props?: SchemaCloneProps<any, TData>,
   ): BaseSchema {

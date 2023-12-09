@@ -505,8 +505,6 @@ import { expect, PASSED } from '../tools/expect';
 
     type ContextType = SchemaContextType<typeof schema>;
 
-    // TODO This should work
-
     // @ts-ignore I don't know why, but this is not working...
     expect.equal<ContextType, { sale: number[] }>(PASSED);
     // ... so let's write it this way

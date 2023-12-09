@@ -1,7 +1,8 @@
 import BaseSchema, { DefaultValue, RejectType, SafetyType, SchemaCloneProps,
   SchemaData } from './BaseSchema';
 import errorMessages, { prepareErrorMessage } from '../error-messages';
-import { Simplify, AnySchema, SchemaDataType } from '../types';
+import { AnySchema, PossibleShapePath, ShapePathSchema, SchemaDataType,
+  Simplify } from '../types';
 import ValidationError, { PredefinedValidationTestName } from '../ValidationError';
 
 export type Shape = {
@@ -11,7 +12,7 @@ export type Shape = {
 type MergeShape<
   TShape extends Shape = Shape,
   TNextShape extends ConcatenatedShape<TShape> = ConcatenatedShape<TShape>,
-> = SafetyType<TShape, {}> & TNextShape;
+> = SafetyType<TShape, Record<never, any>> & TNextShape;
 
 type ConcatenatedShape<
   TShape extends Shape = Shape,
@@ -175,6 +176,18 @@ export default class ObjectSchema<
       shapeValue,
       defaultValue,
     });
+  }
+
+  // public reach<
+  //   TPath extends PossiblePath<TShape, AnySchema, never, 'Shape__TypeRef', AnySchema> = PossiblePath<TShape, AnySchema, never, 'Shape__TypeRef', AnySchema>,
+  // >(path: TPath): PathValue<TShape, TPath, 'Shape__TypeRef', AnySchema> {
+  //   return path as any;
+  // }
+
+  public reach<
+    TPath extends PossibleShapePath<TShape>,
+  >(path: TPath): ShapePathSchema<TShape, TPath> {
+    return path as ShapePathSchema<TShape, TPath>;
   }
 
   public override getDefault(): DefaultData<TShape, TOptional, TNullable> {

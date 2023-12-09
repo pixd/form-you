@@ -1,7 +1,8 @@
 import BaseSchema from '../../src/Schema/BaseSchema';
 import ObjectSchema from '../../src/Schema/ObjectSchema';
 import StringSchema from '../../src/Schema/StringSchema';
-import { AnySchema, SchemaContextType, SchemaDataType, SchemaShapeType } from '../../src/types';
+import { AnySchema, SchemaContextType, SchemaDataType, SchemaShapeType,
+  Simplify } from '../../src/types';
 import { expect, PASSED } from '../tools/expect';
 
 /**
@@ -118,6 +119,30 @@ import { expect, PASSED } from '../tools/expect';
   }
 
   {
+    const userSchema = ObjectSchema.create();
+
+    expect.equal<SchemaShapeType<typeof userSchema>, {}>(PASSED);
+  }
+
+  {
+    const userSchema = ObjectSchema.create().concat({});
+
+    expect.equal<SchemaShapeType<typeof userSchema>, {}>(PASSED);
+  }
+
+  {
+    const userSchema = ObjectSchema.create({});
+
+    expect.equal<SchemaShapeType<typeof userSchema>, {}>(PASSED);
+  }
+
+  {
+    const userSchema = ObjectSchema.create({}).concat({});
+
+    expect.equal<SchemaShapeType<typeof userSchema>, {}>(PASSED);
+  }
+
+  {
     const shape = {
       nick: StringSchema.create(),
       friend: ObjectSchema.create({
@@ -128,6 +153,23 @@ import { expect, PASSED } from '../tools/expect';
     const userSchema = ObjectSchema.create(shape);
 
     expect.equal<SchemaShapeType<typeof userSchema>, typeof shape>(PASSED);
+  }
+
+  {
+    const shapeA = {
+      nick: StringSchema.create(),
+      friend: ObjectSchema.create({
+        nick: StringSchema.create(),
+      }),
+    };
+
+    const shapeB = {
+      bonus: StringSchema.create(),
+    };
+
+    const userSchema = ObjectSchema.create(shapeA).concat(shapeB);
+
+    expect.equal<SchemaShapeType<typeof userSchema>, Simplify<typeof shapeA & typeof shapeB>>(PASSED);
   }
 }
 
@@ -838,8 +880,6 @@ import { expect, PASSED } from '../tools/expect';
 
     type ContextType = SchemaContextType<typeof schema>;
 
-    // TODO This should work
-
     // @ts-ignore I don't know why, but this is not working...
     expect.equal<ContextType, { sale: number[] }>(PASSED);
     // ... so let's write it this way
@@ -1101,4 +1141,39 @@ import { expect, PASSED } from '../tools/expect';
       }),
     });
   }
+}
+
+/**
+ * Reach
+ */
+{
+  const idSchema = StringSchema.create().nullable();
+  const nickSchema = StringSchema.create().optional();
+  const friendSchema = ObjectSchema.create({
+    id: idSchema,
+    nick: nickSchema,
+  });
+
+
+  const schema = ObjectSchema.create({
+    id: idSchema,
+    nick: nickSchema,
+    friend: friendSchema,
+  });
+
+  type ExpectedPath = 'id' | 'nick' | 'friend' | 'friend.id' | 'friend.nick';
+
+  expect.equal<Parameters<typeof schema.reach>[0], ExpectedPath>(PASSED);
+
+  const id = schema.reach('id');
+  const nick = schema.reach('nick');
+  const friend = schema.reach('friend');
+  const friendId = schema.reach('friend.id');
+  const friendNick = schema.reach('friend.nick');
+
+  expect.equal<typeof id, typeof idSchema>(PASSED);
+  expect.equal<typeof nick, typeof nickSchema>(PASSED);
+  expect.equal<typeof friend, typeof friendSchema>(PASSED);
+  expect.equal<typeof friendId, typeof idSchema>(PASSED);
+  expect.equal<typeof friendNick, typeof nickSchema>(PASSED);
 }

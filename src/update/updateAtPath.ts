@@ -1,4 +1,4 @@
-import { AnyPath, NodeValue, PossiblePath, PossibleValue } from '../path/path.types';
+import { AnyPath, PathValue, PossiblePath, PossibleValue } from '../path/path.types';
 import { update } from './update';
 import { UpdatePayload } from './types/update.types';
 import { isUnsetCommand, isDeleteCommand } from './tools/update-command';
@@ -9,7 +9,7 @@ export function updateAtPath<
 >(
   data: TData,
   path: TPath,
-  updatePayload: UpdatePayload<NodeValue<TData, TPath>>,
+  updatePayload: UpdatePayload<PathValue<TData, TPath>>,
 ): TData;
 
 export function updateAtPath<

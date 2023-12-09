@@ -1,4 +1,4 @@
-import { AnyPath, NodeValue, PossiblePath, PossibleValue } from './path.types';
+import { AnyPath, PathValue, PossiblePath, PossibleValue } from './path.types';
 
 export function getAtPath<
   TData extends Record<string, any> = Record<string, any>,
@@ -14,7 +14,7 @@ export function getAtPath<
 >(
   data: TData,
   path: TPath,
-): NodeValue<TData, TPath>;
+): PathValue<TData, TPath>;
 
 export function getAtPath<
   TData extends Record<string, any> = Record<string, any>,
@@ -24,7 +24,7 @@ export function getAtPath<
   path: TPath,
 ):
   // @ts-ignore
-  NodeValue<TData, TPath>;
+  PathValue<TData, TPath>;
 
 export function getAtPath(
   data: Record<string, any>,

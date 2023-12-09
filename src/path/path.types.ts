@@ -12,8 +12,58 @@
 
 export type AnyPath = (number | string)[];
 
+export type PrevIndex = [
+  0,
+  0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
+  10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+  ...20[],
+];
+
+export type ConcatPath<
+  TPathLeft extends string | number,
+  TPathRight extends any,
+> = TPathRight extends string | number
+    ? `${TPathLeft}.${TPathRight}`
+    : never;
+
+export type PossiblePath<
+  TData extends any,
+  TCircularlyIndex extends number = 2,
+  TCircularlyHack extends any = never,
+> = TData extends TCircularlyHack
+  ? PrevIndex[TCircularlyIndex] extends 0
+    ? string
+    : PossiblePath<TData, PrevIndex[TCircularlyIndex]>
+  : TData extends object
+    ? Extract<{ [TKey in keyof TData]-?: TKey extends number | string
+      ? `${TKey}` | ConcatPath<TKey, PossiblePath<TData[TKey], TCircularlyIndex, TCircularlyHack | TData>>
+      : never;
+    }[keyof TData], string>
+    : never;
+
+export type PossibleValue<
+  TData extends any,
+  TCircularlyHack extends any = never,
+> = TData extends TCircularlyHack
+  ? never
+  : TData extends (infer I)[]
+    ? I | PossibleValue<I, TCircularlyHack | TData>
+    : TData extends object
+      ? { [TKey in keyof TData]: TKey extends number | string
+        ? TData[TKey] | PossibleValue<TData[TKey], TCircularlyHack | TData>
+        : never;
+      }[keyof TData]
+      : TData;
+
+export type PathValue<
+  TData extends Record<string, any>,
+  TPath extends PossiblePath<TData>,
+> = TPath extends `${infer TKey}.${infer TKeyRest}`
+  ? AtPath<AtKey<Extract<TData, Record<string, any>>, TKey>, TKeyRest>
+  : AtKey<Extract<TData, Record<string, any>>, TPath>;
+
 // @ts-ignore
-export type AtPath<TData, TPath> = NodeValue<TData, TPath>;
+export type AtPath<TData, TPath> = PathValue<TData, TPath>;
 
 export type AtKey<
   TData extends any,
@@ -33,56 +83,3 @@ export type AtKey<
   : TKey extends keyof TData
     ? TData[TKey]
     : unknown;
-
-export type PrevIndex = [
-  0,
-  0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
-  10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
-  ...20[],
-];
-
-export type ConcatPath<
-  TPathLeft extends string | number,
-  TPathRight extends any,
-> = TPathRight extends string | number
-    ? `${TPathLeft}.${TPathRight}`
-    : never;
-
-export type PossiblePath<
-  TData extends any,
-  TValue extends any = any,
-  TCircularlyIndex extends number = 2,
-  TCircularlyHack extends any = never,
-> = TData extends TCircularlyHack
-  ? PrevIndex[TCircularlyIndex] extends 0
-    ? string
-    : PossiblePath<TData, TValue, PrevIndex[TCircularlyIndex]>
-  : TData extends object
-    ? Extract<{ [TKey in keyof TData]-?: TKey extends number | string
-      ? TValue extends TData[TKey]
-        ? `${TKey}` | ConcatPath<TKey, PossiblePath<TData[TKey], TValue, TCircularlyIndex, TCircularlyHack | TData>>
-        : ConcatPath<TKey, PossiblePath<TData[TKey], TValue, TCircularlyIndex, TCircularlyHack | TData>>
-      : never;
-    }[keyof TData], string>
-    : never;
-
-export type PossibleValue<
-  TData extends any,
-  TCircularlyHack extends any = never,
-> = TData extends TCircularlyHack
-  ? never
-  : TData extends (infer I)[]
-    ? I | PossibleValue<I, TCircularlyHack | TData>
-    : TData extends object
-      ? { [TKey in keyof TData]: TKey extends number | string
-        ? TData[TKey] | PossibleValue<TData[TKey], TCircularlyHack | TData>
-        : never;
-      }[keyof TData]
-      : TData;
-
-export type NodeValue<
-  TData extends Record<string, any>,
-  TPath extends PossiblePath<TData>,
-> = TPath extends `${infer TKey}.${infer TKeyRest}`
-  ? AtPath<AtKey<Extract<TData, Record<string, any>>, TKey>, TKeyRest>
-  : AtKey<Extract<TData, Record<string, any>>, TPath>;

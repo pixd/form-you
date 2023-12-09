@@ -1,4 +1,4 @@
-import { NodeValue, PossiblePath, PossibleValue } from '../../path/path.types';
+import { PathValue, PossiblePath, PossibleValue } from '../../path/path.types';
 import { Controls } from '../tools/update-command';
 // Commands
 import { AppendCommand, ApplyCommand, DeleteCommand, ExcludeCommand,
@@ -93,7 +93,7 @@ export type CommonPathUpdateInstruction<
   TPath extends PossiblePath<TData> = PossiblePath<TData>,
 > = {
   path: TPath;
-  update: UpdatePayload<NodeValue<TData, TPath>>;
+  update: UpdatePayload<PathValue<TData, TPath>>;
 };
 
 export type AnyPathUpdateInstruction<

@@ -210,6 +210,168 @@ import { expect, PASSED } from '../tools/expect';
     expect.safety.extends<Path, 'friend.data.friend.data.'>(PASSED);
     expect.safety.extends<Path, 'friend.data.friend.data.a'>(PASSED);
   }
+
+  {
+    type User = {
+      nick: string;
+      friend: {
+        id: number;
+        data: User;
+      };
+    };
+
+    type Path = PossiblePath<User, 3>;
+
+    type ExpectPath =
+      | 'nick'
+      | 'friend'
+      | 'friend.id'
+      | 'friend.data'
+      | 'friend.data.nick'
+      | 'friend.data.friend'
+      | 'friend.data.friend.id'
+      | 'friend.data.friend.data'
+      | 'friend.data.friend.data.nick'
+      | 'friend.data.friend.data.friend'
+      | 'friend.data.friend.data.friend.id'
+      | 'friend.data.friend.data.friend.data'
+      | `friend.data.friend.data.friend.data.${string}`;
+
+    expect.equal<Path, ExpectPath>(PASSED);
+
+    expect.safety.not.extends<Path, 'friend.data.friend.data.'>(PASSED);
+    expect.safety.not.extends<Path, 'friend.data.friend.data.a'>(PASSED);
+    expect.safety.extends<Path, 'friend.data.friend.data.friend.data.'>(PASSED);
+    expect.safety.extends<Path, 'friend.data.friend.data.friend.data.a'>(PASSED);
+  }
+
+  {
+    type User = {
+      nick: string;
+      friend: {
+        id: number;
+        data: User;
+      };
+    };
+
+    type Path = PossiblePath<User, 9>;
+
+    type ExpectPath =
+      | 'nick'
+      | 'friend'
+      | 'friend.id'
+      | 'friend.data'
+      | 'friend.data.nick'
+      | 'friend.data.friend'
+      | 'friend.data.friend.id'
+      | 'friend.data.friend.data'
+      | 'friend.data.friend.data.nick'
+      | 'friend.data.friend.data.friend'
+      | 'friend.data.friend.data.friend.id'
+      | 'friend.data.friend.data.friend.data'
+      | 'friend.data.friend.data.friend.data.nick'
+      | 'friend.data.friend.data.friend.data.friend'
+      | 'friend.data.friend.data.friend.data.friend.id'
+      | 'friend.data.friend.data.friend.data.friend.data'
+      | 'friend.data.friend.data.friend.data.friend.data.nick'
+      | 'friend.data.friend.data.friend.data.friend.data.friend'
+      | 'friend.data.friend.data.friend.data.friend.data.friend.id'
+      | 'friend.data.friend.data.friend.data.friend.data.friend.data'
+      | 'friend.data.friend.data.friend.data.friend.data.friend.data.nick'
+      | 'friend.data.friend.data.friend.data.friend.data.friend.data.friend'
+      | 'friend.data.friend.data.friend.data.friend.data.friend.data.friend.id'
+      | 'friend.data.friend.data.friend.data.friend.data.friend.data.friend.data'
+      | 'friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.nick'
+      | 'friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.friend'
+      | 'friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.friend.id'
+      | 'friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.friend.data'
+      | 'friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.nick'
+      | 'friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.friend'
+      | 'friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.friend.id'
+      | 'friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.friend.data'
+      | 'friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.nick'
+      | 'friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.friend'
+      | 'friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.friend.id'
+      | 'friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.friend.data'
+      | `friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.${string}`;
+
+    expect.equal<Path, ExpectPath>(PASSED);
+
+    expect.safety.not.extends<Path, 'friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.'>(PASSED);
+    expect.safety.not.extends<Path, 'friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.a'>(PASSED);
+    expect.safety.extends<Path, 'friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.'>(PASSED);
+    expect.safety.extends<Path, 'friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.a'>(PASSED);
+
+    type Path10 = PossiblePath<User, 10>;
+    type Path11 = PossiblePath<User, 11>;
+    type Path30 = PossiblePath<User, 30>;
+
+    // It's very strangely. If I define type `type Path = PossiblePath<User, 9>` and then define
+    // type `type Path_10 = PossiblePath<User, 10>` (just like in this test) - typescript will
+    // calculated both types. But if I define only one type `type Path = PossiblePath<User, 10>;`
+    // - typescript give me error: 'type instantiation is excessively deep'. See next test block.
+
+    // TODO It should be equal!
+    expect.not.equal<Path, Path10>(PASSED);
+    // TODO It should be equal!
+    expect.not.equal<Path, Path11>(PASSED);
+    // TODO It should be equal!
+    expect.not.equal<Path, Path30>(PASSED);
+  }
+
+  {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    type User = {
+      nick: string;
+      friend: {
+        id: number;
+        data: User;
+      };
+    };
+
+    // TODO This should work
+    // Do not why, but typescript give me an error: 'type instantiation is excessively deep'.
+    // type Path = PossiblePath<User, 10>;
+  }
+
+  {
+    type Boss = {
+      isPatron: boolean;
+      data: User;
+    }
+
+    type User = {
+      nick: string;
+      friend: {
+        id: number;
+        data: Boss;
+      };
+    };
+
+    type Path = PossiblePath<User>;
+
+    type ExpectPath =
+      | 'nick'
+      | 'friend'
+      | 'friend.id'
+      | 'friend.data'
+      | 'friend.data.isPatron'
+      | 'friend.data.data'
+      | 'friend.data.data.nick'
+      | 'friend.data.data.friend'
+      | 'friend.data.data.friend.id'
+      | 'friend.data.data.friend.data'
+      | 'friend.data.data.friend.data.isPatron'
+      | 'friend.data.data.friend.data.data'
+      | `friend.data.data.friend.data.data.${string}`;
+
+    expect.equal<Path, ExpectPath>(PASSED);
+
+    expect.safety.not.extends<Path, 'friend.data.data.'>(PASSED);
+    expect.safety.not.extends<Path, 'friend.data.data.a'>(PASSED);
+    expect.safety.extends<Path, 'friend.data.data.friend.data.data.'>(PASSED);
+    expect.safety.extends<Path, 'friend.data.data.friend.data.data.a'>(PASSED);
+  }
 }
 
 /**

@@ -1147,33 +1147,95 @@ import { expect, PASSED } from '../tools/expect';
  * Reach
  */
 {
-  const idSchema = StringSchema.create().nullable();
-  const nickSchema = StringSchema.create().optional();
-  const friendSchema = ObjectSchema.create({
-    id: idSchema,
-    nick: nickSchema,
-  });
+  {
+    const schema = ObjectSchema.create();
+
+    expect.equal<Parameters<typeof schema.reach>[0], any>(PASSED);
+
+    const reachedSomeSchema = schema.reach('' as any);
+
+    expect.equal<typeof reachedSomeSchema, any>(PASSED);
+
+    const reachedSchema = schema.reach();
+
+    expect.equal<typeof reachedSchema, typeof schema>(PASSED);
+  }
+
+  {
+    const schema = ObjectSchema.create().optional();
+
+    const reachedSchema = schema.reach();
+
+    expect.equal<typeof reachedSchema, typeof schema>(PASSED);
+  }
+
+  {
+    const schema = ObjectSchema.create().nullable();
+
+    const reachedSchema = schema.reach();
+
+    expect.equal<typeof reachedSchema, typeof schema>(PASSED);
+  }
+
+  {
+    const schema = ObjectSchema.create({});
+
+    expect.equal<Parameters<typeof schema.reach>[0], undefined>(PASSED);
+
+    const reachedSchema = schema.reach();
+
+    expect.equal<typeof reachedSchema, typeof schema>(PASSED);
+  }
+
+  {
+    const schema = ObjectSchema.create({}).optional();
+
+    const reachedSchema = schema.reach();
+
+    expect.equal<typeof reachedSchema, typeof schema>(PASSED);
+  }
+
+  {
+    const schema = ObjectSchema.create({}).nullable();
+
+    const reachedSchema = schema.reach();
+
+    expect.equal<typeof reachedSchema, typeof schema>(PASSED);
+  }
+
+  {
+    const idSchema = StringSchema.create().nullable();
+    const nickSchema = StringSchema.create().optional();
+    const friendSchema = ObjectSchema.create({
+      id: idSchema,
+      nick: nickSchema,
+    });
 
 
-  const schema = ObjectSchema.create({
-    id: idSchema,
-    nick: nickSchema,
-    friend: friendSchema,
-  });
+    const schema = ObjectSchema.create({
+      id: idSchema,
+      nick: nickSchema,
+      friend: friendSchema,
+    });
 
-  type ExpectedPath = 'id' | 'nick' | 'friend' | 'friend.id' | 'friend.nick';
+    type ExpectedPath = undefined | 'id' | 'nick' | 'friend' | 'friend.id' | 'friend.nick';
 
-  expect.equal<Parameters<typeof schema.reach>[0], ExpectedPath>(PASSED);
+    expect.equal<Parameters<typeof schema.reach>[0], ExpectedPath>(PASSED);
 
-  const id = schema.reach('id');
-  const nick = schema.reach('nick');
-  const friend = schema.reach('friend');
-  const friendId = schema.reach('friend.id');
-  const friendNick = schema.reach('friend.nick');
+    const reachedSchema = schema.reach();
 
-  expect.equal<typeof id, typeof idSchema>(PASSED);
-  expect.equal<typeof nick, typeof nickSchema>(PASSED);
-  expect.equal<typeof friend, typeof friendSchema>(PASSED);
-  expect.equal<typeof friendId, typeof idSchema>(PASSED);
-  expect.equal<typeof friendNick, typeof nickSchema>(PASSED);
+    expect.equal<typeof reachedSchema, typeof schema>(PASSED);
+
+    const id = schema.reach('id');
+    const nick = schema.reach('nick');
+    const friend = schema.reach('friend');
+    const friendId = schema.reach('friend.id');
+    const friendNick = schema.reach('friend.nick');
+
+    expect.equal<typeof id, typeof idSchema>(PASSED);
+    expect.equal<typeof nick, typeof nickSchema>(PASSED);
+    expect.equal<typeof friend, typeof friendSchema>(PASSED);
+    expect.equal<typeof friendId, typeof idSchema>(PASSED);
+    expect.equal<typeof friendNick, typeof nickSchema>(PASSED);
+  }
 }

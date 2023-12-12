@@ -178,16 +178,31 @@ export default class ObjectSchema<
     });
   }
 
-  // public reach<
-  //   TPath extends PossiblePath<TShape, AnySchema, never, 'Shape__TypeRef', AnySchema> = PossiblePath<TShape, AnySchema, never, 'Shape__TypeRef', AnySchema>,
-  // >(path: TPath): PathValue<TShape, TPath, 'Shape__TypeRef', AnySchema> {
-  //   return path as any;
-  // }
-
   public reach<
-    TPath extends PossibleShapePath<TShape>,
-  >(path: TPath): ShapePathSchema<TShape, TPath> {
-    return path as ShapePathSchema<TShape, TPath>;
+    TPath extends PossibleShapePath<TShape> = never,
+  >(path?: TPath): ShapePathSchema<TShape, TPath, this> {
+    if (path == null) {
+      return this as ShapePathSchema<TShape, TPath, this>;
+    }
+    else {
+      if (this.shapeValue == null) {
+        throw new Error('ObjectSchema have no shape');
+      }
+      else {
+        const [firstPath, ...paths] = path.split('.');
+
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        if (this.shapeValue[firstPath] == null) {
+          throw new Error('ObjectSchema have no property `' + firstPath + '`');
+        }
+        else if (paths.length === 0) {
+          return this.shapeValue[firstPath] as ShapePathSchema<TShape, TPath, this>;
+        }
+        else {
+          return this.shapeValue[firstPath].reach(paths.join('.')) as ShapePathSchema<TShape, TPath, this>;
+        }
+      }
+    }
   }
 
   public override getDefault(): DefaultData<TShape, TOptional, TNullable> {

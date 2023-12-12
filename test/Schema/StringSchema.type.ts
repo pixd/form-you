@@ -588,3 +588,40 @@ import { expect, PASSED } from '../tools/expect';
     expect.equal<NextDataType, undefined | null | string>(PASSED);
   }
 }
+
+/**
+ * Reach
+ */
+{
+  {
+    {
+      const schema = StringSchema.create();
+
+      expect.equal<Parameters<typeof schema.reach>, []>(PASSED);
+
+      const reachedSchema = schema.reach();
+
+      expect.equal<typeof reachedSchema, typeof schema>(PASSED);
+    }
+
+    {
+      const schema = StringSchema.create().optional();
+
+      expect.equal<Parameters<typeof schema.reach>, []>(PASSED);
+
+      const reachedSchema = schema.reach();
+
+      expect.equal<typeof reachedSchema, typeof schema>(PASSED);
+    }
+
+    {
+      const schema = StringSchema.create().nullable();
+
+      expect.equal<Parameters<typeof schema.reach>, []>(PASSED);
+
+      const reachedSchema = schema.reach();
+
+      expect.equal<typeof reachedSchema, typeof schema>(PASSED);
+    }
+  }
+}

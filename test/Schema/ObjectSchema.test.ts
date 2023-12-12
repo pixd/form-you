@@ -454,4 +454,32 @@ describe('ObjectSchema', () => {
       expect(nextSchema.getDefault()).toStrictEqual({ id: 0 });
     }
   });
+
+  it('should reach nested schema with .reach', () => {
+    {
+      const idSchema = StringSchema.create().nullable();
+      const nickSchema = StringSchema.create().optional();
+      const friendSchema = ObjectSchema.create({
+        id: idSchema,
+        nick: nickSchema,
+      });
+
+      const schema = ObjectSchema.create({
+        id: idSchema,
+        nick: nickSchema,
+        friend: friendSchema,
+      });
+
+      expect(schema.reach()).toBe(schema);
+      expect(schema.reach('id')).toBe(idSchema);
+      expect(schema.reach('nick')).toBe(nickSchema);
+      expect(schema.reach('friend')).toBe(friendSchema);
+      expect(schema.reach('friend.id')).toBe(idSchema);
+      expect(schema.reach('friend.nick')).toBe(nickSchema);
+      // @ts-expect-error
+      expect(() => schema.reach('abc')).toThrow();
+      // @ts-expect-error
+      expect(() => schema.reach('nick.abc')).toThrow();
+    }
+  });
 });

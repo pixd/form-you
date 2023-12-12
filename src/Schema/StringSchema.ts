@@ -102,6 +102,15 @@ export default class StringSchema<
     return schema;
   }
 
+  public reach(): this {
+    // eslint-disable-next-line prefer-rest-params
+    const path = arguments[0];
+    if (path != null) {
+      throw new Error('StringSchema can not have shape, you trying to access `' + path + '` property');
+    }
+    return this;
+  }
+
   public override getDefault(): DefaultData<TShape, TOptional, TNullable> {
     const defaultData = super.getDefaultBase();
 

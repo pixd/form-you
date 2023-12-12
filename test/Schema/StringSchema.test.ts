@@ -343,4 +343,14 @@ describe('StringSchema', () => {
       expect(nextSchema.getDefault()).toBe('Antonio');
     }
   });
+
+  it('should reach nested schema with .reach', () => {
+    {
+      const schema = StringSchema.create();
+
+      expect(schema.reach()).toBe(schema);
+      // @ts-expect-error
+      expect(() => schema.reach('abc')).toThrow();
+    }
+  });
 });

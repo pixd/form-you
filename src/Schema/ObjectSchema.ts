@@ -242,7 +242,7 @@ export default class ObjectSchema<
           // @ts-ignore
           return this.concat({ [firstPath]: cb(nextSchema) });
         }
-        else if ('reach' in nextSchema && typeof nextSchema.reach === 'function') {
+        else if ('refine' in nextSchema && typeof nextSchema.refine === 'function') {
           if (nextSchema.shapeValue) {
             // @ts-ignore
             return this.concat({ [firstPath]: nextSchema.refine(paths.join('.'), cb) });
@@ -252,7 +252,7 @@ export default class ObjectSchema<
           }
         }
         else {
-          throw new Error('The Schema found at `' + firstPath + '` property have no `reach` method');
+          throw new Error('The Schema found at `' + firstPath + '` property have no `refine` method');
         }
       }
     }

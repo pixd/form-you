@@ -1150,57 +1150,43 @@ import { expect, PASSED } from '../tools/expect';
   {
     const schema = ObjectSchema.create();
 
-    expect.equal<Parameters<typeof schema.reach>[0], any>(PASSED);
+    expect.equal<Parameters<typeof schema.reach>[0], never>(PASSED);
 
-    const reachedSomeSchema = schema.reach('' as any);
+    const reachedSomeSchema
+      // @ts-expect-error
+      = schema.reach('');
 
-    expect.equal<typeof reachedSomeSchema, any>(PASSED);
+    expect.equal<typeof reachedSomeSchema, unknown>(PASSED);
 
-    const reachedSchema = schema.reach();
+    const reachedUndefinedSchema
+      // @ts-expect-error
+      = schema.reach(undefined);
 
-    expect.equal<typeof reachedSchema, typeof schema>(PASSED);
-  }
+    expect.equal<typeof reachedUndefinedSchema, unknown>(PASSED);
 
-  {
-    const schema = ObjectSchema.create().optional();
+    const reachedSchema
+      // @ts-expect-error
+      = schema.reach();
 
-    const reachedSchema = schema.reach();
-
-    expect.equal<typeof reachedSchema, typeof schema>(PASSED);
-  }
-
-  {
-    const schema = ObjectSchema.create().nullable();
-
-    const reachedSchema = schema.reach();
-
-    expect.equal<typeof reachedSchema, typeof schema>(PASSED);
+    expect.equal<typeof reachedSchema, unknown>(PASSED);
   }
 
   {
     const schema = ObjectSchema.create({});
 
-    expect.equal<Parameters<typeof schema.reach>[0], undefined>(PASSED);
+    expect.equal<Parameters<typeof schema.reach>[0], never>(PASSED);
 
-    const reachedSchema = schema.reach();
+    const reachedUndefinedSchema
+      // @ts-expect-error
+      = schema.reach(undefined);
 
-    expect.equal<typeof reachedSchema, typeof schema>(PASSED);
-  }
+    expect.equal<typeof reachedUndefinedSchema, unknown>(PASSED);
 
-  {
-    const schema = ObjectSchema.create({}).optional();
+    const reachedSchema
+      // @ts-expect-error
+      = schema.reach();
 
-    const reachedSchema = schema.reach();
-
-    expect.equal<typeof reachedSchema, typeof schema>(PASSED);
-  }
-
-  {
-    const schema = ObjectSchema.create({}).nullable();
-
-    const reachedSchema = schema.reach();
-
-    expect.equal<typeof reachedSchema, typeof schema>(PASSED);
+    expect.equal<typeof reachedSchema, unknown>(PASSED);
   }
 
   {
@@ -1218,13 +1204,15 @@ import { expect, PASSED } from '../tools/expect';
       friend: friendSchema,
     });
 
-    type ExpectedPath = undefined | 'id' | 'nick' | 'friend' | 'friend.id' | 'friend.nick';
+    type ExpectedPath = 'id' | 'nick' | 'friend' | 'friend.id' | 'friend.nick';
 
     expect.equal<Parameters<typeof schema.reach>[0], ExpectedPath>(PASSED);
 
-    const reachedSchema = schema.reach();
+    const reachedSchema
+      // @ts-expect-error
+      = schema.reach();
 
-    expect.equal<typeof reachedSchema, typeof schema>(PASSED);
+    expect.equal<typeof reachedSchema, unknown>(PASSED);
 
     const id = schema.reach('id');
     const nick = schema.reach('nick');

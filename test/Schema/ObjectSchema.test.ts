@@ -470,16 +470,21 @@ describe('ObjectSchema', () => {
         friend: friendSchema,
       });
 
-      expect(schema.reach()).toBe(schema);
-      expect(schema.reach('id')).toBe(idSchema);
-      expect(schema.reach('nick')).toBe(nickSchema);
-      expect(schema.reach('friend')).toBe(friendSchema);
-      expect(schema.reach('friend.id')).toBe(idSchema);
-      expect(schema.reach('friend.nick')).toBe(nickSchema);
+      // @ts-expect-error
+      expect(() => schema.reach()).toThrow();
       // @ts-expect-error
       expect(() => schema.reach('abc')).toThrow();
+      expect(schema.reach('id')).toBe(idSchema);
+      // @ts-expect-error
+      expect(() => schema.reach('id.abc')).toThrow();
+      expect(schema.reach('nick')).toBe(nickSchema);
       // @ts-expect-error
       expect(() => schema.reach('nick.abc')).toThrow();
+      expect(schema.reach('friend')).toBe(friendSchema);
+      // @ts-expect-error
+      expect(() => schema.reach('friend.abc')).toThrow();
+      expect(schema.reach('friend.id')).toBe(idSchema);
+      expect(schema.reach('friend.nick')).toBe(nickSchema);
     }
   });
 });

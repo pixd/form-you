@@ -180,26 +180,33 @@ export default class ObjectSchema<
 
   public reach<
     TPath extends PossibleShapePath<TShape> = never,
-  >(path?: TPath): ShapePathSchema<TShape, TPath, this> {
-    if (path == null) {
-      return this as ShapePathSchema<TShape, TPath, this>;
+  >(path: TPath): ShapePathSchema<TShape, TPath> {
+    if (this.shapeValue == null) {
+      throw new Error('ObjectSchema have no shape');
     }
     else {
-      if (this.shapeValue == null) {
-        throw new Error('ObjectSchema have no shape');
+      const [firstPath, ...paths] = path.split('.');
+
+      if (!(this.shapeValue[firstPath] instanceof BaseSchema)) {
+        throw new Error('The value found at `' + firstPath + '` property is not a Schema');
       }
       else {
-        const [firstPath, ...paths] = path.split('.');
-
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-        if (this.shapeValue[firstPath] == null) {
-          throw new Error('ObjectSchema have no property `' + firstPath + '`');
+        const nextSchema = this.shapeValue[firstPath];
+        if (paths.length === 0) {
+          // @ts-ignore
+          return nextSchema;
         }
-        else if (paths.length === 0) {
-          return this.shapeValue[firstPath] as ShapePathSchema<TShape, TPath, this>;
+        else if ('reach' in nextSchema && typeof nextSchema.reach === 'function') {
+          if (nextSchema.shapeValue) {
+            // @ts-ignore
+            return nextSchema.reach(paths.join('.'));
+          }
+          else {
+            throw new Error('The Schema found at `' + firstPath + '` property have no shape');
+          }
         }
         else {
-          return this.shapeValue[firstPath].reach(paths.join('.')) as ShapePathSchema<TShape, TPath, this>;
+          throw new Error('The Schema found at `' + firstPath + '` property have no `reach` method');
         }
       }
     }

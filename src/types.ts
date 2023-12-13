@@ -29,7 +29,7 @@ export type SchemaShapeType<
 export type PossibleShapePath<
   TShape extends any,
 > = [TShape] extends [never]
-  ? any
+  ? never
   : [keyof TShape] extends [never]
     ? never
     : TShape extends Record<string, AnySchema>
@@ -42,13 +42,12 @@ export type PossibleShapePath<
 export type ShapePathSchema<
   TShape extends any,
   TShapePath extends undefined | string,
-  TThis extends any,
 > = [TShapePath] extends [never]
-  ? TThis
+  ? unknown
   : [TShape] extends [never]
-    ? any
+    ? unknown
     : TShapePath extends `${infer TKey}.${infer TKeyRest}`
-      ? ShapePathSchema<AtPath<TShape, TKey, 'Shape__TypeRef'>, TKeyRest, TThis>
+      ? ShapePathSchema<AtPath<TShape, TKey, 'Shape__TypeRef'>, TKeyRest>
       : AtPath<TShape, TShapePath>;
 
 // @ts-ignore

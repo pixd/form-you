@@ -41,14 +41,27 @@ export type PossibleShapePath<
 
 export type ShapePathSchema<
   TShape extends any,
-  TShapePath extends undefined | string,
-> = [TShapePath] extends [never]
+  TPath extends string,
+> = [TPath] extends [never]
   ? unknown
   : [TShape] extends [never]
     ? unknown
-    : TShapePath extends `${infer TKey}.${infer TKeyRest}`
+    : TPath extends `${infer TKey}.${infer TKeyRest}`
       ? ShapePathSchema<AtPath<TShape, TKey, 'Shape__TypeRef'>, TKeyRest>
-      : AtPath<TShape, TShapePath>;
+      : AtPath<TShape, TPath>;
+
+export type RefinedSchema<
+  TShape extends any,
+  TPath extends string,
+  TReturned extends any,
+> = TPath extends `${infer TKey}.${infer TKeyRest}`
+  ? Simplify<Omit<TShape, TKey>
+    & {
+      [key in TKey]: AtPath<TShape, TKey> extends ObjectSchema<infer TS, infer TO, infer TN, infer TC>
+        ? ObjectSchema<RefinedSchema<TS, TKeyRest, TReturned>, TO, TN, TC>
+        : never;
+    }>
+  : Simplify<Omit<TShape, TPath> & { [key in TPath]: TReturned }>
 
 // @ts-ignore
 type AtPath<TData, TPath, TProp = null> = TProp extends string ? TData[TPath][TProp] : TData[TPath];

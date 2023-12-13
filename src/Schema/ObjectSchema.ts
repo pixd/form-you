@@ -1,8 +1,8 @@
 import BaseSchema, { DefaultValue, RejectType, SafetyType, SchemaCloneProps,
   SchemaData } from './BaseSchema';
 import errorMessages, { prepareErrorMessage } from '../error-messages';
-import { AnySchema, PossibleShapePath, ShapePathSchema, SchemaDataType,
-  Simplify } from '../types';
+import { AnySchema, PossibleShapePath, RefinedSchema, ShapePathSchema,
+  SchemaDataType, Simplify } from '../types';
 import ValidationError, { PredefinedValidationTestName } from '../ValidationError';
 
 export type Shape = {
@@ -86,7 +86,9 @@ export default interface ObjectSchema<
     TReturned extends ObjectSchema<TShape> = ObjectSchema<TShape>,
   >(
     cb: {
-      (schema: ObjectSchema<TShape, TOptional, TNullable, TContext>): TReturned;
+      (
+        schema: ObjectSchema<TShape, TOptional, TNullable, TContext>,
+      ): TReturned;
     },
   ): TReturned;
 
@@ -180,7 +182,9 @@ export default class ObjectSchema<
 
   public reach<
     TPath extends PossibleShapePath<TShape> = never,
-  >(path: TPath): ShapePathSchema<TShape, TPath> {
+  >(
+    path: TPath,
+  ): ShapePathSchema<TShape, TPath> {
     if (this.shapeValue == null) {
       throw new Error('ObjectSchema have no shape');
     }
@@ -212,11 +216,53 @@ export default class ObjectSchema<
     }
   }
 
-  public override getDefault(): DefaultData<TShape, TOptional, TNullable> {
-    const defaultData = super.getDefaultBase();
+  public refine<
+    TPath extends PossibleShapePath<TShape> = never,
+    TReturned extends ShapePathSchema<TShape, TPath> = never,
+  >(
+    path: TPath,
+    cb: {
+      (
+        schema: ShapePathSchema<TShape, TPath>,
+      ): TReturned;
+    }
+  ): ObjectSchema<RefinedSchema<TShape, TPath, TReturned>, TOptional, TNullable, TContext> {
+    if (this.shapeValue == null) {
+      throw new Error('ObjectSchema have no shape');
+    }
+    else {
+      const [firstPath, ...paths] = path.split('.');
 
-    if (defaultData) {
-      return defaultData.data;
+      if (!(this.shapeValue[firstPath] instanceof BaseSchema)) {
+        throw new Error('The value found at `' + firstPath + '` property is not a Schema');
+      }
+      else {
+        const nextSchema = this.shapeValue[firstPath];
+        if (paths.length === 0) {
+          // @ts-ignore
+          return this.concat({ [firstPath]: cb(nextSchema) });
+        }
+        else if ('reach' in nextSchema && typeof nextSchema.reach === 'function') {
+          if (nextSchema.shapeValue) {
+            // @ts-ignore
+            return this.concat({ [firstPath]: nextSchema.refine(paths.join('.'), cb) });
+          }
+          else {
+            throw new Error('The Schema found at `' + firstPath + '` property have no shape');
+          }
+        }
+        else {
+          throw new Error('The Schema found at `' + firstPath + '` property have no `reach` method');
+        }
+      }
+    }
+  }
+
+  public override getDefault(): DefaultData<TShape, TOptional, TNullable> {
+    const defaultValue = super.getDefaultValueBase();
+
+    if (defaultValue) {
+      return defaultValue.data;
     }
     else {
       const defaultData = getDefaultData(this.shapeValue);
@@ -252,7 +298,9 @@ export default class ObjectSchema<
   }
 }
 
-function getDefaultData(shapeValue: null | Shape) {
+function getDefaultData(
+  shapeValue: null | Shape,
+) {
   return Object.entries(shapeValue ?? {})
     .reduce((defaultValue, [key, schema]) => {
       defaultValue[key] = schema.getDefault();

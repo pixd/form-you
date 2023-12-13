@@ -40,7 +40,9 @@ export default interface StringSchema<
     TReturned extends StringSchema<TShape> = StringSchema<TShape>,
   >(
     cb: {
-      (schema: StringSchema<TShape, TOptional, TNullable, TContext>): TReturned;
+      (
+        schema: StringSchema<TShape, TOptional, TNullable, TContext>,
+      ): TReturned;
     },
   ): TReturned;
 
@@ -103,10 +105,10 @@ export default class StringSchema<
   }
 
   public override getDefault(): DefaultData<TShape, TOptional, TNullable> {
-    const defaultData = super.getDefaultBase();
+    const defaultValue = super.getDefaultValueBase();
 
-    if (defaultData) {
-      return defaultData.data;
+    if (defaultValue) {
+      return defaultValue.data;
     }
     else {
       if (this.defaultValue?.data != null) {

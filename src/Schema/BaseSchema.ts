@@ -183,7 +183,9 @@ export default abstract class BaseSchema<
 
   public mutate(
     cb: {
-      (schema: BaseSchema): BaseSchema;
+      (
+        schema: BaseSchema,
+      ): BaseSchema;
     },
   ): BaseSchema {
     this.mutating = true;
@@ -281,7 +283,7 @@ export default abstract class BaseSchema<
 
   public abstract getDefault(): SchemaData<TData, TOptional, TNullable>
 
-  protected getDefaultBase(): null | { data: SchemaData<TData, TOptional, TNullable> } {
+  protected getDefaultValueBase(): null | { data: SchemaData<TData, TOptional, TNullable> } {
     if (this.defaultValue) {
       if (this.defaultValue.data == null) {
         return this.defaultValue;
@@ -328,7 +330,7 @@ export default abstract class BaseSchema<
     return value;
   }
 
-  // TODO This is tor testing purposes only and should be removed
+  // TODO This is for testing purposes only and should be removed
   public testContext(_cb: (context: TContext) => void): this {
     // @ts-ignore
     return;

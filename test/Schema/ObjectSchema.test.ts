@@ -487,4 +487,66 @@ describe('ObjectSchema', () => {
       expect(schema.reach('friend.nick')).toBe(nickSchema);
     }
   });
+
+  it('should change nested schema with .refine', () => {
+    {
+      const idSchema = StringSchema.create().nullable();
+      const nickSchema = StringSchema.create().optional();
+      const friendSchema = ObjectSchema.create({
+        id: idSchema,
+        nick: nickSchema,
+      });
+
+      const schema = ObjectSchema.create({
+        id: idSchema,
+        nick: nickSchema,
+        friend: friendSchema,
+      });
+
+      // @ts-expect-error
+      expect(() => schema.refine()).toThrow();
+      // @ts-expect-error
+      expect(() => schema.refine('id')).toThrow();
+      // @ts-expect-error
+      expect(() => schema.refine((schema) => schema)).toThrow();
+      // @ts-expect-error
+      expect(() => schema.refine('abc', (schema) => schema)).toThrow();
+
+      expect(schema.refine('id', (schema) => schema.notNullable()).getDefault()).toEqual({
+        id: '',
+        nick: undefined,
+        friend: {
+          id: null,
+          nick: undefined,
+        },
+      });
+
+      expect(schema.refine('nick', (schema) => schema.notOptional()).getDefault()).toEqual({
+        id: null,
+        nick: '',
+        friend: {
+          id: null,
+          nick: undefined,
+        },
+      });
+
+      expect(schema.refine('friend.id', (schema) => schema.notNullable()).getDefault()).toEqual({
+        id: null,
+        nick: undefined,
+        friend: {
+          id: '',
+          nick: undefined,
+        },
+      });
+
+      expect(schema.refine('friend.nick', (schema) => schema.notOptional()).getDefault()).toEqual({
+        id: null,
+        nick: undefined,
+        friend: {
+          id: null,
+          nick: '',
+        },
+      });
+    }
+  });
 });

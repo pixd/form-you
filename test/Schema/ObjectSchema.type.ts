@@ -1227,3 +1227,80 @@ import { expect, PASSED } from '../tools/expect';
     expect.equal<typeof friendNick, typeof nickSchema>(PASSED);
   }
 }
+
+/**
+ * Reach
+ */
+{
+  {
+    const idSchema = StringSchema.create().nullable();
+    const nickSchema = StringSchema.create().optional();
+    const friendSchema = ObjectSchema.create({
+      id: idSchema,
+      nick: nickSchema,
+    });
+
+
+    const schema = ObjectSchema.create({
+      id: idSchema,
+      nick: nickSchema,
+      friend: friendSchema,
+    });
+
+    type ExpectedPath = 'id' | 'nick' | 'friend' | 'friend.id' | 'friend.nick';
+
+    expect.equal<Parameters<typeof schema.refine>[0], ExpectedPath>(PASSED);
+
+    const idNotNullableScheme = schema.refine('id', (schema) => schema.notNullable());
+    // @ts-expect-error
+    schema.refine('id', (schema) => schema.optional());
+    const nickNotOptionalScheme = schema.refine('nick', (schema) => schema.notOptional());
+    // @ts-expect-error
+    schema.refine('nick', (schema) => schema.nullable());
+    // @ts-expect-error
+    schema.refine('friend', (schema) => schema.optional());
+    // @ts-expect-error
+    schema.refine('friend', (schema) => schema.nullable());
+    const friendIdNotNullableScheme = schema.refine('friend.id', (schema) => schema.notNullable());
+    // @ts-expect-error
+    schema.refine('friend.id', (schema) => schema.optional());
+    const friendNickNotOptionalScheme = schema.refine('friend.nick', (schema) => schema.notOptional());
+    // @ts-expect-error
+    schema.refine('friend.nick', (schema) => schema.nullable());
+
+    const expectedIdNotNullableScheme = ObjectSchema.create({
+      id: idSchema.notNullable(),
+      nick: nickSchema,
+      friend: friendSchema,
+    });
+
+    const expectedNickNotOptionalScheme = ObjectSchema.create({
+      id: idSchema,
+      nick: nickSchema.notOptional(),
+      friend: friendSchema,
+    });
+
+    const expectedFriendIdNotNullableScheme = ObjectSchema.create({
+      id: idSchema,
+      nick: nickSchema,
+      friend: ObjectSchema.create({
+        id: idSchema.notNullable(),
+        nick: nickSchema,
+      }),
+    });
+
+    const expectedFriendNickNotOptionalScheme = ObjectSchema.create({
+      id: idSchema,
+      nick: nickSchema,
+      friend: ObjectSchema.create({
+        id: idSchema,
+        nick: nickSchema.notOptional(),
+      }),
+    });
+
+    expect.equal<typeof idNotNullableScheme, typeof expectedIdNotNullableScheme>(PASSED);
+    expect.equal<typeof nickNotOptionalScheme, typeof expectedNickNotOptionalScheme>(PASSED);
+    expect.equal<typeof friendIdNotNullableScheme, typeof expectedFriendIdNotNullableScheme>(PASSED);
+    expect.equal<typeof friendNickNotOptionalScheme, typeof expectedFriendNickNotOptionalScheme>(PASSED);
+  }
+}

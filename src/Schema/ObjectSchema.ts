@@ -1,8 +1,10 @@
 import BaseSchema, { DefaultValue, RejectType, SafetyType, SchemaCloneProps,
   SchemaData } from './BaseSchema';
+import StringSchema from './StringSchema';
 import errorMessages, { prepareErrorMessage } from '../error-messages';
 import { AnySchema, PossibleShapePath, RefinedSchema, ShapePathSchema,
-  SchemaDataType, Simplify } from '../types';
+  SchemaContextType, SchemaDataType, Simplify } from '../types';
+import { Intersection } from '../types.tools';
 import ValidationError, { PredefinedValidationTestName } from '../ValidationError';
 
 export type Shape = {
@@ -50,6 +52,37 @@ export type ShapeData<
         & ShapeDataType<Pick<TShape, DefinedShapeProps<TShape>>>
         & Partial<ShapeDataType<Pick<TShape, OptionalShapeProps<TShape>>>>
       )>;
+
+type ShapeContext<
+  TShape extends Shape = Shape,
+> = [keyof TShape] extends [never]
+  ? {}
+  : Intersection<SchemaContextType<TShape[keyof TShape]>>;
+
+type ShapeContextMatch<
+  TShape extends Partial<Shape> = Partial<Shape>,
+  TContext extends Record<string, any> = {},
+> = [TShape] extends [never]
+  ? never
+  : [keyof TShape] extends [never]
+    ? {}
+    : {
+      [TKey in keyof TShape]: TShape[TKey] extends StringSchema<infer TS, infer TO, infer TN>
+        ? StringSchema<TS, TO, TN, Partial<MatchedShapeContext<TShape> & TContext>>
+        : TShape[TKey] extends ObjectSchema<infer TS, infer TO, infer TN>
+          ? ObjectSchema<TS, TO, TN, Partial<MatchedShapeContext<TShape> & TContext>>
+          : never;
+    };
+
+type MatchedShapeContext<
+  TShape extends Partial<Shape> = Partial<Shape>,
+> = [TShape] extends [never]
+  ? object
+  : TShape extends Shape
+    ? [keyof TShape] extends [never]
+      ? {}
+      : ShapeContext<TShape>
+    : object;
 
 type DefaultData<
   TShape extends Shape = Shape,
@@ -143,11 +176,10 @@ export default class ObjectSchema<
 
   public static create<
     TShape extends Shape = never,
-    TContext extends Record<string, any> = object,
   >(
-    shape?: TShape,
-  ): ObjectSchema<TShape, false, false, TContext> {
-    const schema = new ObjectSchema<TShape, false, false, TContext>();
+    shape?: TShape & ShapeContextMatch<TShape>,
+  ): ObjectSchema<TShape, false, false, MatchedShapeContext<TShape>> {
+    const schema = new ObjectSchema<TShape, false, false, MatchedShapeContext<TShape>>();
 
     schema.shapeValue = shape ?? null;
 
@@ -157,12 +189,12 @@ export default class ObjectSchema<
   public concat<
     TNextShape extends ConcatenatedShape<TShape> = TShape,
   >(
-    shape: TNextShape,
-  ): ObjectSchema<MergeShape<TShape, TNextShape>, TOptional, TNullable, TContext> {
+    shape: TNextShape & ShapeContextMatch<TNextShape, TContext>,
+  ): ObjectSchema<MergeShape<TShape, TNextShape>, TOptional, TNullable, MatchedShapeContext<TNextShape> & TContext> {
     const shapeValue = {
       ...this.shapeValue,
       ...shape,
-    } as MergeShape<TShape, TNextShape>;
+    } as any;
 
     let defaultValue = this.defaultValue;
 
@@ -174,6 +206,7 @@ export default class ObjectSchema<
       defaultValue = { data: defaultData };
     }
 
+    // @ts-expect-error
     return this.apply({
       shapeValue,
       defaultValue,

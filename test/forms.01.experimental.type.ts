@@ -9,13 +9,13 @@ import { expect, PASSED } from './tools/expect';
   > = {
     object: {
       <
-        TData extends Record<string, any> = never,
-      >(): ObjectSchema<TData, false, false, TContext>;
+        TShape extends Record<string, any> = never,
+      >(
+        shape: TShape,
+      ): ObjectSchema<TShape, false, false, TContext>;
     };
     string: {
-      <
-        TData extends string = string,
-      >(): StringSchema<TData, false, false, TContext>;
+      (): StringSchema<string, false, false, TContext>;
     };
   };
 
@@ -55,8 +55,10 @@ import { expect, PASSED } from './tools/expect';
   };
 
   const myForm = form.withContext<Context>().create((you) => {
-    return you.object().concat({
-      name: you.string(),
+    return you.object({
+      name: you.string().testContext((context) => {
+        expect.equal<typeof context, Context>(PASSED);
+      }),
     }).testContext((context) => {
       expect.equal<typeof context, Context>(PASSED);
     });

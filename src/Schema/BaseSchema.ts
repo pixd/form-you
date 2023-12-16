@@ -332,7 +332,6 @@ export default abstract class BaseSchema<
 
   // TODO This is for testing purposes only and should be removed
   public testContext(_cb: (context: TContext) => void): this {
-    // @ts-ignore
-    return;
+    return this;
   }
 }

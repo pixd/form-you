@@ -115,10 +115,6 @@ import { expect, PASSED } from '../tools/expect';
  */
 {
   {
-    expect.equal<Parameters<typeof ObjectSchema.create>[0], undefined | Record<string, AnySchema>>(PASSED)
-  }
-
-  {
     const userSchema = ObjectSchema.create();
 
     expect.equal<SchemaShapeType<typeof userSchema>, {}>(PASSED);
@@ -915,6 +911,41 @@ import { expect, PASSED } from '../tools/expect';
       // @ts-expect-error
       .context<NextContext>();
   }
+
+  {
+    ObjectSchema.create({
+      // @ts-expect-error
+      nick: StringSchema.create().context<{ company: number; active: boolean }>(),
+      // @ts-expect-error
+      friend: StringSchema.create().context<{ company: string; active: boolean }>(),
+    });
+
+    ObjectSchema.create({
+      // @ts-expect-error
+      nick: StringSchema.create().context<{ company: number; active: boolean }>(),
+      // @ts-expect-error
+      friend: ObjectSchema.create().context<{ company: string; active: boolean }>(),
+    });
+  }
+
+  {
+    const schema = ObjectSchema.create({
+      nick: StringSchema.create().context<{ friend: string; active: boolean }>(),
+      friend: StringSchema.create().context<{ company: string; active: boolean }>(),
+    });
+
+    expect.equal<SchemaContextType<typeof schema>, { friend: string; company: string; active: boolean }>(PASSED);
+  }
+
+  {
+    const schema = ObjectSchema.create({
+      nick: StringSchema.create().context<{ friend: string; active: boolean }>(),
+    }).concat({
+      friend: StringSchema.create().context<{ company: string; active: boolean }>(),
+    });
+
+    expect.equal<SchemaContextType<typeof schema>, { friend: string; company: string; active: boolean }>(PASSED);
+  }
 }
 
 /**
@@ -1139,6 +1170,22 @@ import { expect, PASSED } from '../tools/expect';
       user: ObjectSchema.create({
         id: StringSchema.create(),
       }),
+    });
+  }
+
+  {
+    ObjectSchema.create({
+      nick: StringSchema.create().context<{ company: number; active: boolean }>(),
+    }).concat({
+      // @ts-expect-error
+      friend: StringSchema.create().context<{ company: string; active: boolean }>(),
+    });
+
+    ObjectSchema.create({
+      nick: StringSchema.create().context<{ company: number; active: boolean }>(),
+    }).concat({
+      // @ts-expect-error
+      friend: ObjectSchema.create().context<{ company: string; active: boolean }>(),
     });
   }
 }

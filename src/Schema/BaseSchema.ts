@@ -117,7 +117,7 @@ export default abstract class BaseSchema<
   TData extends any = any,
   TOptional extends boolean = any,
   TNullable extends boolean = any,
-  TContext extends Record<string, any> = object,
+  TContext extends object = object,
 > {
   public Data__TypeRef = undefined as SchemaData<TData, TOptional, TNullable>;
 

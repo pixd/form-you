@@ -11,14 +11,21 @@ export type Shape = {
   [key in string]: AnySchema;
 };
 
-type MergeShape<
+type ShapeControl<
   TShape extends Shape = Shape,
-  TNextShape extends ConcatenatedShape<TShape> = ConcatenatedShape<TShape>,
-> = SafetyType<TShape, Record<never, any>> & TNextShape;
+  TNeverShape extends any = any,
+  TEmptyShape extends any = TNeverShape,
+> = [TShape] extends [never]
+  ? TNeverShape
+  : [keyof TShape] extends [never]
+    ? TEmptyShape
+    : TShape;
 
-type ConcatenatedShape<
+type ShapePattern<
   TShape extends Shape = Shape,
-> = SafetyType<TShape, Shape, object & Partial<TShape>>
+> = [TShape] extends [never]
+  ? Record<string, any>
+  : Record<string, any> & Partial<TShape>
 
 type DefinedShapeProps<
   TShape extends Shape = Shape,
@@ -39,81 +46,64 @@ type OptionalShapeProps<
 type ShapeDataType<
   TShape extends Shape = Shape,
 > = {
-  [TKey in keyof TShape]-?: SchemaDataType<TShape[TKey]>;
+  [TKey in keyof TShape]: SchemaDataType<Exclude<TShape[TKey], undefined>>;
 };
 
 export type ShapeData<
   TShape extends Shape = Shape,
-> = [TShape] extends [never]
-  ? Record<string, any>
-  : [keyof TShape] extends [never]
-    ? Record<never, any>
-    : Simplify<(
-        & ShapeDataType<Pick<TShape, DefinedShapeProps<TShape>>>
-        & Partial<ShapeDataType<Pick<TShape, OptionalShapeProps<TShape>>>>
-      )>;
+> = Simplify<(
+  & ShapeDataType<Pick<TShape, DefinedShapeProps<TShape>>>
+  & Partial<ShapeDataType<Pick<TShape, OptionalShapeProps<TShape>>>>
+)>;
 
 type ShapeContext<
-  TShape extends Shape = Shape,
-> = [keyof TShape] extends [never]
-  ? {}
-  : Intersection<SchemaContextType<TShape[keyof TShape]>>;
+  TShape extends Partial<Shape> = Shape,
+  TContext extends object = object,
+> = Intersection<SchemaContextType<Exclude<TShape[keyof TShape], undefined>>> & TContext;
 
-type ShapeContextMatch<
-  TShape extends Partial<Shape> = Partial<Shape>,
-  TContext extends Record<string, any> = {},
+type ContextMatchedShape<
+  TShape extends Partial<Shape> = Shape,
+  TContext extends object = object,
 > = [TShape] extends [never]
-  ? never
-  : [keyof TShape] extends [never]
-    ? {}
-    : {
-      [TKey in keyof TShape]: TShape[TKey] extends StringSchema<infer TS, infer TO, infer TN>
-        ? StringSchema<TS, TO, TN, Partial<MatchedShapeContext<TShape> & TContext>>
+  ? Record<string, any>
+  : {
+      [TKey in keyof TShape]?: TShape[TKey] extends StringSchema<infer TS, infer TO, infer TN>
+        ? StringSchema<TS, TO, TN, Partial<ShapeContext<TShape, TContext>>>
         : TShape[TKey] extends ObjectSchema<infer TS, infer TO, infer TN>
-          ? ObjectSchema<TS, TO, TN, Partial<MatchedShapeContext<TShape> & TContext>>
+          ? ObjectSchema<TS, TO, TN, Partial<ShapeContext<TShape, TContext>>>
           : never;
     };
-
-type MatchedShapeContext<
-  TShape extends Partial<Shape> = Partial<Shape>,
-> = [TShape] extends [never]
-  ? object
-  : TShape extends Shape
-    ? [keyof TShape] extends [never]
-      ? {}
-      : ShapeContext<TShape>
-    : object;
 
 type DefaultData<
   TShape extends Shape = Shape,
   TOptional extends boolean = false,
   TNullable extends boolean = false,
-> = SchemaData<ShapeData<TShape>, TOptional, TNullable>;
+> = SchemaData<ShapeData<ShapeControl<TShape, Record<string, any>>>, TOptional, TNullable>;
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 export default interface ObjectSchema<
   TShape extends Shape = never,
   TOptional extends boolean = any,
   TNullable extends boolean = any,
-  TContext extends Record<string, any> = object,
-> extends BaseSchema<ShapeData<TShape>, TOptional, TNullable, TContext> {
+  TContext extends object = object,
+> extends BaseSchema<ShapeData<ShapeControl<TShape, Record<string, any>>>, TOptional, TNullable, TContext> {
   apply<
-    TNextShape extends SafetyType<TShape, {}> = SafetyType<TShape, {}>,
+    TShapePattern extends ShapePattern<TShape> = TShape,
     TDefaultValue extends DefaultData<TShape, TOptional, TNullable> = DefaultData<TShape, TOptional, TNullable>,
     TRejectUndefined extends null | string = never,
     TRejectNull extends null | string = never,
   >(
-    props?: SchemaCloneProps<TNextShape, TDefaultValue, TRejectUndefined, TRejectNull>,
-  ): ObjectSchema<TNextShape, RejectType<TRejectUndefined, TOptional>, RejectType<TRejectNull, TNullable>, TContext>;
+    props?: SchemaCloneProps<TShapePattern & ContextMatchedShape<ShapeControl<TShapePattern, Record<string, any>>, TContext>, TDefaultValue, TRejectUndefined, TRejectNull>,
+  ): ObjectSchema<ShapeControl<ShapeControl<TShape, object> & TShapePattern, never>, RejectType<TRejectUndefined, TOptional>, RejectType<TRejectNull, TNullable>, TContext>;
 
   clone<
-    TNextShape extends SafetyType<TShape, {}> = SafetyType<TShape, {}>,
+    TShapePattern extends ShapePattern<TShape> = TShape,
     TDefaultValue extends DefaultData<TShape, TOptional, TNullable> = DefaultData<TShape, TOptional, TNullable>,
     TRejectUndefined extends null | string = never,
     TRejectNull extends null | string = never,
   >(
-    props?: SchemaCloneProps<TNextShape, TDefaultValue, TRejectUndefined, TRejectNull>,
-  ): ObjectSchema<TNextShape, RejectType<TRejectUndefined, TOptional>, RejectType<TRejectNull, TNullable>, TContext>;
+    props?: SchemaCloneProps<TShapePattern & ContextMatchedShape<ShapeControl<TShapePattern, Record<string, any>>, TContext>, TDefaultValue, TRejectUndefined, TRejectNull>,
+  ): ObjectSchema<ShapeControl<ShapeControl<TShape, object> & TShapePattern, never>, RejectType<TRejectUndefined, TOptional>, RejectType<TRejectNull, TNullable>, TContext>;
 
   mutate<
     TReturned extends ObjectSchema<TShape> = ObjectSchema<TShape>,
@@ -126,7 +116,7 @@ export default interface ObjectSchema<
   ): TReturned;
 
   context<
-    TNextContext extends SafetyType<TContext, Record<string, any>, object & Partial<TContext>> = TContext,
+    TNextContext extends SafetyType<TContext, object, object & Partial<TContext>> = TContext,
   >(): ObjectSchema<TShape, TOptional, TNullable, SafetyType<TContext, object> & TNextContext>;
 
   optional(): ObjectSchema<TShape, true, TNullable, TContext>;
@@ -158,13 +148,13 @@ export default class ObjectSchema<
   TShape extends Shape = never,
   TOptional extends boolean = any,
   TNullable extends boolean = any,
-  TContext extends Record<string, any> = object,
-> extends BaseSchema<ShapeData<TShape>, TOptional, TNullable, TContext> {
-  public override Shape__TypeRef = {} as [TShape] extends [never] ? Record<never, any> : TShape;
+  TContext extends object = object,
+> extends BaseSchema<ShapeData<ShapeControl<TShape, Record<string, any>>>, TOptional, TNullable, TContext> {
+  public override Shape__TypeRef = {} as ShapeControl<TShape, Record<string, any>>;
 
   protected override shapeValue: null | Shape = null;
 
-  protected override defaultValue: DefaultValue<ShapeData<TShape>, TOptional, TNullable> = null;
+  protected override defaultValue: DefaultValue<ShapeData<ShapeControl<TShape, Record<string, any>>>, TOptional, TNullable> = null;
 
   protected override selfConstructor: {
     new (): ObjectSchema;
@@ -177,24 +167,25 @@ export default class ObjectSchema<
   public static create<
     TShape extends Shape = never,
   >(
-    shape?: TShape & ShapeContextMatch<TShape>,
-  ): ObjectSchema<TShape, false, false, MatchedShapeContext<TShape>> {
-    const schema = new ObjectSchema<TShape, false, false, MatchedShapeContext<TShape>>();
+    shape?: TShape & ContextMatchedShape<ShapeControl<TShape, Record<string, any>>>,
+  ): ObjectSchema<ShapeControl<TShape, never>, false, false, ShapeContext<TShape>> {
+    const schema = new ObjectSchema();
 
     schema.shapeValue = shape ?? null;
 
+    // @ts-expect-error
     return schema;
   }
 
   public concat<
-    TNextShape extends ConcatenatedShape<TShape> = TShape,
+    TShapePattern extends ShapePattern<TShape> = TShape,
   >(
-    shape: TNextShape & ShapeContextMatch<TNextShape, TContext>,
-  ): ObjectSchema<MergeShape<TShape, TNextShape>, TOptional, TNullable, MatchedShapeContext<TNextShape> & TContext> {
+    shape: TShapePattern & ContextMatchedShape<ShapeControl<TShapePattern, Record<string, any>>, TContext>,
+  ): ObjectSchema<ShapeControl<ShapeControl<TShape, object> & TShapePattern, never>, TOptional, TNullable, ShapeContext<TShapePattern, TContext>> {
     const shapeValue = {
       ...this.shapeValue,
       ...shape,
-    } as any;
+    };
 
     let defaultValue = this.defaultValue;
 
@@ -206,15 +197,17 @@ export default class ObjectSchema<
       defaultValue = { data: defaultData };
     }
 
-    // @ts-expect-error
-    return this.apply({
+    const apply = {
       shapeValue,
       defaultValue,
-    });
+    };
+
+    // @ts-expect-error
+    return this.apply(apply);
   }
 
   public reach<
-    TPath extends PossibleShapePath<TShape> = never,
+    TPath extends PossibleShapePath<TShape> = PossibleShapePath<TShape>,
   >(
     path: TPath,
   ): ShapePathSchema<TShape, TPath> {
@@ -230,12 +223,12 @@ export default class ObjectSchema<
       else {
         const nextSchema = this.shapeValue[firstPath];
         if (paths.length === 0) {
-          // @ts-ignore
+          // @ts-expect-error
           return nextSchema;
         }
         else if ('reach' in nextSchema && typeof nextSchema.reach === 'function') {
           if (nextSchema.shapeValue) {
-            // @ts-ignore
+            // @ts-expect-error
             return nextSchema.reach(paths.join('.'));
           }
           else {
@@ -272,12 +265,12 @@ export default class ObjectSchema<
       else {
         const nextSchema = this.shapeValue[firstPath];
         if (paths.length === 0) {
-          // @ts-ignore
+          // @ts-expect-error
           return this.concat({ [firstPath]: cb(nextSchema) });
         }
         else if ('refine' in nextSchema && typeof nextSchema.refine === 'function') {
           if (nextSchema.shapeValue) {
-            // @ts-ignore
+            // @ts-expect-error
             return this.concat({ [firstPath]: nextSchema.refine(paths.join('.'), cb) });
           }
           else {
@@ -306,7 +299,8 @@ export default class ObjectSchema<
         };
       }
       else {
-        return defaultData as DefaultData<TShape, TOptional, TNullable>;
+        // @ts-expect-error
+        return defaultData;
       }
     }
   }

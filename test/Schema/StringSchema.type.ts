@@ -505,10 +505,9 @@ import { expect, PASSED } from '../tools/expect';
 
     type ContextType = SchemaContextType<typeof schema>;
 
-    // @ts-ignore I don't know why, but this is not working...
+    // @ts-expect-error
     expect.equal<ContextType, { sale: number[] }>(PASSED);
-    // ... so let's write it this way
-    expect.equal<ContextType, { sale: number[] & (string | number)[] }>(PASSED);
+    expect.__UNSAFE__mutuallyEqual<ContextType, { sale: number[] }>(PASSED);
   }
 
   {

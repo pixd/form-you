@@ -2,8 +2,12 @@ export const PASSED = Symbol('PASSED');
 
 export const expect = {
   equal: expectEqual,
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  __UNSAFE__mutuallyEqual: mutuallyExpectEqual,
   not: {
     equal: expectNotEqual,
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    __UNSAFE__mutuallyEqual: mutuallyExpectNotEqual,
   },
   safety: {
     extends: expectSafetyExtends,
@@ -46,6 +50,43 @@ export function expectNotEqual<TX, TY>(
   return;
 }
 
+export function mutuallyExpectEqual<TX, TY>(
+  ..._args: Equal<TX, TY> extends true
+    ? [typeof PASSED]
+    : Equal<TX, never> extends true
+      ? [[NeverType, TY]]
+      : Equal<TX, unknown> extends true
+        ? [[UnknownType, TY]]
+        : Equal<TX, any> extends true
+          ? [[AnyType, TY]]
+          : TX extends TY
+            ? TY extends TX
+              ? [typeof PASSED]
+              : [[TX, TY]]
+            : [[TX, TY]]
+) {
+  return;
+}
+
+export function mutuallyExpectNotEqual<TX, TY>(
+  ..._args: Equal<TX, TY> extends false
+    ? [typeof PASSED]
+    : Equal<TX, never> extends true
+      ? [[NeverType, TY]]
+      : Equal<TX, unknown> extends true
+        ? [[UnknownType, TY]]
+        : Equal<TX, any> extends true
+          ? [[AnyType, TY]]
+          : TX extends TY
+            ? TY extends TX
+              ? [[TX, TY]]
+              : [typeof PASSED]
+            : [typeof PASSED]
+) {
+  return;
+}
+
+
 export function expectSafetyExtends<TX, TY>(
   ..._args: Equal<TX, never> extends true
     ? [[NeverType, TY]]
@@ -53,7 +94,7 @@ export function expectSafetyExtends<TX, TY>(
       ? [[UnknownType, TY]]
       : Equal<TX, any> extends true
         ? [[AnyType, TY]]
-        : TY[] extends TX[]
+        : TY extends TX
           ? [typeof PASSED]
           : [[TX, TY]]
 ) {
@@ -67,7 +108,7 @@ export function expectSafetyNotExtends<TX, TY>(
       ? [[UnknownType, TY]]
       : Equal<TX, any> extends true
         ? [[AnyType, TY]]
-        : TY[] extends TX[]
+        : TY extends TX
           ? [[TX, TY]]
           : [typeof PASSED]
 ) {
@@ -83,7 +124,7 @@ export type Equal<
   ? ([TX] extends [never] ? true : false) extends ([TY] extends [never] ? true : false)
     ? TTrue
     : TFalse
-  : TFalse
+  : TFalse;
 
 export type NotEqual<
   TX,

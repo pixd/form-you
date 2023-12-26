@@ -16,7 +16,7 @@ export default interface StringSchema<
   TShape extends string = string,
   TOptional extends boolean = any,
   TNullable extends boolean = any,
-  TContext extends Record<string, any> = object,
+  TContext extends object = object,
 > extends BaseSchema<ShapeData<TShape>, TOptional, TNullable, TContext> {
   apply<
     TNextShape extends TShape = TShape,
@@ -47,7 +47,7 @@ export default interface StringSchema<
   ): TReturned;
 
   context<
-    TNextContext extends SafetyType<TContext, Record<string, any>, object & Partial<TContext>> = TContext,
+    TNextContext extends SafetyType<TContext, object, object & Partial<TContext>> = TContext,
   >(): StringSchema<TShape, TOptional, TNullable, SafetyType<TContext, object> & TNextContext>;
 
   optional(): StringSchema<TShape, true, TNullable, TContext>;
@@ -79,7 +79,7 @@ export default class StringSchema<
   TShape extends string = string,
   TOptional extends boolean = any,
   TNullable extends boolean = any,
-  TContext extends Record<string, any> = object,
+  TContext extends object = object,
 > extends BaseSchema<ShapeData<TShape>, TOptional, TNullable, TContext> {
   public override Shape__TypeRef = '' as TShape;
 
@@ -97,11 +97,8 @@ export default class StringSchema<
 
   public static create<
     TShape extends string = string,
-    TContext extends Record<string, any> = object,
-  >(): StringSchema<TShape, false, false, TContext> {
-    const schema = new StringSchema<TShape, false, false, TContext>();
-
-    return schema;
+  >(): StringSchema<TShape, false, false> {
+    return new StringSchema();
   }
 
   public override getDefault(): DefaultData<TShape, TOptional, TNullable> {
@@ -115,7 +112,8 @@ export default class StringSchema<
         return this.defaultValue.data;
       }
       else {
-        return '' as DefaultData<TShape, TOptional, TNullable>;
+        // @ts-expect-error
+        return '';
       }
     }
   }

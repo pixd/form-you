@@ -55,13 +55,13 @@ export type RefinedSchema<
   TPath extends string,
   TReturned extends any,
 > = TPath extends `${infer TKey}.${infer TKeyRest}`
-  ? Simplify<Omit<TShape, TKey>
+  ? Omit<TShape, TKey>
     & {
       [key in TKey]: AtPath<TShape, TKey> extends ObjectSchema<infer TS, infer TO, infer TN, infer TC>
         ? ObjectSchema<RefinedSchema<TS, TKeyRest, TReturned>, TO, TN, TC>
         : never;
-    }>
-  : Simplify<Omit<TShape, TPath> & { [key in TPath]: TReturned }>
+    }
+  : Omit<TShape, TPath> & { [key in TPath]: TReturned };
 
 // @ts-ignore
 type AtPath<TData, TPath, TProp = null> = TProp extends string ? TData[TPath][TProp] : TData[TPath];

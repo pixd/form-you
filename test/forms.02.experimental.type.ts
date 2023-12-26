@@ -4,7 +4,7 @@ import { SchemaDataType, SchemaContextType } from '../src/types';
 import { expect, PASSED } from './tools/expect';
 
 type You<
-  TContext extends Record<string, any> = Record<string, any>,
+  TContext extends Record<string, any> = object,
 > = {
   string: {
     (): StringSchema<string, false, false, TContext>;
@@ -19,7 +19,7 @@ type You<
 };
 
 type CreateCb<
-  TContext extends Record<string, any> = Record<string, any>,
+  TContext extends Record<string, any> = object,
   TReturnType extends ObjectSchema = ObjectSchema,
 > = {
   (
@@ -28,7 +28,7 @@ type CreateCb<
 };
 
 type FormFactory<
-  TContext extends Record<string, any> = Record<string, any>,
+  TContext extends Record<string, any> = object,
 > = {
   create: {
     <
@@ -42,58 +42,33 @@ type FormFactory<
 type Form = {
   useContextSelector: {
     <
-      TContext extends Record<string, any> = Record<string, any>,
+      TContext extends Record<string, any> = object,
     >(
       selector: {
-        (): TContext;
+        (state: any): TContext;
       },
     ): FormFactory<TContext>;
   };
-  create: {
-    <
-      TReturnType extends ObjectSchema = ObjectSchema,
-    >(
-      createCb: CreateCb<Record<string, any>, TReturnType>,
-    ): TReturnType;
-  };
+  withContext: <
+    TContext extends Record<string, any> = Record<string, any>,
+  >() => FormFactory<TContext>;
 };
 
-function getYou<
-  TContext extends Record<string, any> = Record<string, any>,
->() {
-  return {
-    string: () => StringSchema.create(),
-    object: (...args: any[]) => ObjectSchema.create(...args),
-  } as You<TContext>;
-}
-
-// @ts-ignore
-const form: Form = {
-  useContextSelector: (() => {
-    return;
-  }) as any,
-  // withContext: (() => {
-  //   return;
-  // }) as any,
-  create: <
-    TReturnType extends ObjectSchema = ObjectSchema,
-  >(
-    cb: CreateCb<Record<string, never>, TReturnType>,
-  ): TReturnType => {
-    return cb(getYou());
-  },
-};
+const form = {} as Form;
 
 // CIRCULAR DEPENDENCY VARIANT
 {
-  const state = {} as { price: number; form: FormData };
+  type State = {
+    price: number;
+    form: FormData;
+  };
 
   type Context = {
     price: number;
     $: FormData;
   };
 
-  const selector = (): Context => ({ price: state.price, $: state.form });
+  const selector = (state: State): Context => ({ price: state.price, $: state.form });
 
   const myForm = form.useContextSelector(selector).create((you) => {
     return you.object({
@@ -115,9 +90,12 @@ const form: Form = {
 
 // BASE VARIANT
 {
-  const state = {} as { price: number; form: FormData };
+  type State = {
+    price: number;
+    form: FormData;
+  };
 
-  const selector = () => ({ price: state.price });
+  const selector = (state: State) => ({ price: state.price });
 
   const myForm = form.useContextSelector(selector).create((you) => {
     return you.object({
@@ -138,21 +116,26 @@ const form: Form = {
 }
 
 // CREATE VARIANT
-// {
-//   const myForm = form.create((you) => {
-//     return you.object({
-//       name: you.string().context<{ price: number }>().testContext((context) => {
-//         expect.equal<typeof context, { price: number }>(PASSED);
-//       }),
-//     }).context<{ price: number }>().testContext((context) => {
-//       expect.equal<typeof context, { price: number }>(PASSED);
-//     });
-//   });
-//
-//   type FormData = SchemaDataType<typeof myForm>;
-//   type FormContext = SchemaContextType<typeof myForm>;
-//
-//   expect.equal<FormData, { name: string }>(PASSED);
-//
-//   expect.equal<FormContext, { price: number }>(PASSED);
-// }
+{
+  type Context = {
+    price: number;
+    $: FormData;
+  };
+
+  const myForm = form.withContext<Context>().create((you) => {
+    return you.object({
+      name: you.string().testContext((context) => {
+        expect.equal<typeof context, { price: number; $: FormData }>(PASSED);
+      }),
+    }).testContext((context) => {
+      expect.equal<typeof context, { price: number; $: FormData }>(PASSED);
+    });
+  });
+
+  type FormData = SchemaDataType<typeof myForm>;
+  type FormContext = SchemaContextType<typeof myForm>;
+
+  expect.equal<FormData, { name: string }>(PASSED);
+
+  expect.equal<FormContext, { price: number; $: FormData }>(PASSED);
+}

@@ -1821,6 +1821,86 @@ describe('update', () => {
     }
 
     {
+      const user = {
+        name: 'Antonio',
+        bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+      };
+
+      const newUser = update(user, {
+        bonus: { $$apply: 10 },
+      });
+
+      expect(newUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
+      });
+    }
+
+    {
+      const user = {
+        name: 'Antonio',
+        bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+      };
+
+      const newUser = update(user, {
+        bonus: { $$apply: 10, skip: 2 },
+      });
+
+      expect(newUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [0, 1, 10, 10, 10, 10, 10, 10, 10, 10],
+      });
+    }
+
+    {
+      const user = {
+        name: 'Antonio',
+        bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+      };
+
+      const newUser = update(user, {
+        bonus: { $$apply: 10, skip: -2 },
+      });
+
+      expect(newUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [10, 10, 10, 10, 10, 10, 10, 10, 8, 9],
+      });
+    }
+
+    {
+      const user = {
+        name: 'Antonio',
+        bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+      };
+
+      const newUser = update(user, {
+        bonus: { $$apply: 10, length: 2 },
+      });
+
+      expect(newUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [10, 10, 2, 3, 4, 5, 6, 7, 8, 9],
+      });
+    }
+
+    {
+      const user = {
+        name: 'Antonio',
+        bonus: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+      };
+
+      const newUser = update(user, {
+        bonus: { $$apply: 10, length: -2 },
+      });
+
+      expect(newUser).toStrictEqual({
+        name: 'Antonio',
+        bonus: [0, 1, 2, 3, 4, 5, 6, 7, 10, 10],
+      });
+    }
+
+    {
       expect(update([] as number[], { $$apply: 2, length: 2 })).toStrictEqual([]);
     }
 

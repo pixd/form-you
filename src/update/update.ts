@@ -77,7 +77,7 @@ export function update(
         const { $$exclude: exclude, skip } = updatePayload;
         const nextData = [...data];
 
-        const startEndIndex = getStartEndIndex(data.length, exclude, skip ?? 0, [], nextData);
+        const startEndIndex = getIndexes(data.length, exclude, skip, [], nextData);
 
         if (Array.isArray(startEndIndex)) {
           return startEndIndex;
@@ -111,7 +111,7 @@ export function update(
         const { $$extract: extract, skip } = updatePayload;
         const nextData = [...data];
 
-        const startEndIndex = getStartEndIndex(data.length, extract, skip ?? 0, nextData, []);
+        const startEndIndex = getIndexes(data.length, extract, skip, nextData, []);
 
         if (Array.isArray(startEndIndex)) {
           return startEndIndex;
@@ -149,7 +149,7 @@ export function update(
 
         const removeElement = Symbol('removeElement');
 
-        const startEndIndex = getStartEndIndex(data.length, length, skip ?? 0, true, false);
+        const startEndIndex = getIndexes(data.length, length, skip, true, false);
 
         if (typeof startEndIndex === 'boolean') {
           if (startEndIndex) {
@@ -232,13 +232,14 @@ function getPositiveIndex(
   }
 }
 
-function getStartEndIndex<T>(
+function getIndexes<T>(
   dataLength: number,
-  length: number,
-  skip: undefined | number,
+  length: undefined | null | number,
+  skip: undefined | null | number,
   all: T,
   nothing: T,
 ): T | { start: number; end: number } {
+  length = length ?? dataLength;
   skip = skip ?? 0;
 
   if (length === 0) {

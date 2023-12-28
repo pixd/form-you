@@ -327,26 +327,16 @@ $$SWAP_PAYLOAD: {
   expect.safety.extends<UpdatePayload<State>, { users: { $$swap: [number, number] } }>(PASSED);
 }
 
-$$MERGE_PAYLOAD: {
+$$APPLY_PAYLOAD: {
   type User = { id: number; nick: string };
   type State = { users: User[] };
 
-  expect.safety.not.extends<UpdatePayload<State>, { users: { $$merge: User } }>(PASSED);
-  expect.safety.not.extends<UpdatePayload<State>, { users: { $$merge: Partial<User> } }>(PASSED);
-  expect.safety.extends<UpdatePayload<State>, { users: { $$merge: User[] } }>(PASSED);
-  expect.safety.extends<UpdatePayload<State>, { users: { $$merge: Partial<User>[] } }>(PASSED);
-  expect.safety.extends<UpdatePayload<State>, { users: { $$merge: User[]; at: undefined | null | number } }>(PASSED);
-  expect.safety.extends<UpdatePayload<State>, { users: { $$merge: Partial<User>[]; at: undefined | null | number } }>(PASSED);
-  expect.safety.extends<UpdatePayload<State>, { users: { $$merge: undefined } }>(PASSED);
-}
-
-$$MERGE_ALL_PAYLOAD: {
-  type User = { id: number; nick: string };
-  type State = { users: User[] };
-
-  expect.safety.extends<UpdatePayload<State>, { users: { $$mergeAll: User } }>(PASSED);
-  expect.safety.extends<UpdatePayload<State>, { users: { $$mergeAll: Partial<User> } }>(PASSED);
-  expect.safety.not.extends<UpdatePayload<State>, { users: { $$mergeAll: User[] } }>(PASSED);
-  expect.safety.not.extends<UpdatePayload<State>, { users: { $$mergeAll: Partial<User>[] } }>(PASSED);
-  expect.safety.extends<UpdatePayload<State>, { users: { $$mergeAll: undefined } }>(PASSED);
+  expect.safety.extends<UpdatePayload<State>, { users: { $$apply: User } }>(PASSED);
+  expect.safety.extends<UpdatePayload<State>, { users: { $$apply: Partial<User> } }>(PASSED);
+  expect.safety.extends<UpdatePayload<State>, { users: { $$apply: Partial<User>; length: number } }>(PASSED);
+  expect.safety.extends<UpdatePayload<State>, { users: { $$apply: Partial<User>; skip: number } }>(PASSED);
+  expect.safety.extends<UpdatePayload<State>, { users: { $$apply: Partial<User>; length: number ; skip: number } }>(PASSED);
+  expect.safety.not.extends<UpdatePayload<State>, { users: { $$apply: User[] } }>(PASSED);
+  expect.safety.not.extends<UpdatePayload<State>, { users: { $$apply: Partial<User>[] } }>(PASSED);
+  expect.safety.extends<UpdatePayload<State>, { users: { $$apply: undefined } }>(PASSED);
 }

@@ -50,7 +50,7 @@ export function isSetCommand<
 
 export type UnsetCommand = {
   $$unset: boolean;
-}
+};
 
 export function isUnsetCommand(
   instruction: any,
@@ -60,7 +60,7 @@ export function isUnsetCommand(
 
 export type DeleteCommand = {
   $$delete: boolean;
-}
+};
 
 export function isDeleteCommand(
   instruction: any,
@@ -164,7 +164,7 @@ export type ApplyCommand<
   TData extends any = any,
 > = {
   $$apply: UpdatePayload<TData>;
-  length: number;
+  length?: number;
   skip?: number;
 };
 
@@ -177,26 +177,13 @@ export function isApplyCommand<
 }
 
 /**
- * First variant:
- * $$append: Member[], skip?: number
- * $$prepend: Member[], skip?: number
+ * $$append: Member[], skip?: ±number = 0
+ * $$prepend: Member[], skip?: ±number = 0
  * $$exclude: number[]
- * $$exclude: number, skip?: number
+ * $$exclude: ±number, skip?: ±number = 0
  * $$extract: number[]
- * $$extract: number, skip?: number
+ * $$extract: ±number, skip?: ±number = 0
  * $$move: [number, number]
  * $$swap: [number, number]
- * $$merge: UpdatePayload<Member>[], at?: number
- * $$mergeAll: UpdatePayload<Member>
- *
- * Second variant (current):
- * $$append: Member[], skip?: number = 0
- * $$prepend: Member[], skip?: number = 0
- * $$exclude: number[]
- * $$exclude: number, skip?: number = 0
- * $$extract: number[]
- * $$extract: number, skip?: number = 0
- * $$move: [number, number]
- * $$swap: [number, number]
- * $$apply: UpdatePayload<Member>, length: number, skip?: number = 0
+ * $$apply: UpdatePayload<Member> | Delete<Member>, length?: ±number, skip?: ±number = 0
  */

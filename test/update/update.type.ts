@@ -1005,11 +1005,25 @@ $$MOVE_$$SWAP: {
 }
 
 $$APPLY: {
+  update(users, { $$apply: { id: 10, nick: 'Antonio' } });
   update(users, { $$apply: { id: 10, nick: 'Antonio' }, length: 1 });
+  update(users, { $$apply: { id: 10, nick: 'Antonio' }, skip: 1 });
+  update(users, { $$apply: { id: 10, nick: 'Antonio' }, length: 1, skip: 1 });
+  update(users, { $$apply: { id: 10 } });
   update(users, { $$apply: { id: 10 }, length: 1 });
-  // @ts-expect-error
+  update(users, { $$apply: { id: 10 }, skip: 1 });
+  update(users, { $$apply: { id: 10 }, length: 1, skip: 1 });
   update(users, { $$apply: { id: 10 }, length: undefined });
+  update(users, { $$apply: { id: 10 }, skip: undefined });
+  update(users, { $$apply: {} });
+  update(users, { $$apply: {}, length: 1 });
+  update(users, { $$apply: {}, skip: 1 });
+  update(users, { $$apply: {}, length: 1, skip: 1 });
+  update(users, { $$apply: {}, length: undefined });
+  update(users, { $$apply: {}, skip: undefined });
   // @ts-expect-error
   update(users, { $$apply: { id: 10 }, length: null });
+  // @ts-expect-error
+  update(users, { $$apply: { id: 10 }, skip: null });
   update(users, { $$apply: undefined });
 }

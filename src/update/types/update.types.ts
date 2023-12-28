@@ -11,7 +11,7 @@ type CanBeDeletedKeys<
   [K in keyof TData]-?: { [key in K]?: TData[K] } extends { [key in K]: TData[K] }
     ? K
     : never
-}[keyof TData]
+}[keyof TData];
 
 type GetCommand<
   TCommand extends any,
@@ -73,8 +73,8 @@ export type UpdatePayload<
     : TData extends Record<string, any>
       ? {
           [TKey in keyof TData]?:
-            | GetCommand<Delete<TData[TKey]>, TKey, CanBeDeletedKeys<TData>>
             | UpdatePayload<TData[TKey]>
+            | GetCommand<Delete<TData[TKey]>, TKey, CanBeDeletedKeys<TData>>
         } & { $$set?: never; $$unset?: never; $$delete?: never }
       : (TData | { $$set?: never; $$unset?: never; $$delete?: never })
 );
@@ -108,4 +108,4 @@ export type PathUpdateInstruction<
 > =
   | RootPathUpdateInstruction<TData>
   | CommonPathUpdateInstruction<TData>
-  | AnyPathUpdateInstruction<TData>
+  | AnyPathUpdateInstruction<TData>;

@@ -37,7 +37,7 @@ type FormFactory<
       createCb: CreateCb<TContext, TReturnType>,
     ): TReturnType;
   };
-}
+};
 
 type Form = {
   useContextSelector: {

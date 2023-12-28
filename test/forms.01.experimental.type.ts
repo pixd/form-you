@@ -38,7 +38,7 @@ import { expect, PASSED } from './tools/expect';
         createCb: CreateCb<TContext, TReturnType>,
       ): TReturnType;
     };
-  }
+  };
 
   type Form = {
     withContext: <

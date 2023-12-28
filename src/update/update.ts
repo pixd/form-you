@@ -61,6 +61,9 @@ export function update(
 
         const nextArray = [...data];
         exclude.forEach((key) => {
+          if (key < 0) {
+            key = data.length + key;
+          }
           if (key in nextArray) {
             nextArray[key] = excludeElement;
           }
@@ -96,6 +99,9 @@ export function update(
         const { $$extract: extract } = updatePayload;
 
         return extract.reduce((nextArray, key) => {
+          if (key < 0) {
+            key = data.length + key;
+          }
           if (key in data) {
             nextArray.push(data[key]);
           }

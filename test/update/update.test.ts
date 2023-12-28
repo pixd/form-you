@@ -850,18 +850,22 @@ describe('update', () => {
     {
       const newUser = update(user, {
         bonus: {
-          $$exclude: [0, 2, 4, 100],
+          $$exclude: [0, 2, 4, 100, -2, -4, -100],
         },
       });
 
       expect(newUser).toStrictEqual({
         name: 'Antonio',
-        bonus: [1, 3, 5, 6, 7, 8, 9],
+        bonus: [1, 3, 5, 7, 9],
       });
     }
 
     {
-      expect(update([] as number[], { $$exclude: [0] })).toStrictEqual([]);
+      expect(update([] as number[], { $$exclude: [2] })).toStrictEqual([]);
+    }
+
+    {
+      expect(update([] as number[], { $$exclude: [-2] })).toStrictEqual([]);
     }
   });
 
@@ -1092,18 +1096,22 @@ describe('update', () => {
     {
       const newUser = update(user, {
         bonus: {
-          $$extract: [0, 2, 4, 100],
+          $$extract: [0, 2, 4, 100, -2, -4, -100],
         },
       });
 
       expect(newUser).toStrictEqual({
         name: 'Antonio',
-        bonus: [0, 2, 4],
+        bonus: [0, 2, 4, 8, 6],
       });
     }
 
     {
-      expect(update([] as number[], { $$extract: [0] })).toStrictEqual([]);
+      expect(update([] as number[], { $$extract: [2] })).toStrictEqual([]);
+    }
+
+    {
+      expect(update([] as number[], { $$extract: [-2] })).toStrictEqual([]);
     }
   });
 

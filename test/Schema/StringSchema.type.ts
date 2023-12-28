@@ -69,7 +69,7 @@ import { expect, PASSED } from '../tools/expect';
  */
 {
   {
-    expect.equal<Parameters<typeof StringSchema.create>, []>(PASSED)
+    expect.equal<Parameters<typeof StringSchema.create>, []>(PASSED);
   }
 
   {
@@ -505,8 +505,7 @@ import { expect, PASSED } from '../tools/expect';
 
     type ContextType = SchemaContextType<typeof schema>;
 
-    // @ts-expect-error
-    expect.equal<ContextType, { sale: number[] }>(PASSED);
+    expect.not.equal<ContextType, { sale: number[] }>(PASSED);
     expect.__UNSAFE__mutuallyEqual<ContextType, { sale: number[] }>(PASSED);
   }
 

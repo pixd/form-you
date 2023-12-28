@@ -281,7 +281,7 @@ export default abstract class BaseSchema<
     });
   }
 
-  public abstract getDefault(): SchemaData<TData, TOptional, TNullable>
+  public abstract getDefault(): SchemaData<TData, TOptional, TNullable>;
 
   protected getDefaultValueBase(): null | { data: SchemaData<TData, TOptional, TNullable> } {
     if (this.defaultValue) {

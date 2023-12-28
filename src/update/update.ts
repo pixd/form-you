@@ -10,7 +10,7 @@ export function update<
 >(
   data: TData,
   update: UpdatePayload<TData>,
-): TData
+): TData;
 
 export function update(
   data: any,

@@ -276,8 +276,7 @@ import { expect, PASSED } from '../tools/expect';
 
     const userSchema = ObjectSchema.create(shapeA).concat(shapeB);
 
-    // @ts-expect-error
-    expect.equal<SchemaShapeType<typeof userSchema>, typeof shapeA & typeof shapeB>(PASSED);
+    expect.not.equal<SchemaShapeType<typeof userSchema>, typeof shapeA & typeof shapeB>(PASSED);
     expect.__UNSAFE__mutuallyEqual<SchemaShapeType<typeof userSchema>, typeof shapeA & typeof shapeB>(PASSED);
   }
 }
@@ -1116,6 +1115,25 @@ import { expect, PASSED } from '../tools/expect';
 
   {
     type Context = {
+      price: undefined;
+    };
+
+    type NextContext = {
+      price: number;
+    };
+
+    const schema = ObjectSchema.create()
+      .context<Context>()
+      // @ts-expect-error
+      .context<NextContext>();
+
+    type ContextType = SchemaContextType<typeof schema>;
+
+    expect.equal<ContextType, never>(PASSED);
+  }
+
+  {
+    type Context = {
       price: number;
     };
 
@@ -1125,6 +1143,7 @@ import { expect, PASSED } from '../tools/expect';
 
     const schema = ObjectSchema.create()
       .context<Context>()
+      // TODO This should be an error
       .context<NextContext>();
 
     type ContextType = SchemaContextType<typeof schema>;
@@ -1154,6 +1173,21 @@ import { expect, PASSED } from '../tools/expect';
 
   {
     type Context = {
+      price: undefined;
+    };
+
+    type NextContext = {
+      price: undefined | number;
+    };
+
+    ObjectSchema.create()
+      .context<Context>()
+      // @ts-expect-error
+      .context<NextContext>();
+  }
+
+  {
+    type Context = {
       price?: number;
     };
 
@@ -1170,6 +1204,21 @@ import { expect, PASSED } from '../tools/expect';
     expect.equal<ContextType, {
       price: undefined;
     }>(PASSED);
+  }
+
+  {
+    type Context = {
+      price: undefined;
+    };
+
+    type NextContext = {
+      price?: number;
+    };
+
+    ObjectSchema.create()
+      .context<Context>()
+      // @ts-expect-error
+      .context<NextContext>();
   }
 
   {
@@ -1237,9 +1286,12 @@ import { expect, PASSED } from '../tools/expect';
 
     type ContextType = SchemaContextType<typeof schema>;
 
-    // @ts-expect-error
-    expect.equal<ContextType, { sale: number[] }>(PASSED);
-    expect.__UNSAFE__mutuallyEqual<ContextType, { sale: number[] }>(PASSED);
+    expect.not.equal<ContextType, {
+      sale: number[];
+    }>(PASSED);
+    expect.__UNSAFE__mutuallyEqual<ContextType, {
+      sale: number[];
+    }>(PASSED);
   }
 
   {
@@ -1249,6 +1301,27 @@ import { expect, PASSED } from '../tools/expect';
 
     type NextContext = {
       sale: (number | string)[];
+    };
+
+    ObjectSchema.create()
+      .context<Context>()
+      // @ts-expect-error
+      .context<NextContext>();
+  }
+
+  {
+    type Context = {
+      user: {
+        nick: string;
+        bonus: number;
+      };
+    };
+
+    type NextContext = {
+      user: {
+        bonus: number;
+        friend: string;
+      };
     };
 
     ObjectSchema.create()
@@ -1314,7 +1387,11 @@ import { expect, PASSED } from '../tools/expect';
         .context<{ company: string; active: boolean }>(),
     });
 
-    expect.equal<SchemaContextType<typeof schema>, { friend: string; company: string; active: boolean }>(PASSED);
+    expect.equal<SchemaContextType<typeof schema>, {
+      friend: string;
+      company: string;
+      active: boolean;
+    }>(PASSED);
   }
 
   {
@@ -1327,7 +1404,31 @@ import { expect, PASSED } from '../tools/expect';
           .context<{ company: string; active: boolean }>(),
       });
 
-    expect.equal<SchemaContextType<typeof schema>, { friend: string; company: string; active: boolean }>(PASSED);
+    expect.equal<SchemaContextType<typeof schema>, {
+      friend: string;
+      company: string;
+      active: boolean;
+    }>(PASSED);
+  }
+
+  {
+    const schema = ObjectSchema.create({
+      user: ObjectSchema.create({
+        friend: ObjectSchema.create({
+          name: StringSchema.create()
+            .context<{ name: any }>(),
+        })
+          .context<{ friend: any }>(),
+      })
+        .context<{ user: any }>(),
+    }).context<{ schema: any }>();
+
+    expect.equal<SchemaContextType<typeof schema>, {
+      schema: any;
+      user: any;
+      friend: any;
+      name: any;
+    }>(PASSED);
   }
 }
 
@@ -1564,8 +1665,7 @@ import { expect, PASSED } from '../tools/expect';
       }),
     });
 
-    // @ts-expect-error
-    expect.equal<SchemaDataType<typeof nextSchema>, { user: { name: string } }>(PASSED);
+    expect.not.equal<SchemaDataType<typeof nextSchema>, { user: { name: string } }>(PASSED);
     expect.__UNSAFE__mutuallyEqual<SchemaDataType<typeof nextSchema>, { user: { name: string } }>(PASSED);
   }
 
@@ -1580,8 +1680,7 @@ import { expect, PASSED } from '../tools/expect';
       }),
     });
 
-    // @ts-expect-error
-    expect.equal<SchemaDataType<typeof nextSchema>, { user: { name: string } }>(PASSED);
+    expect.not.equal<SchemaDataType<typeof nextSchema>, { user: { name: string } }>(PASSED);
     expect.__UNSAFE__mutuallyEqual<SchemaDataType<typeof nextSchema>, { user: { name: string } }>(PASSED);
   }
 
@@ -1856,20 +1955,16 @@ import { expect, PASSED } from '../tools/expect';
     });
 
     expect.safety.extends<typeof schema, typeof idNotNullableSchema>(PASSED);
-    // @ts-expect-error
-    expect.equal<typeof idNotNullableSchema, typeof expectedIdNotNullableSchema>(PASSED);
+    expect.not.equal<typeof idNotNullableSchema, typeof expectedIdNotNullableSchema>(PASSED);
     expect.__UNSAFE__mutuallyEqual<typeof idNotNullableSchema, typeof expectedIdNotNullableSchema>(PASSED);
     expect.safety.extends<typeof schema, typeof nickNotOptionalSchema>(PASSED);
-    // @ts-expect-error
-    expect.equal<typeof nickNotOptionalSchema, typeof expectedNickNotOptionalSchema>(PASSED);
+    expect.not.equal<typeof nickNotOptionalSchema, typeof expectedNickNotOptionalSchema>(PASSED);
     expect.__UNSAFE__mutuallyEqual<typeof nickNotOptionalSchema, typeof expectedNickNotOptionalSchema>(PASSED);
     expect.safety.extends<typeof schema, typeof friendIdNotNullableSchema>(PASSED);
-    // @ts-expect-error
-    expect.equal<typeof friendIdNotNullableSchema, typeof expectedFriendIdNotNullableSchema>(PASSED);
+    expect.not.equal<typeof friendIdNotNullableSchema, typeof expectedFriendIdNotNullableSchema>(PASSED);
     expect.__UNSAFE__mutuallyEqual<typeof friendIdNotNullableSchema, typeof expectedFriendIdNotNullableSchema>(PASSED);
     expect.safety.extends<typeof schema, typeof friendNickNotOptionalSchema>(PASSED);
-    // @ts-expect-error
-    expect.equal<typeof friendNickNotOptionalSchema, typeof expectedFriendNickNotOptionalSchema>(PASSED);
+    expect.not.equal<typeof friendNickNotOptionalSchema, typeof expectedFriendNickNotOptionalSchema>(PASSED);
     expect.__UNSAFE__mutuallyEqual<typeof friendNickNotOptionalSchema, typeof expectedFriendNickNotOptionalSchema>(PASSED);
   }
 }

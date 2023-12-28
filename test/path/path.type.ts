@@ -338,7 +338,7 @@ import { expect, PASSED } from '../tools/expect';
     type Boss = {
       isPatron: boolean;
       data: User;
-    }
+    };
 
     type User = {
       nick: string;

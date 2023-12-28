@@ -25,7 +25,7 @@ type ShapePattern<
   TShape extends Shape = Shape,
 > = [TShape] extends [never]
   ? Record<string, any>
-  : Record<string, any> & Partial<TShape>
+  : Record<string, any> & Partial<TShape>;
 
 type DefinedShapeProps<
   TShape extends Shape = Shape,

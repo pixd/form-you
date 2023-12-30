@@ -1,6 +1,6 @@
 {
   "name": "form-you",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Create forms with redux and yup-like definition and validation",
   "main": "lib/index.js",
   "module": "lib/index.esm.js",

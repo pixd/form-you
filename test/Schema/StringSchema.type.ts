@@ -276,7 +276,8 @@ import { expect, PASSED } from '../tools/expect';
       price: number;
     };
 
-    const schema = StringSchema.create().context<Context>();
+    const schema = StringSchema.create()
+      .context<Context>();
 
     type ContextType = SchemaContextType<typeof schema>;
 
@@ -290,7 +291,8 @@ import { expect, PASSED } from '../tools/expect';
       price?: number;
     };
 
-    const schema = StringSchema.create().context<Context>();
+    const schema = StringSchema.create()
+      .context<Context>();
 
     type ContextType = SchemaContextType<typeof schema>;
 
@@ -308,7 +310,9 @@ import { expect, PASSED } from '../tools/expect';
       name: string;
     };
 
-    const schema = StringSchema.create().context<Context>().context<NextContext>();
+    const schema = StringSchema.create()
+      .context<Context>()
+      .context<NextContext>();
 
     type ContextType = SchemaContextType<typeof schema>;
 
@@ -327,7 +331,9 @@ import { expect, PASSED } from '../tools/expect';
       name: string;
     };
 
-    const schema = StringSchema.create().context<Context>().context<NextContext>();
+    const schema = StringSchema.create()
+      .context<Context>()
+      .context<NextContext>();
 
     type ContextType = SchemaContextType<typeof schema>;
 
@@ -346,7 +352,9 @@ import { expect, PASSED } from '../tools/expect';
       name?: string;
     };
 
-    const schema = StringSchema.create().context<Context>().context<NextContext>();
+    const schema = StringSchema.create()
+      .context<Context>()
+      .context<NextContext>();
 
     type ContextType = SchemaContextType<typeof schema>;
 
@@ -365,7 +373,9 @@ import { expect, PASSED } from '../tools/expect';
       price: number;
     };
 
-    const schema = StringSchema.create().context<Context>().context<NextContext>();
+    const schema = StringSchema.create()
+      .context<Context>()
+      .context<NextContext>();
 
     type ContextType = SchemaContextType<typeof schema>;
 
@@ -383,7 +393,9 @@ import { expect, PASSED } from '../tools/expect';
       price?: number;
     };
 
-    const schema = StringSchema.create().context<Context>().context<NextContext>();
+    const schema = StringSchema.create()
+      .context<Context>()
+      .context<NextContext>();
 
     type ContextType = SchemaContextType<typeof schema>;
 
@@ -401,7 +413,10 @@ import { expect, PASSED } from '../tools/expect';
       price: undefined;
     };
 
-    const schema = StringSchema.create().context<Context>().context<NextContext>();
+    const schema = StringSchema.create()
+      .context<Context>()
+      // TODO This should be an error
+      .context<NextContext>();
 
     type ContextType = SchemaContextType<typeof schema>;
 
@@ -417,7 +432,9 @@ import { expect, PASSED } from '../tools/expect';
       price: undefined;
     };
 
-    const schema = StringSchema.create().context<Context>().context<NextContext>();
+    const schema = StringSchema.create()
+      .context<Context>()
+      .context<NextContext>();
 
     type ContextType = SchemaContextType<typeof schema>;
 
@@ -435,7 +452,9 @@ import { expect, PASSED } from '../tools/expect';
       price: undefined;
     };
 
-    const schema = StringSchema.create().context<Context>().context<NextContext>();
+    const schema = StringSchema.create()
+      .context<Context>()
+      .context<NextContext>();
 
     type ContextType = SchemaContextType<typeof schema>;
 
@@ -453,7 +472,9 @@ import { expect, PASSED } from '../tools/expect';
       sale: string;
     };
 
-    const schema = StringSchema.create().context<Context>().context<NextContext>();
+    const schema = StringSchema.create()
+      .context<Context>()
+      .context<NextContext>();
 
     type ContextType = SchemaContextType<typeof schema>;
 
@@ -501,7 +522,9 @@ import { expect, PASSED } from '../tools/expect';
       sale: number[];
     };
 
-    const schema = StringSchema.create().context<Context>().context<NextContext>();
+    const schema = StringSchema.create()
+      .context<Context>()
+      .context<NextContext>();
 
     type ContextType = SchemaContextType<typeof schema>;
 

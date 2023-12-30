@@ -28,25 +28,25 @@ type PreventControls<
 type ExcludeDataKeys<
   TData extends any,
 > = Exclude<TData, undefined> extends Record<string, any>
-  ? { [key in keyof TData]?: never }
+  ? { [key in keyof TData]?: undefined }
   : {};
 
 type Set<
   TData extends any,
 > = SetCommand<TData>
-  & { $$unset?: never; $$delete?: never; [key: number]: never }
+  & { $$unset?: undefined; $$delete?: undefined; [key: number]: never }
   & ExcludeDataKeys<TData>;
 
 type Unset<
   TData extends any,
 > = UnsetCommand
-  & { $$set?: never; $$delete?: never; [key: number]: never }
+  & { $$set?: undefined; $$delete?: undefined; [key: number]: never }
   & ExcludeDataKeys<TData>;
 
 type Delete<
   TData extends any,
 > = DeleteCommand
-  & { $$set?: never; $$unset?: never; [key: number]: never }
+  & { $$set?: undefined; $$unset?: undefined; [key: number]: never }
   & ExcludeDataKeys<TData>;
 
 export type UpdatePayload<
@@ -75,8 +75,8 @@ export type UpdatePayload<
           [TKey in keyof TData]?:
             | UpdatePayload<TData[TKey]>
             | GetCommand<Delete<TData[TKey]>, TKey, CanBeDeletedKeys<TData>>
-        } & { $$set?: never; $$unset?: never; $$delete?: never }
-      : (TData | { $$set?: never; $$unset?: never; $$delete?: never })
+        } & { $$set?: undefined; $$unset?: undefined; $$delete?: undefined }
+      : (TData | { $$set?: undefined; $$unset?: undefined; $$delete?: undefined })
 );
 
 export type AnyPath = (number | string)[];

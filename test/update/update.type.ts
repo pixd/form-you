@@ -1,3 +1,6 @@
+/* eslint no-unused-labels: "off" */
+
+
 import { update } from '../../src/update/update';
 
 type User = {

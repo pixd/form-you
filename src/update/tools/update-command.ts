@@ -15,21 +15,21 @@ export const COMMAND_KEYS = [
 ];
 
 export type Controls = {
-  $$set?: never;
-  $$unset?: never;
-  $$delete?: never;
+  $$set?: undefined;
+  $$unset?: undefined;
+  $$delete?: undefined;
 
-  $$append?: never;
-  $$prepend?: never;
-  $$exclude?: never;
-  $$extract?: never;
-  $$move?: never;
-  $$swap?: never;
-  $$apply?: never;
+  $$append?: undefined;
+  $$prepend?: undefined;
+  $$exclude?: undefined;
+  $$extract?: undefined;
+  $$move?: undefined;
+  $$swap?: undefined;
+  $$apply?: undefined;
 
-  length?: never;
-  skip?: never;
-  at?: never;
+  length?: undefined;
+  skip?: undefined;
+  at?: undefined;
 
   [key: number]: never;
 };
@@ -164,8 +164,8 @@ export type ApplyCommand<
   TData extends any = any,
 > = {
   $$apply: UpdatePayload<TData>;
-  length?: number;
-  skip?: number;
+  length?: undefined | number;
+  skip?: undefined | number;
 };
 
 export function isApplyCommand<

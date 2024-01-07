@@ -14,7 +14,61 @@ type User = {
   };
 };
 
-OBJECT_UPDATE_PAYLOAD: {
+undefined_update_payload: {
+  expect.safety.extends<UpdatePayload<undefined>, { $$set: undefined }>(PASSED);
+  expect.safety.not.extends<UpdatePayload<undefined>, { $$set: null }>(PASSED);
+  expect.safety.not.extends<UpdatePayload<undefined>, { $$set: number }>(PASSED);
+  expect.safety.extends<UpdatePayload<undefined>, { $$unset: boolean }>(PASSED);
+  expect.safety.not.extends<UpdatePayload<undefined>, { $$delete: boolean }>(PASSED);
+  expect.safety.not.extends<UpdatePayload<undefined>, { $$append: number }>(PASSED);
+  expect.safety.not.extends<UpdatePayload<undefined>, { $$prepend: number }>(PASSED);
+  expect.safety.not.extends<UpdatePayload<undefined>, { $$exclude: number }>(PASSED);
+  expect.safety.not.extends<UpdatePayload<undefined>, { $$extract: number }>(PASSED);
+  expect.safety.not.extends<UpdatePayload<undefined>, { $$move: [number, number] }>(PASSED);
+  expect.safety.not.extends<UpdatePayload<undefined>, { $$swap: [number, number] }>(PASSED);
+  expect.safety.extends<UpdatePayload<undefined>, { $$apply: undefined }>(PASSED);
+  expect.safety.not.extends<UpdatePayload<undefined>, { $$apply: null }>(PASSED);
+  expect.safety.not.extends<UpdatePayload<undefined>, { $$apply: number }>(PASSED);
+  expect.safety.not.extends<UpdatePayload<undefined>, { $$apply: { value: number } }>(PASSED);
+}
+
+null_update_payload: {
+  expect.safety.extends<UpdatePayload<null>, { $$set: undefined }>(PASSED);
+  expect.safety.extends<UpdatePayload<null>, { $$set: null }>(PASSED);
+  expect.safety.not.extends<UpdatePayload<null>, { $$set: number }>(PASSED);
+  expect.safety.not.extends<UpdatePayload<null>, { $$unset: boolean }>(PASSED);
+  expect.safety.not.extends<UpdatePayload<null>, { $$delete: boolean }>(PASSED);
+  expect.safety.not.extends<UpdatePayload<null>, { $$append: number }>(PASSED);
+  expect.safety.not.extends<UpdatePayload<null>, { $$prepend: number }>(PASSED);
+  expect.safety.not.extends<UpdatePayload<null>, { $$exclude: number }>(PASSED);
+  expect.safety.not.extends<UpdatePayload<null>, { $$extract: number }>(PASSED);
+  expect.safety.not.extends<UpdatePayload<null>, { $$move: [number, number] }>(PASSED);
+  expect.safety.not.extends<UpdatePayload<null>, { $$swap: [number, number] }>(PASSED);
+  expect.safety.extends<UpdatePayload<undefined>, { $$apply: undefined }>(PASSED);
+  expect.safety.not.extends<UpdatePayload<undefined>, { $$apply: null }>(PASSED);
+  expect.safety.not.extends<UpdatePayload<undefined>, { $$apply: number }>(PASSED);
+  expect.safety.not.extends<UpdatePayload<null>, { $$apply: { value: number } }>(PASSED);
+}
+
+scalar_update_payload: {
+  expect.safety.extends<UpdatePayload<number>, { $$set: undefined }>(PASSED);
+  expect.safety.not.extends<UpdatePayload<number>, { $$set: null }>(PASSED);
+  expect.safety.extends<UpdatePayload<number>, { $$set: number }>(PASSED);
+  expect.safety.not.extends<UpdatePayload<number>, { $$unset: boolean }>(PASSED);
+  expect.safety.not.extends<UpdatePayload<number>, { $$delete: boolean }>(PASSED);
+  expect.safety.not.extends<UpdatePayload<number>, { $$append: number }>(PASSED);
+  expect.safety.not.extends<UpdatePayload<number>, { $$prepend: number }>(PASSED);
+  expect.safety.not.extends<UpdatePayload<number>, { $$exclude: number }>(PASSED);
+  expect.safety.not.extends<UpdatePayload<number>, { $$extract: number }>(PASSED);
+  expect.safety.not.extends<UpdatePayload<number>, { $$move: [number, number] }>(PASSED);
+  expect.safety.not.extends<UpdatePayload<string>, { $$swap: [number, number] }>(PASSED);
+  expect.safety.extends<UpdatePayload<undefined>, { $$apply: undefined }>(PASSED);
+  expect.safety.not.extends<UpdatePayload<undefined>, { $$apply: null }>(PASSED);
+  expect.safety.not.extends<UpdatePayload<undefined>, { $$apply: number }>(PASSED);
+  expect.safety.not.extends<UpdatePayload<number>, { $$apply: { value: number } }>(PASSED);
+}
+
+object_update_payload: {
   expect.safety.extends<UpdatePayload<User>, User>(PASSED);
   expect.safety.extends<UpdatePayload<User>, Partial<User>>(PASSED);
   expect.safety.extends<UpdatePayload<User>, undefined>(PASSED);
@@ -66,7 +120,7 @@ OBJECT_UPDATE_PAYLOAD: {
   expect.safety.extends<UpdatePayload<User>, { $$delete: undefined; nonexistent: undefined }>(PASSED);
 }
 
-OBJECT_OR_UNDEFINED_UPDATE_PAYLOAD: {
+object_or_undefined_update_payload: {
   expect.safety.extends<UpdatePayload<undefined | User>, User>(PASSED);
   expect.safety.extends<UpdatePayload<undefined | User>, Partial<User>>(PASSED);
   expect.safety.extends<UpdatePayload<undefined | User>, undefined>(PASSED);
@@ -118,12 +172,12 @@ OBJECT_OR_UNDEFINED_UPDATE_PAYLOAD: {
   expect.safety.extends<UpdatePayload<undefined | User>, { $$delete: undefined; nonexistent: undefined }>(PASSED);
 }
 
-NONEXISTENT_PROP_UPDATE_PAYLOAD: {
+nonexistent_prop_update_payload: {
   expect.safety.not.extends<UpdatePayload<User>, { nonexistent: string }>(PASSED);
   expect.safety.not.extends<UpdatePayload<User>, { nonexistent: undefined }>(PASSED);
 }
 
-VALUE_UPDATE_PAYLOAD: {
+value_update_payload: {
   expect.safety.extends<UpdatePayload<User>, { id: number }>(PASSED);
   expect.safety.extends<UpdatePayload<User>, { id: undefined }>(PASSED);
   expect.safety.extends<UpdatePayload<User>, { id: undefined; nick: string }>(PASSED);
@@ -157,7 +211,7 @@ VALUE_UPDATE_PAYLOAD: {
   expect.safety.extends<UpdatePayload<User>, { id: { $$delete: undefined; nonexistent: undefined } }>(PASSED);
 }
 
-VALUE_OR_UNDEFINED_UPDATE_PAYLOAD: {
+value_or_undefined_update_payload: {
   expect.safety.extends<UpdatePayload<User>, { nick: string }>(PASSED);
   expect.safety.extends<UpdatePayload<User>, { nick: undefined }>(PASSED);
   expect.safety.extends<UpdatePayload<User>, { nick: undefined; id: number }>(PASSED);
@@ -191,7 +245,7 @@ VALUE_OR_UNDEFINED_UPDATE_PAYLOAD: {
   expect.safety.extends<UpdatePayload<User>, { nick: { $$delete: undefined; nonexistent: undefined } }>(PASSED);
 }
 
-OPTIONAL_VALUE_UPDATE_PAYLOAD: {
+optional_value_update_payload: {
   expect.safety.extends<UpdatePayload<User>, { enabled: boolean }>(PASSED);
   expect.safety.extends<UpdatePayload<User>, { enabled: undefined }>(PASSED);
   expect.safety.extends<UpdatePayload<User>, { enabled: undefined; nick: string }>(PASSED);
@@ -225,7 +279,7 @@ OPTIONAL_VALUE_UPDATE_PAYLOAD: {
   expect.safety.extends<UpdatePayload<User>, { enabled: { $$delete: undefined; nonexistent: undefined } }>(PASSED);
 }
 
-OPTIONAL_VALUE_OR_UNDEFINED_UPDATE_PAYLOAD: {
+optional_value_or_undefined_update_payload: {
   expect.safety.extends<UpdatePayload<User>, { team: string }>(PASSED);
   expect.safety.extends<UpdatePayload<User>, { team: undefined }>(PASSED);
   expect.safety.extends<UpdatePayload<User>, { team: undefined; id: number }>(PASSED);
@@ -259,7 +313,7 @@ OPTIONAL_VALUE_OR_UNDEFINED_UPDATE_PAYLOAD: {
   expect.safety.extends<UpdatePayload<User>, { team: { $$delete: undefined; nonexistent: undefined } }>(PASSED);
 }
 
-ARRAY_UPDATE_PAYLOAD: {
+array_update_payload: {
   type User = { id: number; nick: string };
   type State = { users: User[] };
 
@@ -273,7 +327,7 @@ ARRAY_UPDATE_PAYLOAD: {
   expect.safety.not.extends<UpdatePayload<State>, { users: number[] }>(PASSED);
 }
 
-$$APPEND_PAYLOAD: {
+$$append_payload: {
   type User = { id: number; nick: string };
   type State = { users: User[] };
 
@@ -284,7 +338,7 @@ $$APPEND_PAYLOAD: {
   expect.safety.extends<UpdatePayload<State>, { users: { $$append: User[]; skip: undefined | null | number } }>(PASSED);
 }
 
-$$PREPEND_PAYLOAD: {
+$$prepend_payload: {
   type User = { id: number; nick: string };
   type State = { users: User[] };
 
@@ -295,7 +349,7 @@ $$PREPEND_PAYLOAD: {
   expect.safety.extends<UpdatePayload<State>, { users: { $$prepend: User[]; skip: undefined | null | number } }>(PASSED);
 }
 
-$$EXCLUDE_PAYLOAD: {
+$$exclude_payload: {
   type User = { id: number; nick: string };
   type State = { users: User[] };
 
@@ -304,7 +358,7 @@ $$EXCLUDE_PAYLOAD: {
   expect.safety.extends<UpdatePayload<State>, { users: { $$exclude: number; skip: undefined | null | number } }>(PASSED);
 }
 
-$$EXTRACT_PAYLOAD: {
+$$extract_payload: {
   type User = { id: number; nick: string };
   type State = { users: User[] };
 
@@ -313,21 +367,21 @@ $$EXTRACT_PAYLOAD: {
   expect.safety.extends<UpdatePayload<State>, { users: { $$extract: number; skip: undefined | null | number } }>(PASSED);
 }
 
-$$MOVE_PAYLOAD: {
+$$move_payload: {
   type User = { id: number; nick: string };
   type State = { users: User[] };
 
   expect.safety.extends<UpdatePayload<State>, { users: { $$move: [number, number] } }>(PASSED);
 }
 
-$$SWAP_PAYLOAD: {
+$$swap_payload: {
   type User = { id: number; nick: string };
   type State = { users: User[] };
 
   expect.safety.extends<UpdatePayload<State>, { users: { $$swap: [number, number] } }>(PASSED);
 }
 
-$$APPLY_PAYLOAD: {
+$$apply_payload: {
   type User = { id: number; nick: string };
   type State = { users: User[] };
 

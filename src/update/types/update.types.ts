@@ -1,5 +1,6 @@
 import { PathValue, PossiblePath, PossibleValue } from '../../path/path.types';
 import { Controls } from '../tools/update-command';
+
 // Commands
 import { AppendCommand, ApplyCommand, DeleteCommand, ExcludeCommand,
   ExcludeRowCommand, ExtractCommand, ExtractRowCommand, MoveCommand,
@@ -21,15 +22,17 @@ type GetCommand<
   ? TCommand
   : never;
 
-type PreventControls<
+type PreventDuality<
   T extends Record<string, any>,
 > = Omit<Controls, keyof T> & T;
+
+type PreventBaseCommand = { $$set?: undefined; $$unset?: undefined; $$delete?: undefined };
 
 type ExcludeDataKeys<
   TData extends any,
 > = Exclude<TData, undefined> extends Record<string, any>
   ? { [key in keyof TData]?: undefined }
-  : {};
+  : object;
 
 type Set<
   TData extends any,
@@ -55,40 +58,40 @@ export type UpdatePayload<
   TData extends (infer I)[]
     ?
       | I[]
-      | PreventControls<{
+      | PreventDuality<{
           [key in number]:
             | undefined
             | UpdatePayload<I>
             | Delete<I>
         }> & ExcludeDataKeys<I>
-      | PreventControls<AppendCommand<I>>
-      | PreventControls<PrependCommand<I>>
-      | PreventControls<ExcludeCommand>
-      | PreventControls<ExcludeRowCommand>
-      | PreventControls<ExtractCommand>
-      | PreventControls<ExtractRowCommand>
-      | PreventControls<MoveCommand>
-      | PreventControls<SwapCommand>
-      | PreventControls<ApplyCommand<I>>
+      | PreventDuality<AppendCommand<I>>
+      | PreventDuality<PrependCommand<I>>
+      | PreventDuality<ExcludeCommand>
+      | PreventDuality<ExcludeRowCommand>
+      | PreventDuality<ExtractCommand>
+      | PreventDuality<ExtractRowCommand>
+      | PreventDuality<MoveCommand>
+      | PreventDuality<SwapCommand>
+      | PreventDuality<ApplyCommand<I>>
     : TData extends Record<string, any>
       ? {
           [TKey in keyof TData]?:
             | UpdatePayload<TData[TKey]>
             | GetCommand<Delete<TData[TKey]>, TKey, CanBeDeletedKeys<TData>>
-        } & { $$set?: undefined; $$unset?: undefined; $$delete?: undefined }
-      : (TData | { $$set?: undefined; $$unset?: undefined; $$delete?: undefined })
+        } & PreventBaseCommand
+      : (TData | PreventBaseCommand)
 );
 
 export type AnyPath = (number | string)[];
 
-export type RootPathUpdateInstruction<
+export type RootUpdateInstruction<
   TData extends Record<string, any>,
 > = {
-  path?: never;
+  path?: undefined | null;
   update: UpdatePayload<TData>;
 };
 
-export type CommonPathUpdateInstruction<
+export type PathUpdateInstruction<
   TData extends Record<string, any>,
   TPath extends PossiblePath<TData> = PossiblePath<TData>,
 > = {
@@ -103,9 +106,9 @@ export type AnyPathUpdateInstruction<
   update: UpdatePayload<PossibleValue<TData>>;
 };
 
-export type PathUpdateInstruction<
+export type UpdateInstruction<
   TData extends Record<string, any>,
 > =
-  | RootPathUpdateInstruction<TData>
-  | CommonPathUpdateInstruction<TData>
+  | RootUpdateInstruction<TData>
+  | PathUpdateInstruction<TData>
   | AnyPathUpdateInstruction<TData>;

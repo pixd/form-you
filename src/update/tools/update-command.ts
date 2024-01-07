@@ -29,7 +29,6 @@ export type Controls = {
 
   length?: undefined;
   skip?: undefined;
-  at?: undefined;
 
   [key: number]: never;
 };

@@ -23,7 +23,26 @@ const optionalUser = {} as undefined | User;
 
 const users = [] as User[];
 
-UPDATE_OBJECT: {
+update_null: {
+  const user = null;
+
+  // @ts-expect-error
+  update(user, { $$append: 10 });
+  // @ts-expect-error
+  update(user, { $$prepend: 10 });
+  // @ts-expect-error
+  update(user, { $$exclude: 10 });
+  // @ts-expect-error
+  update(user, { $$extract: 10 });
+  // @ts-expect-error
+  update(user, { $$move: [0, 1] });
+  // @ts-expect-error
+  update(user, { $$swap: [0, 1] });
+  // @ts-expect-error
+  update(user, { $$apply: { value: 10 } });
+}
+
+update_object: {
   update(user, newUser);
   update(user, { id: 10 });
   update(user, {});
@@ -34,7 +53,7 @@ UPDATE_OBJECT: {
   update(user, { nonexistent: undefined });
 }
 
-$$SET_ON_OBJECT: {
+$$set_on_object: {
   update(user, { $$set: newUser });
   // @ts-expect-error
   update(user, { $$set: { id: 10 } });
@@ -58,7 +77,7 @@ $$SET_ON_OBJECT: {
   update(user, { $$set: undefined, nonexistent: undefined });
 }
 
-$$UNSET_ON_OBJECT: {
+$$unset_on_object: {
   // @ts-expect-error
   update(user, { $$unset: true });
   // @ts-expect-error
@@ -98,7 +117,7 @@ $$UNSET_ON_OBJECT: {
   update(user, { $$unset: undefined, nonexistent: undefined });
 }
 
-$$DELETE_ON_OBJECT: {
+$$delete_on_object: {
   // @ts-expect-error
   update(user, { $$delete: true });
   // @ts-expect-error
@@ -138,7 +157,7 @@ $$DELETE_ON_OBJECT: {
   update(user, { $$delete: undefined, nonexistent: undefined });
 }
 
-$$SET_ON_OBJECT_OR_UNDEFINED: {
+$$set_on_object_or_undefined: {
   update(optionalUser, { $$set: newUser });
   // @ts-expect-error
   update(optionalUser, { $$set: { id: 10 } });
@@ -162,7 +181,7 @@ $$SET_ON_OBJECT_OR_UNDEFINED: {
   update(optionalUser, { $$set: undefined, nonexistent: undefined });
 }
 
-$$UNSET_ON_OBJECT_OR_UNDEFINED: {
+$$unset_on_object_or_undefined: {
   update(optionalUser, { $$unset: true });
   update(optionalUser, { $$unset: false });
   update(optionalUser, { $$unset: undefined });
@@ -194,7 +213,7 @@ $$UNSET_ON_OBJECT_OR_UNDEFINED: {
   update(optionalUser, { $$unset: undefined, nonexistent: undefined });
 }
 
-$$DELETE_ON_OBJECT_OR_UNDEFINED: {
+$$delete_on_object_or_undefined: {
   // @ts-expect-error
   update(optionalUser, { $$delete: true });
   // @ts-expect-error
@@ -234,7 +253,7 @@ $$DELETE_ON_OBJECT_OR_UNDEFINED: {
   update(optionalUser, { $$delete: undefined, nonexistent: undefined });
 }
 
-$$SET_ON_NESTED_OBJECT: {
+$$set_on_nested_object: {
   update(user, { friend: { $$set: { id: 10, nick: 'Antonio' } } });
   // @ts-expect-error
   update(user, { friend: { $$set: { id: 10 } } });
@@ -258,7 +277,7 @@ $$SET_ON_NESTED_OBJECT: {
   update(user, { friend: { $$set: undefined, nonexistent: undefined } });
 }
 
-$$UNSET_ON_NESTED_OBJECT: {
+$$unset_on_nested_object: {
   update(user, { friend: { $$unset: true } });
   update(user, { friend: { $$unset: false } });
   update(user, { friend: { $$unset: undefined } });
@@ -290,7 +309,7 @@ $$UNSET_ON_NESTED_OBJECT: {
   update(user, { friend: { $$unset: undefined, nonexistent: undefined } });
 }
 
-$$DELETE_ON_NESTED_OBJECT: {
+$$delete_on_nested_object: {
   update(user, { friend: { $$delete: true } });
   update(user, { friend: { $$delete: false } });
   update(user, { friend: { $$delete: undefined } });
@@ -322,7 +341,7 @@ $$DELETE_ON_NESTED_OBJECT: {
   update(user, { friend: { $$delete: undefined, nonexistent: undefined } });
 }
 
-UPDATE_VALUE: {
+update_value: {
   update(user, { id: 10 });
   update(user, { id: undefined });
   // @ts-expect-error
@@ -339,7 +358,7 @@ UPDATE_VALUE: {
   update(user, { id: { nonexistent: undefined } });
 }
 
-$$SET_ON_VALUE: {
+$$set_on_value: {
   update(user, { id: { $$set: 10 } });
   update(user, { id: { $$set: undefined } });
   // @ts-expect-error
@@ -352,7 +371,7 @@ $$SET_ON_VALUE: {
   update(user, { id: { $$set: undefined, nonexistent: undefined } });
 }
 
-$$UNSET_ON_VALUE: {
+$$unset_on_value: {
   // @ts-expect-error
   update(user, { id: { $$unset: true } });
   // @ts-expect-error
@@ -372,7 +391,7 @@ $$UNSET_ON_VALUE: {
   update(user, { id: { $$unset: undefined, nonexistent: undefined } });
 }
 
-$$DELETE_ON_VALUE: {
+$$delete_on_value: {
   // @ts-expect-error
   update(user, { id: { $$delete: true } });
   // @ts-expect-error
@@ -392,7 +411,7 @@ $$DELETE_ON_VALUE: {
   update(user, { id: { $$delete: undefined, nonexistent: undefined } });
 }
 
-UPDATE_VALUE_OR_UNDEFINED: {
+update_value_or_undefined: {
   update(user, { nick: 'Antonio' });
   update(user, { nick: undefined });
   // @ts-expect-error
@@ -409,7 +428,7 @@ UPDATE_VALUE_OR_UNDEFINED: {
   update(user, { nick: { nonexistent: undefined } });
 }
 
-$$SET_ON_VALUE_OR_UNDEFINED: {
+$$set_on_value_or_undefined: {
   update(user, { nick: { $$set: 'Antonio' } });
   update(user, { nick: { $$set: undefined } });
   // @ts-expect-error
@@ -422,7 +441,7 @@ $$SET_ON_VALUE_OR_UNDEFINED: {
   update(user, { nick: { $$set: undefined, nonexistent: undefined } });
 }
 
-$$UNSET_ON_VALUE_OR_UNDEFINED: {
+$$unset_on_value_or_undefined: {
   update(user, { nick: { $$unset: true } });
   update(user, { nick: { $$unset: false } });
   update(user, { nick: { $$unset: undefined } });
@@ -440,7 +459,7 @@ $$UNSET_ON_VALUE_OR_UNDEFINED: {
   update(user, { nick: { $$unset: undefined, nonexistent: undefined } });
 }
 
-$$DELETE_ON_VALUE_OR_UNDEFINED: {
+$$delete_on_value_or_undefined: {
   // @ts-expect-error
   update(user, { nick: { $$delete: true } });
   // @ts-expect-error
@@ -460,7 +479,7 @@ $$DELETE_ON_VALUE_OR_UNDEFINED: {
   update(user, { nick: { $$delete: undefined, nonexistent: undefined } });
 }
 
-UPDATE_OPTIONAL_VALUE: {
+update_optional_value: {
   update(user, { enabled: true });
   update(user, { enabled: undefined });
   // @ts-expect-error
@@ -477,7 +496,7 @@ UPDATE_OPTIONAL_VALUE: {
   update(user, { enabled: { nonexistent: undefined } });
 }
 
-$$SET_ON_OPTIONAL_VALUE: {
+$$set_on_optional_value: {
   update(user, { enabled: { $$set: true } });
   update(user, { enabled: { $$set: undefined } });
   // @ts-expect-error
@@ -490,7 +509,7 @@ $$SET_ON_OPTIONAL_VALUE: {
   update(user, { enabled: { $$set: undefined, nonexistent: undefined } });
 }
 
-$$UNSET_ON_OPTIONAL_VALUE: {
+$$unset_on_optional_value: {
   update(user, { enabled: { $$unset: true } });
   update(user, { enabled: { $$unset: false } });
   update(user, { enabled: { $$unset: undefined } });
@@ -508,7 +527,7 @@ $$UNSET_ON_OPTIONAL_VALUE: {
   update(user, { enabled: { $$unset: undefined, nonexistent: undefined } });
 }
 
-$$DELETE_ON_OPTIONAL_VALUE: {
+$$delete_on_optional_value: {
   update(user, { enabled: { $$delete: true } });
   update(user, { enabled: { $$delete: false } });
   update(user, { enabled: { $$delete: undefined } });
@@ -526,7 +545,7 @@ $$DELETE_ON_OPTIONAL_VALUE: {
   update(user, { enabled: { $$delete: undefined, nonexistent: undefined } });
 }
 
-UPDATE_OPTIONAL_VALUE_OR_UNDEFINED: {
+update_optional_value_or_undefined: {
   update(user, { id: 10 });
   update(user, { team: undefined });
   // @ts-expect-error
@@ -543,7 +562,7 @@ UPDATE_OPTIONAL_VALUE_OR_UNDEFINED: {
   update(user, { team: { nonexistent: undefined } });
 }
 
-$$SET_ON_OPTIONAL_VALUE_OR_UNDEFINED: {
+$$set_on_optional_value_or_undefined: {
   update(user, { team: { $$set: 'ducks' } });
   update(user, { team: { $$set: undefined } });
   // @ts-expect-error
@@ -556,7 +575,7 @@ $$SET_ON_OPTIONAL_VALUE_OR_UNDEFINED: {
   update(user, { team: { $$set: undefined, nonexistent: undefined } });
 }
 
-$$UNSET_ON_OPTIONAL_VALUE_OR_UNDEFINED: {
+$$unset_on_optional_value_or_undefined: {
   update(user, { team: { $$unset: true } });
   update(user, { team: { $$unset: false } });
   update(user, { team: { $$unset: undefined } });
@@ -574,7 +593,7 @@ $$UNSET_ON_OPTIONAL_VALUE_OR_UNDEFINED: {
   update(user, { team: { $$unset: undefined, nonexistent: undefined } });
 }
 
-$$DELETE_ON_OPTIONAL_VALUE_OR_UNDEFINED: {
+$$delete_on_optional_value_or_undefined: {
   update(user, { team: { $$delete: true } });
   update(user, { team: { $$delete: false } });
   update(user, { team: { $$delete: undefined } });
@@ -592,7 +611,7 @@ $$DELETE_ON_OPTIONAL_VALUE_OR_UNDEFINED: {
   update(user, { team: { $$delete: undefined, nonexistent: undefined } });
 }
 
-$$SET_$$UNSET_$$DELETE_ON_VALUE_OR_UNDEFINED: {
+$$set_$$unset_$$delete_on_value_or_undefined: {
   // @ts-expect-error
   update(user, { nick: { $$set: 'Antonio', $$unset: true } });
   // @ts-expect-error
@@ -623,7 +642,7 @@ $$SET_$$UNSET_$$DELETE_ON_VALUE_OR_UNDEFINED: {
   update(user, { nick: { $$unset: undefined, $$delete: undefined } });
 }
 
-$$SET_$$UNSET_$$DELETE_ON_OPTIONAL_VALUE: {
+$$set_$$unset_$$delete_on_optional_value: {
   // @ts-expect-error
   update(user, { enabled: { $$set: true, $$unset: true } });
   // @ts-expect-error
@@ -650,7 +669,7 @@ $$SET_$$UNSET_$$DELETE_ON_OPTIONAL_VALUE: {
   update(user, { enabled: { $$unset: undefined, $$delete: undefined } });
 }
 
-$$SET_$$UNSET_$$DELETE_ON_OPTIONAL_VALUE_OR_UNDEFINED: {
+$$set_$$unset_$$delete_on_optional_value_or_undefined: {
   // @ts-expect-error
   update(user, { team: { $$set: 'Ducks', $$unset: true } });
   // @ts-expect-error
@@ -677,7 +696,7 @@ $$SET_$$UNSET_$$DELETE_ON_OPTIONAL_VALUE_OR_UNDEFINED: {
   update(user, { team: { $$unset: undefined, $$delete: undefined } });
 }
 
-ARRAY_OF_OBJECTS: {
+array_of_objects: {
   type User = { id: number; nick: string };
 
   const users = [] as User[];
@@ -711,7 +730,7 @@ ARRAY_OF_OBJECTS: {
   update(users, { '0': { $$delete: undefined } });
 }
 
-ARRAY_OF_OBJECTS_AND_UNDEFINED_VALUES: {
+array_of_objects_and_undefined_values: {
   type User = { id: number; nick: string };
 
   const users = [] as (undefined | User)[];
@@ -736,7 +755,7 @@ ARRAY_OF_OBJECTS_AND_UNDEFINED_VALUES: {
   update(users, { '0': { $$delete: undefined } });
 }
 
-ARRAY_OF_SCALARS: {
+array_of_scalars: {
   const users = [] as string[];
 
   update(users, { '0': 'Mark' });
@@ -759,7 +778,7 @@ ARRAY_OF_SCALARS: {
   update(users, { '0': { $$delete: undefined } });
 }
 
-ARRAY_OF_SCALARS_AND_UNDEFINED_VALUES: {
+array_of_scalars_and_undefined_values: {
   const users = [] as (undefined | string)[];
 
   update(users, { '0': 'Mark' });
@@ -779,7 +798,7 @@ ARRAY_OF_SCALARS_AND_UNDEFINED_VALUES: {
   update(users, { '0': { $$delete: undefined } });
 }
 
-TUPLE_OF_OBJECTS: {
+tuple_of_objects: {
   type User = { id: number; nick: string };
   type Manager = { name: string; grade: number };
 
@@ -833,7 +852,7 @@ TUPLE_OF_OBJECTS: {
   update(users, { '0': { $$delete: undefined } });
 }
 
-TUPLE_OF_OBJECTS_AND_UNDEFINED_VALUES: {
+tuple_of_objects_and_undefined_values: {
   type User = { id: number; nick: string };
   type Manager = { name: string; grade: number };
 
@@ -873,7 +892,7 @@ TUPLE_OF_OBJECTS_AND_UNDEFINED_VALUES: {
   update(users, { '0': { $$delete: undefined } });
 }
 
-TUPLE_OF_SCALARS: {
+tuple_of_scalars: {
   const users = [] as unknown as [string, number];
 
   update(users, { '0': 'Mark' });
@@ -911,7 +930,7 @@ TUPLE_OF_SCALARS: {
   update(users, { '0': { $$delete: undefined } });
 }
 
-TUPLE_OF_SCALARS_AND_UNDEFINED_VALUES: {
+tuple_of_scalars_and_undefined_values: {
   const users = [] as unknown as [string, (undefined | number)];
 
   update(users, { '0': 'Mark' });
@@ -946,7 +965,7 @@ TUPLE_OF_SCALARS_AND_UNDEFINED_VALUES: {
   update(users, { '0': { $$delete: undefined } });
 }
 
-$$APPEND: {
+$$append: {
   update(users, { $$append: [{ id: 10, nick: 'Antonio' }] });
   // @ts-expect-error
   update(users, { $$append: [{ id: 10 }] });
@@ -962,7 +981,7 @@ $$APPEND: {
   update(users, { $$append: [{ id: 10, nick: 'Antonio' }], skip: 10 });
 }
 
-$$PREPEND: {
+$$prepend: {
   update(users, { $$prepend: [{ id: 10, nick: 'Antonio' }] });
   // @ts-expect-error
   update(users, { $$prepend: [{ id: 10 }] });
@@ -978,40 +997,72 @@ $$PREPEND: {
   update(users, { $$prepend: [{ id: 10, nick: 'Antonio' }], skip: 10 });
 }
 
-$$EXCLUDE: {
+$$exclude: {
   update(users, { $$exclude: [10] });
   update(users, { $$exclude: 10 });
   update(users, { $$exclude: 10, skip: undefined });
   update(users, { $$exclude: 10, skip: null });
   update(users, { $$exclude: 10, skip: 10 });
+
+  {
+    type Data = {
+      skip: number;
+    };
+
+    const data = {} as Data;
+
+    // @ts-expect-error
+    update(data, { $$exclude: 10, skip: 10 });
+    // @ts-expect-error
+    update(data, { $$exclude: undefined, skip: 10 });
+  }
 }
 
-$$EXTRACT: {
+$$extract: {
   update(users, { $$extract: [10] });
   update(users, { $$extract: 10 });
   update(users, { $$extract: 10, skip: undefined });
   update(users, { $$extract: 10, skip: null });
   update(users, { $$extract: 10, skip: 10 });
+
+  {
+    type Data = {
+      skip: number;
+    };
+
+    const data = {} as Data;
+
+    // @ts-expect-error
+    update(data, { $$extract: 10, skip: 10 });
+    // @ts-expect-error
+    update(data, { $$extract: undefined, skip: 10 });
+  }
 }
 
-$$MOVE_$$SWAP: {
+$$move: {
   update(users, { $$move: [0, 1] });
   update(users, { $$move: undefined });
+}
 
+$$swap: {
   update(users, { $$swap: [0, 1] });
   update(users, { $$swap: undefined });
+}
 
+$$move_$$swap: {
   // @ts-expect-error
   update(users, { $$move: [0, 1], $$swap: [0, 1] });
   update(users, { $$move: [0, 1], $$swap: undefined });
   update(users, { $$move: undefined, $$swap: [0, 1] });
 }
 
-$$APPLY: {
+$$apply: {
   update(users, { $$apply: { id: 10, nick: 'Antonio' } });
   update(users, { $$apply: { id: 10, nick: 'Antonio' }, length: 1 });
   update(users, { $$apply: { id: 10, nick: 'Antonio' }, skip: 1 });
   update(users, { $$apply: { id: 10, nick: 'Antonio' }, length: 1, skip: 1 });
+  update(users, { $$apply: { id: 10, nick: 'Antonio' }, length: undefined });
+  update(users, { $$apply: { id: 10, nick: 'Antonio' }, skip: undefined });
   update(users, { $$apply: { id: 10 } });
   update(users, { $$apply: { id: 10 }, length: 1 });
   update(users, { $$apply: { id: 10 }, skip: 1 });
@@ -1029,4 +1080,22 @@ $$APPLY: {
   // @ts-expect-error
   update(users, { $$apply: { id: 10 }, skip: null });
   update(users, { $$apply: undefined });
+
+  {
+    type Data = {
+      skip: number;
+    };
+
+    const data = {} as Data;
+
+    // @ts-expect-error
+    update(data, { $$apply: 10, length: 10 });
+    // @ts-expect-error
+    update(data, { $$apply: undefined, length: 10 });
+
+    // @ts-expect-error
+    update(data, { $$apply: 10, skip: 10 });
+    // @ts-expect-error
+    update(data, { $$apply: undefined, skip: 10 });
+  }
 }

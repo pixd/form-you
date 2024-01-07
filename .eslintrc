@@ -14,7 +14,14 @@
     "@typescript-eslint/no-unnecessary-type-constraint": "off",
     // It seems this rule causes bugs
     "@typescript-eslint/no-confusing-void-expression": "off",
-    "@typescript-eslint/ban-types": "warn"
+    "@typescript-eslint/ban-types": "warn",
+    "indent": ["error", 2, { "SwitchCase": 1 }],
+    "no-restricted-syntax": ["error",
+      {
+        "selector": "SwitchCase > *.consequent[type!='BlockStatement']",
+        "message": "Switch cases without blocks are disallowed."
+      }
+    ]
   },
   "overrides": [
     {

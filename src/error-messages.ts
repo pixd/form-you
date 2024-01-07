@@ -11,3 +11,29 @@ export function prepareErrorMessage(message: string, path?: string) {
   const nextPath = path ? ('`' + path + '`') : 'Value';
   return message.replaceAll('${path}', nextPath);
 }
+
+export function stringify(data: any) {
+  if (data == null || typeof data === 'boolean' || typeof data === 'number') {
+    return String(data);
+  }
+  else {
+    return '`' + String(data) + '`';
+  }
+}
+
+export type GetUpdateErrorDesc = {
+  problemPath: null | string;
+  data: any;
+  path?: string;
+  update?: any;
+};
+
+export class GetUpdateError extends Error {
+  desc: GetUpdateErrorDesc;
+
+  constructor(message: string, desc: GetUpdateErrorDesc) {
+    super(message);
+
+    this.desc = desc;
+  }
+}

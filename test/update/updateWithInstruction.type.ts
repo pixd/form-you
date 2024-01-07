@@ -1,5 +1,7 @@
 import { updateWithInstruction } from '../../src/update/updateWithInstruction';
 
+const valueOfWrongType = Symbol('wrong');
+
 type User = {
   id: number;
   nick: undefined | string;
@@ -15,7 +17,7 @@ type User = {
 
 const user = {} as User;
 
-UPDATE_VALUE: {
+update_value: {
   updateWithInstruction(user, { path: 'id', update: 10 });
   updateWithInstruction(user, { path: 'id', update: { $$set: 10 } });
   updateWithInstruction(user, { path: 'id', update: undefined });
@@ -23,14 +25,14 @@ UPDATE_VALUE: {
   // @ts-expect-error
   updateWithInstruction(user, { path: 'id', update: null });
   // @ts-expect-error
-  updateWithInstruction(user, { path: 'id', update: 'abc' });
+  updateWithInstruction(user, { path: 'id', update: valueOfWrongType });
   // @ts-expect-error
   updateWithInstruction(user, { path: 'id', update: { $$unset: true } });
   // @ts-expect-error
   updateWithInstruction(user, { path: 'id', update: { $$delete: true } });
 }
 
-UPDATE_VALUE_OR_UNDEFINED: {
+update_value_or_undefined: {
   updateWithInstruction(user, { path: 'nick', update: 'Antonio' });
   updateWithInstruction(user, { path: 'nick', update: { $$set: 'Antonio' } });
   updateWithInstruction(user, { path: 'nick', update: undefined });
@@ -38,13 +40,13 @@ UPDATE_VALUE_OR_UNDEFINED: {
   // @ts-expect-error
   updateWithInstruction(user, { path: 'nick', update: null });
   // @ts-expect-error
-  updateWithInstruction(user, { path: 'nick', update: 10 });
+  updateWithInstruction(user, { path: 'nick', update: valueOfWrongType });
   updateWithInstruction(user, { path: 'nick', update: { $$unset: true } });
   // @ts-expect-error
   updateWithInstruction(user, { path: 'nick', update: { $$delete: true } });
 }
 
-UPDATE_OPTIONAL_VALUE: {
+update_optional_value: {
   updateWithInstruction(user, { path: 'enabled', update: true });
   updateWithInstruction(user, { path: 'enabled', update: { $$set: true } });
   updateWithInstruction(user, { path: 'enabled', update: undefined });
@@ -52,13 +54,13 @@ UPDATE_OPTIONAL_VALUE: {
   // @ts-expect-error
   updateWithInstruction(user, { path: 'enabled', update: null });
   // @ts-expect-error
-  updateWithInstruction(user, { path: 'enabled', update: 10 });
+  updateWithInstruction(user, { path: 'enabled', update: valueOfWrongType });
   updateWithInstruction(user, { path: 'enabled', update: { $$unset: true } });
   // @ts-expect-error
   updateWithInstruction(user, { path: 'enabled', update: { $$delete: true } });
 }
 
-UPDATE_OPTIONAL_VALUE_OR_UNDEFINED: {
+update_optional_value_or_undefined: {
   updateWithInstruction(user, { path: 'team', update: 'Ducks' });
   updateWithInstruction(user, { path: 'team', update: { $$set: 'Ducks' } });
   updateWithInstruction(user, { path: 'team', update: undefined });
@@ -66,13 +68,13 @@ UPDATE_OPTIONAL_VALUE_OR_UNDEFINED: {
   // @ts-expect-error
   updateWithInstruction(user, { path: 'team', update: null });
   // @ts-expect-error
-  updateWithInstruction(user, { path: 'team', update: 10 });
+  updateWithInstruction(user, { path: 'team', update: valueOfWrongType });
   updateWithInstruction(user, { path: 'team', update: { $$unset: true } });
   // @ts-expect-error
   updateWithInstruction(user, { path: 'team', update: { $$delete: true } });
 }
 
-UPDATE_NESTED_VALUE: {
+update_nested_value: {
   updateWithInstruction(user, { path: 'friend.id', update: 10 });
   updateWithInstruction(user, { path: 'friend.id', update: { $$set: 10 } });
   updateWithInstruction(user, { path: 'friend.id', update: undefined });
@@ -80,14 +82,14 @@ UPDATE_NESTED_VALUE: {
   // @ts-expect-error
   updateWithInstruction(user, { path: 'friend.id', update: null });
   // @ts-expect-error
-  updateWithInstruction(user, { path: 'friend.id', update: 'abc' });
+  updateWithInstruction(user, { path: 'friend.id', update: valueOfWrongType });
   // @ts-expect-error
   updateWithInstruction(user, { path: 'friend.id', update: { $$unset: true } });
   // @ts-expect-error
   updateWithInstruction(user, { path: 'friend.id', update: { $$delete: true } });
 }
 
-UPDATE_NESTED_VALUE_OR_UNDEFINED: {
+update_nested_value_or_undefined: {
   updateWithInstruction(user, { path: 'friend.nick', update: 'Antonio' });
   updateWithInstruction(user, { path: 'friend.nick', update: { $$set: 'Antonio' } });
   updateWithInstruction(user, { path: 'friend.nick', update: undefined });
@@ -95,13 +97,13 @@ UPDATE_NESTED_VALUE_OR_UNDEFINED: {
   // @ts-expect-error
   updateWithInstruction(user, { path: 'friend.nick', update: null });
   // @ts-expect-error
-  updateWithInstruction(user, { path: 'friend.nick', update: 10 });
+  updateWithInstruction(user, { path: 'friend.nick', update: valueOfWrongType });
   updateWithInstruction(user, { path: 'friend.nick', update: { $$unset: true } });
   // @ts-expect-error
   updateWithInstruction(user, { path: 'friend.nick', update: { $$delete: true } });
 }
 
-UPDATE_NESTED_OPTIONAL_VALUE: {
+update_nested_optional_value: {
   updateWithInstruction(user, { path: 'friend.enabled', update: true });
   updateWithInstruction(user, { path: 'friend.enabled', update: { $$set: true } });
   updateWithInstruction(user, { path: 'friend.enabled', update: undefined });
@@ -109,13 +111,13 @@ UPDATE_NESTED_OPTIONAL_VALUE: {
   // @ts-expect-error
   updateWithInstruction(user, { path: 'friend.enabled', update: null });
   // @ts-expect-error
-  updateWithInstruction(user, { path: 'friend.enabled', update: 10 });
+  updateWithInstruction(user, { path: 'friend.enabled', update: valueOfWrongType });
   updateWithInstruction(user, { path: 'friend.enabled', update: { $$unset: true } });
   // @ts-expect-error
   updateWithInstruction(user, { path: 'friend.enabled', update: { $$delete: true } });
 }
 
-UPDATE_NESTED_OPTIONAL_VALUE_OR_UNDEFINED: {
+update_nested_optional_value_or_undefined: {
   updateWithInstruction(user, { path: 'friend.team', update: 'Ducks' });
   updateWithInstruction(user, { path: 'friend.team', update: { $$set: 'Ducks' } });
   updateWithInstruction(user, { path: 'friend.team', update: undefined });
@@ -123,13 +125,13 @@ UPDATE_NESTED_OPTIONAL_VALUE_OR_UNDEFINED: {
   // @ts-expect-error
   updateWithInstruction(user, { path: 'friend.team', update: null });
   // @ts-expect-error
-  updateWithInstruction(user, { path: 'friend.team', update: 10 });
+  updateWithInstruction(user, { path: 'friend.team', update: valueOfWrongType });
   updateWithInstruction(user, { path: 'friend.team', update: { $$unset: true } });
   // @ts-expect-error
   updateWithInstruction(user, { path: 'friend.team', update: { $$delete: true } });
 }
 
-UPDATE_NONEXISTENT_PATH: {
+update_nonexistent_path: {
   updateWithInstruction(
     user,
     {
@@ -149,7 +151,7 @@ UPDATE_NONEXISTENT_PATH: {
   );
 }
 
-ARRAY_OF_OBJECTS: {
+array_of_objects: {
   type User = { id: number; nick: string };
 
   const state = {
@@ -177,7 +179,6 @@ ARRAY_OF_OBJECTS: {
   updateWithInstruction(state, { path: 'users.0', update: { $$delete: false } });
   updateWithInstruction(state, { path: 'users.0', update: { $$delete: undefined } });
 
-  updateWithInstruction(state, { path: 'users', update: { '0': { id: 10, nick: 'Mark' } } });
   updateWithInstruction(state, { path: 'users', update: { '0': { id: 10 } } });
   updateWithInstruction(state, { path: 'users', update: { '0': undefined } });
   // @ts-expect-error
@@ -195,6 +196,9 @@ ARRAY_OF_OBJECTS: {
   updateWithInstruction(state, { path: 'users', update: [undefined] });
   updateWithInstruction(state, { path: 'users', update: undefined });
 
+  updateWithInstruction(state, { path: 'users', update: { '0': { $$set: { id: 10, nick: 'Mark' } } } });
+  // @ts-expect-error
+  updateWithInstruction(state, { path: 'users', update: { '0': { $$set: { id: 10 } } } });
   updateWithInstruction(state, { path: 'users', update: { '0': { $$set: undefined } } });
   // @ts-expect-error
   updateWithInstruction(state, { path: 'users', update: { '0': { $$unset: true } } });
@@ -206,7 +210,7 @@ ARRAY_OF_OBJECTS: {
   updateWithInstruction(state, { path: 'users', update: { '0': { $$delete: undefined } } });
 }
 
-ARRAY_OF_OBJECTS_AND_UNDEFINED_VALUES: {
+array_of_objects_and_undefined_values: {
   type User = { id: number; nick: string };
 
   const state = {
@@ -243,6 +247,9 @@ ARRAY_OF_OBJECTS_AND_UNDEFINED_VALUES: {
   updateWithInstruction(state, { path: 'users', update: [undefined] });
   updateWithInstruction(state, { path: 'users', update: undefined });
 
+  updateWithInstruction(state, { path: 'users', update: { '0': { $$set: { id: 10, nick: 'Mark' } } } });
+  // @ts-expect-error
+  updateWithInstruction(state, { path: 'users', update: { '0': { $$set: { id: 10 } } } });
   updateWithInstruction(state, { path: 'users', update: { '0': { $$set: undefined } } });
   updateWithInstruction(state, { path: 'users', update: { '0': { $$unset: true } } });
   updateWithInstruction(state, { path: 'users', update: { '0': { $$unset: false } } });
@@ -252,7 +259,7 @@ ARRAY_OF_OBJECTS_AND_UNDEFINED_VALUES: {
   updateWithInstruction(state, { path: 'users', update: { '0': { $$delete: undefined } } });
 }
 
-ARRAY_OF_SCALARS: {
+array_of_scalars: {
   const state = {
     users: [] as string[],
   };
@@ -285,6 +292,7 @@ ARRAY_OF_SCALARS: {
   updateWithInstruction(state, { path: 'users', update: [undefined] });
   updateWithInstruction(state, { path: 'users', update: undefined });
 
+  updateWithInstruction(state, { path: 'users', update: { '0': { $$set: 'Mark' } } });
   updateWithInstruction(state, { path: 'users', update: { '0': { $$set: undefined } } });
   // @ts-expect-error
   updateWithInstruction(state, { path: 'users', update: { '0': { $$unset: true } } });
@@ -296,7 +304,7 @@ ARRAY_OF_SCALARS: {
   updateWithInstruction(state, { path: 'users', update: { '0': { $$delete: undefined } } });
 }
 
-ARRAY_OF_SCALARS_AND_UNDEFINED_VALUES: {
+array_of_scalars_and_undefined_values: {
   const state = {
     users: [] as (undefined | string)[],
   };
@@ -326,6 +334,7 @@ ARRAY_OF_SCALARS_AND_UNDEFINED_VALUES: {
   updateWithInstruction(state, { path: 'users', update: [undefined] });
   updateWithInstruction(state, { path: 'users', update: undefined });
 
+  updateWithInstruction(state, { path: 'users', update: { '0': { $$set: 'Mark' } } });
   updateWithInstruction(state, { path: 'users', update: { '0': { $$set: undefined } } });
   updateWithInstruction(state, { path: 'users', update: { '0': { $$unset: true } } });
   updateWithInstruction(state, { path: 'users', update: { '0': { $$unset: false } } });
@@ -335,7 +344,7 @@ ARRAY_OF_SCALARS_AND_UNDEFINED_VALUES: {
   updateWithInstruction(state, { path: 'users', update: { '0': { $$delete: undefined } } });
 }
 
-TUPLE_OF_OBJECTS: {
+tuple_of_objects: {
   type User = { id: number; nick: string };
   type Manager = { name: string; grade: number };
 
@@ -500,7 +509,7 @@ TUPLE_OF_OBJECTS: {
   updateWithInstruction(state, { path: 'users', update: { '2': { $$delete: undefined } } });
 }
 
-TUPLE_OF_OBJECTS_AND_UNDEFINED_VALUES: {
+tuple_of_objects_and_undefined_values: {
   type User = { id: number; nick: string };
   type Manager = { name: string; grade: number };
 
@@ -656,7 +665,7 @@ TUPLE_OF_OBJECTS_AND_UNDEFINED_VALUES: {
   updateWithInstruction(state, { path: 'users', update: { '2': { $$delete: undefined } } });
 }
 
-TUPLE_OF_SCALARS: {
+tuple_of_scalars: {
   const state = {
     user: [] as unknown as [string, number],
   };
@@ -714,7 +723,7 @@ TUPLE_OF_SCALARS: {
   updateWithInstruction(state, { path: 'user', update: { '2': { $$delete: undefined } } });
 }
 
-TUPLE_OF_SCALARS_AND_UNDEFINED_VALUES: {
+tuple_of_scalars_and_undefined_values: {
   const state = {
     user: [] as unknown as [string, undefined | number],
   };

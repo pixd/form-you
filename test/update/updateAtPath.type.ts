@@ -15,7 +15,7 @@ type User = {
 
 const user = {} as User;
 
-UPDATE_VALUE: {
+update_value: {
   updateAtPath(user, 'id', 10);
   updateAtPath(user, 'id', { $$set: 10 });
   updateAtPath(user, 'id', undefined);
@@ -30,7 +30,7 @@ UPDATE_VALUE: {
   updateAtPath(user, 'id', { $$delete: true });
 }
 
-UPDATE_VALUE_OR_UNDEFINED: {
+update_value_or_undefined: {
   updateAtPath(user, 'nick', 'Antonio');
   updateAtPath(user, 'nick', { $$set: 'Antonio' });
   updateAtPath(user, 'nick', undefined);
@@ -44,7 +44,7 @@ UPDATE_VALUE_OR_UNDEFINED: {
   updateAtPath(user, 'nick', { $$delete: true });
 }
 
-UPDATE_OPTIONAL_VALUE: {
+update_optional_value: {
   updateAtPath(user, 'enabled', true);
   updateAtPath(user, 'enabled', { $$set: true });
   updateAtPath(user, 'enabled', undefined);
@@ -58,7 +58,7 @@ UPDATE_OPTIONAL_VALUE: {
   updateAtPath(user, 'enabled', { $$delete: true });
 }
 
-UPDATE_OPTIONAL_VALUE_OR_UNDEFINED: {
+update_optional_value_or_undefined: {
   updateAtPath(user, 'team', 'Ducks');
   updateAtPath(user, 'team', { $$set: 'Ducks' });
   updateAtPath(user, 'team', undefined);
@@ -72,7 +72,7 @@ UPDATE_OPTIONAL_VALUE_OR_UNDEFINED: {
   updateAtPath(user, 'team', { $$delete: true });
 }
 
-UPDATE_NESTED_VALUE: {
+update_nested_value: {
   updateAtPath(user, 'friend.id', 10);
   updateAtPath(user, 'friend.id', { $$set: 10 });
   updateAtPath(user, 'friend.id', undefined);
@@ -87,7 +87,7 @@ UPDATE_NESTED_VALUE: {
   updateAtPath(user, 'friend.id', { $$delete: true });
 }
 
-UPDATE_NESTED_VALUE_OR_UNDEFINED: {
+update_nested_value_or_undefined: {
   updateAtPath(user, 'friend.nick', 'Antonio');
   updateAtPath(user, 'friend.nick', { $$set: 'Antonio' });
   updateAtPath(user, 'friend.nick', undefined);
@@ -101,7 +101,7 @@ UPDATE_NESTED_VALUE_OR_UNDEFINED: {
   updateAtPath(user, 'friend.nick', { $$delete: true });
 }
 
-UPDATE_NESTED_OPTIONAL_VALUE: {
+update_nested_optional_value: {
   updateAtPath(user, 'friend.enabled', true);
   updateAtPath(user, 'friend.enabled', { $$set: true });
   updateAtPath(user, 'friend.enabled', undefined);
@@ -115,7 +115,7 @@ UPDATE_NESTED_OPTIONAL_VALUE: {
   updateAtPath(user, 'friend.enabled', { $$delete: true });
 }
 
-UPDATE_NESTED_OPTIONAL_VALUE_OR_UNDEFINED: {
+update_nested_optional_value_or_undefined: {
   updateAtPath(user, 'friend.team', 'Ducks');
   updateAtPath(user, 'friend.team', { $$set: 'Ducks' });
   updateAtPath(user, 'friend.team', undefined);
@@ -129,7 +129,7 @@ UPDATE_NESTED_OPTIONAL_VALUE_OR_UNDEFINED: {
   updateAtPath(user, 'friend.team', { $$delete: true });
 }
 
-UPDATE_NONEXISTENT_PATH: {
+update_nonexistent_path: {
   updateAtPath(
     user,
     // @ts-expect-error
@@ -145,7 +145,7 @@ UPDATE_NONEXISTENT_PATH: {
   );
 }
 
-ARRAY_OF_OBJECTS: {
+array_of_objects: {
   type User = { id: number; nick: string };
 
   const state = {
@@ -173,7 +173,6 @@ ARRAY_OF_OBJECTS: {
   updateAtPath(state, 'users.0', { $$delete: false });
   updateAtPath(state, 'users.0', { $$delete: undefined });
 
-  updateAtPath(state, 'users', { '0': { id: 10, nick: 'Mark' } });
   updateAtPath(state, 'users', { '0': { id: 10 } });
   updateAtPath(state, 'users', { '0': undefined });
   // @ts-expect-error
@@ -191,6 +190,9 @@ ARRAY_OF_OBJECTS: {
   updateAtPath(state, 'users', [undefined]);
   updateAtPath(state, 'users', undefined);
 
+  updateAtPath(state, 'users', { '0': { $$set: { id: 10, nick: 'Mark' } } });
+  // @ts-expect-error
+  updateAtPath(state, 'users', { '0': { $$set: { id: 10 } } });
   updateAtPath(state, 'users', { '0': { $$set: undefined } });
   // @ts-expect-error
   updateAtPath(state, 'users', { '0': { $$unset: true } });
@@ -202,7 +204,7 @@ ARRAY_OF_OBJECTS: {
   updateAtPath(state, 'users', { '0': { $$delete: undefined } });
 }
 
-ARRAY_OF_OBJECTS_AND_UNDEFINED_VALUES: {
+array_of_objects_and_undefined_values: {
   type User = { id: number; nick: string };
 
   const state = {
@@ -239,6 +241,9 @@ ARRAY_OF_OBJECTS_AND_UNDEFINED_VALUES: {
   updateAtPath(state, 'users', [undefined]);
   updateAtPath(state, 'users', undefined);
 
+  updateAtPath(state, 'users', { '0': { $$set: { id: 10, nick: 'Mark' } } });
+  // @ts-expect-error
+  updateAtPath(state, 'users', { '0': { $$set: { id: 10 } } });
   updateAtPath(state, 'users', { '0': { $$set: undefined } });
   updateAtPath(state, 'users', { '0': { $$unset: true } });
   updateAtPath(state, 'users', { '0': { $$unset: false } });
@@ -248,7 +253,7 @@ ARRAY_OF_OBJECTS_AND_UNDEFINED_VALUES: {
   updateAtPath(state, 'users', { '0': { $$delete: undefined } });
 }
 
-ARRAY_OF_SCALARS: {
+array_of_scalars: {
   const state = {
     users: [] as string[],
   };
@@ -281,6 +286,7 @@ ARRAY_OF_SCALARS: {
   updateAtPath(state, 'users', [undefined]);
   updateAtPath(state, 'users', undefined);
 
+  updateAtPath(state, 'users', { '0': { $$set: 'Mark' } });
   updateAtPath(state, 'users', { '0': { $$set: undefined } });
   // @ts-expect-error
   updateAtPath(state, 'users', { '0': { $$unset: true } });
@@ -292,7 +298,7 @@ ARRAY_OF_SCALARS: {
   updateAtPath(state, 'users', { '0': { $$delete: undefined } });
 }
 
-ARRAY_OF_SCALARS_AND_UNDEFINED_VALUES: {
+array_of_scalars_and_undefined_values: {
   const state = {
     users: [] as (undefined | string)[],
   };
@@ -322,6 +328,7 @@ ARRAY_OF_SCALARS_AND_UNDEFINED_VALUES: {
   updateAtPath(state, 'users', [undefined]);
   updateAtPath(state, 'users', undefined);
 
+  updateAtPath(state, 'users', { '0': { $$set: 'Mark' } });
   updateAtPath(state, 'users', { '0': { $$set: undefined } });
   updateAtPath(state, 'users', { '0': { $$unset: true } });
   updateAtPath(state, 'users', { '0': { $$unset: false } });
@@ -331,7 +338,7 @@ ARRAY_OF_SCALARS_AND_UNDEFINED_VALUES: {
   updateAtPath(state, 'users', { '0': { $$delete: undefined } });
 }
 
-TUPLE_OF_OBJECTS: {
+tuple_of_objects: {
   type User = { id: number; nick: string };
   type Manager = { name: string; grade: number };
 
@@ -496,7 +503,7 @@ TUPLE_OF_OBJECTS: {
   updateAtPath(state, 'users', { '2': { $$delete: undefined } });
 }
 
-TUPLE_OF_OBJECTS_AND_UNDEFINED_VALUES: {
+tuple_of_objects_and_undefined_values: {
   type User = { id: number; nick: string };
   type Manager = { name: string; grade: number };
 
@@ -652,7 +659,7 @@ TUPLE_OF_OBJECTS_AND_UNDEFINED_VALUES: {
   updateAtPath(state, 'users', { '2': { $$delete: undefined } });
 }
 
-TUPLE_OF_SCALARS: {
+tuple_of_scalars: {
   const state = {
     user: [] as unknown as [string, number],
   };
@@ -710,7 +717,7 @@ TUPLE_OF_SCALARS: {
   updateAtPath(state, 'user', { '2': { $$delete: undefined } });
 }
 
-TUPLE_OF_SCALARS_AND_UNDEFINED_VALUES: {
+tuple_of_scalars_and_undefined_values: {
   const state = {
     user: [] as unknown as [string, undefined | number],
   };

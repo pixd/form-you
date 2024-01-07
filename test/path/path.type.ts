@@ -1,13 +1,13 @@
-import { getAtPath } from '../../src/path/path';
+import { get, quietGet } from '../../src/path/path';
 import { PathValue, PossiblePath, PossibleValue } from '../../src/path/path.types';
 import { expect, PASSED } from '../tools/expect';
 
 /**
- * getAtPath
+ * get
  */
 {
   {
-    type Product = {
+    type User = {
       nick: string;
       friend: {
         id: number;
@@ -20,70 +20,133 @@ import { expect, PASSED } from '../tools/expect';
       sort?: number;
     };
 
-    const product = {} as Product;
+    const user = {} as User;
 
-    const nick = getAtPath(product, 'nick');
+    const nick = get(user, 'nick');
     expect.equal<typeof nick, string>(PASSED);
 
-    const unknownNameProp = getAtPath(product, 'nick.abc');
-    expect.equal<typeof unknownNameProp, never>(PASSED);
+    const quietNick = quietGet(user, 'nick');
+    expect.equal<typeof quietNick, undefined | string>(PASSED);
 
-    const lengthNameProp = getAtPath(product, 'nick.length');
-    expect.equal<typeof lengthNameProp, never>(PASSED);
+    // @ts-expect-error
+    get(user, 'nick.abc');
 
-    const friend = getAtPath(product, 'friend');
+    // @ts-expect-error
+    quietGet(user, 'nick.abc');
+
+    // @ts-expect-error
+    get(user, 'nick.length');
+
+    // @ts-expect-error
+    quietGet(user, 'nick.length');
+
+    const friend = get(user, 'friend');
     expect.equal<typeof friend, { id: number }>(PASSED);
 
-    const categoryId = getAtPath(product, 'friend.id');
+    const quietFriend = quietGet(user, 'friend');
+    expect.equal<typeof quietFriend, undefined | { id: number }>(PASSED);
+
+    const categoryId = get(user, 'friend.id');
     expect.equal<typeof categoryId, number>(PASSED);
 
-    const group = getAtPath(product, 'group');
+    const quietCategoryId = quietGet(user, 'friend.id');
+    expect.equal<typeof quietCategoryId, undefined | number>(PASSED);
+
+    const group = get(user, 'group');
     expect.equal<typeof group, undefined | { id: number }>(PASSED);
 
-    const brandId = getAtPath(product, 'group.id');
+    const quietGroup = quietGet(user, 'group');
+    expect.equal<typeof quietGroup, undefined | { id: number }>(PASSED);
+
+    const brandId = get(user, 'group.id');
     expect.equal<typeof brandId, number>(PASSED);
 
-    const settings = getAtPath(product, 'settings');
+    const quietBrandId = quietGet(user, 'group.id');
+    expect.equal<typeof quietBrandId, undefined | number>(PASSED);
+
+    const settings = get(user, 'settings');
     expect.equal<typeof settings, ['on' | 'off', 'dark' | 'light']>(PASSED);
 
-    const firstSetting = getAtPath(product, 'settings.0');
+    const quietSettings = quietGet(user, 'settings');
+    expect.equal<typeof quietSettings, undefined | ['on' | 'off', 'dark' | 'light']>(PASSED);
+
+    const firstSetting = get(user, 'settings.0');
     expect.equal<typeof firstSetting, 'on' | 'off'>(PASSED);
 
-    const secondSetting = getAtPath(product, 'settings.1');
+    const quietFirstSetting = quietGet(user, 'settings.0');
+    expect.equal<typeof quietFirstSetting, undefined | 'on' | 'off'>(PASSED);
+
+    const secondSetting = get(user, 'settings.1');
     expect.equal<typeof secondSetting, 'dark' | 'light'>(PASSED);
 
-    const thirdSetting = getAtPath(product, 'settings.2');
-    expect.equal<typeof thirdSetting, undefined>(PASSED);
+    const quietSecondSetting = quietGet(user, 'settings.1');
+    expect.equal<typeof quietSecondSetting, undefined | 'dark' | 'light'>(PASSED);
 
-    const unknownSetting = getAtPath(product, 'settings.abc');
-    expect.equal<typeof unknownSetting, unknown>(PASSED);
+    // @ts-expect-error
+    get(user, 'settings.2');
 
-    const settingsLength = getAtPath(product, 'settings.length');
-    expect.equal<typeof settingsLength, unknown>(PASSED);
+    // @ts-expect-error
+    quietGet(user, 'settings.2');
 
-    const dotSetting = getAtPath(product, 'settings.');
-    expect.equal<typeof dotSetting, unknown>(PASSED);
+    // @ts-expect-error
+    get(user, 'settings.abc');
 
-    const tags = getAtPath(product, 'tags');
+    // @ts-expect-error
+    quietGet(user, 'settings.abc');
+
+    // @ts-expect-error
+    get(user, 'settings.length');
+
+    // @ts-expect-error
+    quietGet(user, 'settings.length');
+
+    // @ts-expect-error
+    get(user, 'settings.');
+
+    // @ts-expect-error
+    quietGet(user, 'settings.');
+
+    const tags = get(user, 'tags');
     expect.equal<typeof tags, string[]>(PASSED);
 
-    const firstTag = getAtPath(product, 'tags.0');
+    const quietTags = quietGet(user, 'tags');
+    expect.equal<typeof quietTags, undefined | string[]>(PASSED);
+
+    const firstTag = get(user, 'tags.0');
     expect.equal<typeof firstTag, string>(PASSED);
 
-    const secondTag = getAtPath(product, 'tags.1');
+    const quietFirstTag = quietGet(user, 'tags.0');
+    expect.equal<typeof quietFirstTag, undefined | string>(PASSED);
+
+    const secondTag = get(user, 'tags.1');
     expect.equal<typeof secondTag, string>(PASSED);
 
-    const unknownTag = getAtPath(product, 'tags.abc');
-    expect.equal<typeof unknownTag, unknown>(PASSED);
+    const quietSecondTag = quietGet(user, 'tags.1');
+    expect.equal<typeof quietSecondTag, undefined | string>(PASSED);
 
-    const tagsLength = getAtPath(product, 'tags.length');
-    expect.equal<typeof tagsLength, unknown>(PASSED);
+    // @ts-expect-error
+    get(user, 'tags.abc');
 
-    const dotTag = getAtPath(product, 'tags.');
-    expect.equal<typeof dotTag, unknown>(PASSED);
+    // @ts-expect-error
+    quietGet(user, 'tags.abc');
 
-    const nonexistent = getAtPath(product, 'nonexistent');
-    expect.equal<typeof nonexistent, unknown>(PASSED);
+    // @ts-expect-error
+    get(user, 'tags.length');
+
+    // @ts-expect-error
+    quietGet(user, 'tags.length');
+
+    // @ts-expect-error
+    get(user, 'tags.');
+
+    // @ts-expect-error
+    quietGet(user, 'tags.');
+
+    // @ts-expect-error
+    get(user, 'nonexistent');
+
+    // @ts-expect-error
+    quietGet(user, 'nonexistent');
   }
 
   {
@@ -98,14 +161,23 @@ import { expect, PASSED } from '../tools/expect';
 
     const emptyPropNameTest = {} as EmptyPropNameTest;
 
-    const empty = getAtPath(emptyPropNameTest, '');
+    const empty = get(emptyPropNameTest, '');
     expect.equal<typeof empty, string>(PASSED);
 
-    const innerEmpty = getAtPath(emptyPropNameTest, 'inner.');
+    const quietEmpty = quietGet(emptyPropNameTest, '');
+    expect.equal<typeof quietEmpty, undefined | string>(PASSED);
+
+    const innerEmpty = get(emptyPropNameTest, 'inner.');
     expect.equal<typeof innerEmpty, number>(PASSED);
 
-    const nonexistentEmpty = getAtPath(emptyPropNameTest, 'inner..');
-    expect.equal<typeof nonexistentEmpty, never>(PASSED);
+    const quietInnerEmpty = quietGet(emptyPropNameTest, 'inner.');
+    expect.equal<typeof quietInnerEmpty, undefined | number>(PASSED);
+
+    // @ts-expect-error
+    get(emptyPropNameTest, 'inner..');
+
+    // @ts-expect-error
+    quietGet(emptyPropNameTest, 'inner..');
   }
 
   {
@@ -119,11 +191,17 @@ import { expect, PASSED } from '../tools/expect';
 
     const emptyPropNameTest = {} as EmptyPropNameTest;
 
-    const innerEmpty = getAtPath(emptyPropNameTest, '.');
+    const innerEmpty = get(emptyPropNameTest, '.');
     expect.equal<typeof innerEmpty, number>(PASSED);
 
-    const nonexistentEmpty = getAtPath(emptyPropNameTest, '..');
-    expect.equal<typeof nonexistentEmpty, never>(PASSED);
+    const quietInnerEmpty = quietGet(emptyPropNameTest, '.');
+    expect.equal<typeof quietInnerEmpty, undefined | number>(PASSED);
+
+    // @ts-expect-error
+    get(emptyPropNameTest, '..');
+
+    // @ts-expect-error
+    quietGet(emptyPropNameTest, '..');
   }
 
   {
@@ -140,11 +218,28 @@ import { expect, PASSED } from '../tools/expect';
 
     const emptyPropNameTest = {} as EmptyPropNameTest;
 
-    const innerEmpty = getAtPath(emptyPropNameTest, '..');
+    const innerEmpty = get(emptyPropNameTest, '..');
     expect.equal<typeof innerEmpty, number>(PASSED);
 
-    const nonexistentEmpty = getAtPath(emptyPropNameTest, '...');
-    expect.equal<typeof nonexistentEmpty, never>(PASSED);
+    const quietInnerEmpty = quietGet(emptyPropNameTest, '..');
+    expect.equal<typeof quietInnerEmpty, undefined | number>(PASSED);
+
+    // @ts-expect-error
+    get(emptyPropNameTest, '...');
+
+    // @ts-expect-error
+    quietGet(emptyPropNameTest, '...');
+  }
+
+  {
+    type User = {
+      nick: string;
+    };
+
+    const user = {} as User;
+
+    const quietNick = quietGet(user, 'nick', null);
+    expect.equal<typeof quietNick, string | null>(PASSED);
   }
 }
 
@@ -160,25 +255,23 @@ import { expect, PASSED } from '../tools/expect';
       };
       settings: ['on' | 'off', 'dark' | 'light'];
       tags: string[];
-      sort?: number;
+      group?: number;
     };
 
     type Path = PossiblePath<User>;
 
-    expect.safety.not.extends<Path, string>(PASSED);
-    expect.safety.extends<Path, 'nick'>(PASSED);
-    expect.safety.extends<Path, 'friend'>(PASSED);
-    expect.safety.extends<Path, 'friend.id'>(PASSED);
-    expect.safety.extends<Path, 'settings'>(PASSED);
-    expect.safety.extends<Path, 'settings.0'>(PASSED);
-    expect.safety.extends<Path, 'settings.1'>(PASSED);
-    expect.safety.not.extends<Path, 'settings.2'>(PASSED);
-    expect.safety.not.extends<Path, 'settings.'>(PASSED);
-    expect.safety.extends<Path, 'tags'>(PASSED);
-    expect.safety.extends<Path, 'tags.0'>(PASSED);
-    expect.safety.extends<Path, 'tags.1'>(PASSED);
-    expect.safety.not.extends<Path, 'tags.'>(PASSED);
-    expect.safety.extends<Path, 'sort'>(PASSED);
+    type ExpectPath =
+      | 'nick'
+      | 'friend'
+      | 'friend.id'
+      | 'settings'
+      | 'settings.0'
+      | 'settings.1'
+      | 'tags'
+      | `tags.${number}`
+      | 'group';
+
+    expect.equal<Path, ExpectPath>(PASSED);
   }
 
   {
@@ -204,11 +297,6 @@ import { expect, PASSED } from '../tools/expect';
       | `friend.data.friend.data.${string}`;
 
     expect.equal<Path, ExpectPath>(PASSED);
-
-    expect.safety.not.extends<Path, 'friend.data.'>(PASSED);
-    expect.safety.not.extends<Path, 'friend.data.a'>(PASSED);
-    expect.safety.extends<Path, 'friend.data.friend.data.'>(PASSED);
-    expect.safety.extends<Path, 'friend.data.friend.data.a'>(PASSED);
   }
 
   {
@@ -238,11 +326,6 @@ import { expect, PASSED } from '../tools/expect';
       | `friend.data.friend.data.friend.data.${string}`;
 
     expect.equal<Path, ExpectPath>(PASSED);
-
-    expect.safety.not.extends<Path, 'friend.data.friend.data.'>(PASSED);
-    expect.safety.not.extends<Path, 'friend.data.friend.data.a'>(PASSED);
-    expect.safety.extends<Path, 'friend.data.friend.data.friend.data.'>(PASSED);
-    expect.safety.extends<Path, 'friend.data.friend.data.friend.data.a'>(PASSED);
   }
 
   {
@@ -297,26 +380,24 @@ import { expect, PASSED } from '../tools/expect';
 
     expect.equal<Path, ExpectPath>(PASSED);
 
-    expect.safety.not.extends<Path, 'friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.'>(PASSED);
-    expect.safety.not.extends<Path, 'friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.a'>(PASSED);
-    expect.safety.extends<Path, 'friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.'>(PASSED);
-    expect.safety.extends<Path, 'friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.friend.data.a'>(PASSED);
-
     type Path10 = PossiblePath<User, 10>;
     type Path11 = PossiblePath<User, 11>;
     type Path30 = PossiblePath<User, 30>;
 
     // It's very strangely. If I define type `type Path = PossiblePath<User, 9>` and then define
     // type `type Path_10 = PossiblePath<User, 10>` (just like in this test) - typescript will
-    // calculated both types. But if I define only one type `type Path = PossiblePath<User, 10>;`
+    // calculate both types. But if I define only one type `type Path = PossiblePath<User, 10>;`
     // - typescript give me error: 'type instantiation is excessively deep'. See next test block.
 
-    // TODO It should be equal!
-    expect.not.equal<Path, Path10>(PASSED);
-    // TODO It should be equal!
-    expect.not.equal<Path, Path11>(PASSED);
-    // TODO It should be equal!
-    expect.not.equal<Path, Path30>(PASSED);
+    // TODO This should not give an error!
+    // @ts-expect-error
+    expect.equal<Path, Path10>(PASSED);
+    // TODO This should not give an error!
+    // @ts-expect-error
+    expect.equal<Path, Path11>(PASSED);
+    // TODO This should not give an error!
+    // @ts-expect-error
+    expect.equal<Path, Path30>(PASSED);
   }
 
   {
@@ -330,21 +411,25 @@ import { expect, PASSED } from '../tools/expect';
     };
 
     // TODO This should work
-    // Do not why, but typescript give me an error: 'type instantiation is excessively deep'.
+    // Do not why, but typescript give me an error: 'type instantiation is excessively deep'. See
+    // previous test block.
     // type Path = PossiblePath<User, 10>;
   }
 
   {
-    type Boss = {
-      isPatron: boolean;
-      data: User;
-    };
-
     type User = {
       nick: string;
-      friend: {
+      boss: {
         id: number;
         data: Boss;
+      };
+    };
+
+    type Boss = {
+      nick: string;
+      friend: {
+        id: string;
+        data: User;
       };
     };
 
@@ -352,25 +437,24 @@ import { expect, PASSED } from '../tools/expect';
 
     type ExpectPath =
       | 'nick'
-      | 'friend'
-      | 'friend.id'
-      | 'friend.data'
-      | 'friend.data.isPatron'
-      | 'friend.data.data'
-      | 'friend.data.data.nick'
-      | 'friend.data.data.friend'
-      | 'friend.data.data.friend.id'
-      | 'friend.data.data.friend.data'
-      | 'friend.data.data.friend.data.isPatron'
-      | 'friend.data.data.friend.data.data'
-      | `friend.data.data.friend.data.data.${string}`;
+      | 'boss'
+      | 'boss.id'
+      | 'boss.data'
+      | 'boss.data.nick'
+      | 'boss.data.friend'
+      | 'boss.data.friend.id'
+      | 'boss.data.friend.data'
+      | 'boss.data.friend.data.nick'
+      | 'boss.data.friend.data.boss'
+      | 'boss.data.friend.data.boss.id'
+      | 'boss.data.friend.data.boss.data'
+      | 'boss.data.friend.data.boss.data.nick'
+      | 'boss.data.friend.data.boss.data.friend'
+      | 'boss.data.friend.data.boss.data.friend.id'
+      | 'boss.data.friend.data.boss.data.friend.data'
+      | `boss.data.friend.data.boss.data.friend.data.${string}`;
 
     expect.equal<Path, ExpectPath>(PASSED);
-
-    expect.safety.not.extends<Path, 'friend.data.data.'>(PASSED);
-    expect.safety.not.extends<Path, 'friend.data.data.a'>(PASSED);
-    expect.safety.extends<Path, 'friend.data.data.friend.data.data.'>(PASSED);
-    expect.safety.extends<Path, 'friend.data.data.friend.data.data.a'>(PASSED);
   }
 }
 
@@ -389,43 +473,22 @@ import { expect, PASSED } from '../tools/expect';
 
     type Value = PossibleValue<User>;
 
-    expect.equal<Value, string | { id: number } | number | boolean[] | boolean>(PASSED);
-  }
+    type ExpectedValue = string | { id: number } | number | boolean[] | boolean;
 
-  {
-    type User = {
-      nick?: string;
-    };
-
-    type Value = PossibleValue<User>;
-
-    expect.equal<Value, undefined | string>(PASSED);
+    expect.equal<Value, ExpectedValue>(PASSED);
   }
 
   {
     type User = {
       settings: ['on' | 'off', 'dark' | 'light'];
+      sort?: number;
     };
 
     type Value = PossibleValue<User>;
 
-    expect.equal<Value, 'on' | 'off' | 'dark' | 'light' | ['on' | 'off', 'dark' | 'light']>(PASSED);
-  }
+    type ExpectedValue = | undefined | number | 'on' | 'off' | 'dark' | 'light' | ['on' | 'off', 'dark' | 'light'];
 
-  {
-    type Settings = ['on' | 'off', 'dark' | 'light'];
-
-    type Value = PossibleValue<Settings>;
-
-    expect.equal<Value, 'on' | 'off' | 'dark' | 'light'>(PASSED);
-  }
-
-  {
-    type Users = string[];
-
-    type Value = PossibleValue<Users>;
-
-    expect.equal<Value, string>(PASSED);
+    expect.equal<Value, ExpectedValue>(PASSED);
   }
 
   {
@@ -464,42 +527,50 @@ import { expect, PASSED } from '../tools/expect';
     expect.equal<PathValue<User, 'settings'>, ['on' | 'off', 'dark' | 'light']>(PASSED);
     expect.equal<PathValue<User, 'settings.0'>, 'on' | 'off'>(PASSED);
     expect.equal<PathValue<User, 'settings.1'>, 'dark' | 'light'>(PASSED);
-    // @ts-expect-error
-    expect.equal<PathValue<User, 'settings.2'>, undefined>(
-      PASSED,
-    );
-    // @ts-expect-error
-    expect.equal<PathValue<User, 'settings.abc'>, unknown>(
-      PASSED,
-    );
-    // @ts-expect-error
-    expect.equal<PathValue<User, 'settings.length'>, unknown>(
-      PASSED,
-    );
-    // @ts-expect-error
-    expect.equal<PathValue<User, 'settings.'>, unknown>(
-      PASSED,
-    );
+    expect.equal<
+      // @ts-expect-error
+      PathValue<User, 'settings.2'>,
+      undefined
+    >(PASSED);
+    expect.equal<
+      // @ts-expect-error
+      PathValue<User, 'settings.abc'>,
+      unknown
+    >(PASSED);
+    expect.equal<
+      // @ts-expect-error
+      PathValue<User, 'settings.length'>,
+      unknown
+    >(PASSED);
+    expect.equal<
+      // @ts-expect-error
+      PathValue<User, 'settings.'>,
+      unknown
+    >(PASSED);
     expect.equal<PathValue<User, 'tags'>, string[]>(PASSED);
     expect.equal<PathValue<User, 'tags.0'>, string>(PASSED);
     expect.equal<PathValue<User, 'tags.1'>, string>(PASSED);
-    // @ts-expect-error
-    expect.equal<PathValue<User, 'tags.abc'>, unknown>(
-      PASSED,
-    );
-    // @ts-expect-error
-    expect.equal<PathValue<User, 'tags.length'>, unknown>(
-      PASSED,
-    );
-    // @ts-expect-error
-    expect.equal<PathValue<User, 'tags.'>, unknown>(
-      PASSED,
-    );
+    expect.equal<
+      // @ts-expect-error
+      PathValue<User, 'tags.abc'>,
+      unknown
+    >(PASSED);
+    expect.equal<
+      // @ts-expect-error
+      PathValue<User, 'tags.length'>,
+      unknown
+    >(PASSED);
+    expect.equal<
+      // @ts-expect-error
+      PathValue<User, 'tags.'>,
+      unknown
+    >(PASSED);
     expect.equal<PathValue<User, 'sort'>, undefined | number>(PASSED);
-    // @ts-expect-error
-    expect.equal<PathValue<User, 'nonexistent'>, unknown>(
-      PASSED,
-    );
+    expect.equal<
+      // @ts-expect-error
+      PathValue<User, 'nonexistent'>,
+      unknown
+    >(PASSED);
   }
 
   {
@@ -516,10 +587,11 @@ import { expect, PASSED } from '../tools/expect';
 
     expect.equal<PathValue<EmptyPropNameTest, 'inner.'>, number>(PASSED);
 
-    // @ts-expect-error
-    expect.equal<PathValue<EmptyPropNameTest, 'inner..'>, never>(
-      PASSED,
-    );
+    expect.equal<PathValue<
+      // @ts-expect-error
+      EmptyPropNameTest, 'inner..'>,
+      never
+    >(PASSED);
   }
 
   {
@@ -533,10 +605,11 @@ import { expect, PASSED } from '../tools/expect';
 
     expect.equal<PathValue<EmptyPropNameTest, '.'>, number>(PASSED);
 
-    // @ts-expect-error
-    expect.equal<PathValue<EmptyPropNameTest, '..'>, never>(
-      PASSED,
-    );
+    expect.equal<PathValue<
+      // @ts-expect-error
+      EmptyPropNameTest, '..'>,
+      never
+    >(PASSED);
   }
 
   {
@@ -553,9 +626,10 @@ import { expect, PASSED } from '../tools/expect';
 
     expect.equal<PathValue<EmptyPropNameTest, '..'>, number>(PASSED);
 
-    // @ts-expect-error
-    expect.equal<PathValue<EmptyPropNameTest, '...'>, never>(
-      PASSED,
-    );
+    expect.equal<
+      // @ts-expect-error
+      PathValue<EmptyPropNameTest, '...'>,
+      never
+    >(PASSED);
   }
 }

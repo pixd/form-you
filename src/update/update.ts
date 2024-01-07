@@ -1,9 +1,11 @@
 import { UpdatePayload } from './types/update.types';
 import { COMMAND_KEYS } from './tools/update-command';
+import { stringify, GetUpdateError, GetUpdateErrorDesc } from '../error-messages';
+
+// Commands
 import { isAppendCommand, isApplyCommand, isDeleteCommand, isExcludeCommand,
   isExcludeRowCommand, isExtractCommand, isExtractRowCommand, isMoveCommand,
   isPrependCommand, isSetCommand, isSwapCommand, isUnsetCommand } from './tools/update-command';
-
 
 export function update<
   TData extends any,
@@ -19,195 +21,228 @@ export function update(
   if (updatePayload === undefined) {
     return data;
   }
-  else if (Array.isArray(updatePayload)) {
-    return updatePayload;
-  }
   else if (updatePayload && typeof updatePayload === 'object') {
-    if (isSetCommand(updatePayload)) {
-      return updatePayload.$$set;
-    }
-    else if (isUnsetCommand(updatePayload)) {
-      return updatePayload.$$unset ? undefined : data;
-    }
-    else if (isDeleteCommand(updatePayload)) {
-      throw new Error('$$delete command can not be used in update method');
-    }
-    else if (isAppendCommand(updatePayload)) {
-      if (Array.isArray(data)) {
-        const skip = Math.max(0, updatePayload.skip ?? 0);
-        const nextData = [...data];
-        nextData.splice(Math.max(0, data.length - skip), 0, ...updatePayload.$$append);
-        return nextData;
+    switch (true) {
+      case (Array.isArray(updatePayload)): {
+        return updatePayload;
       }
-      else {
-        return data;
+      case (isSetCommand(updatePayload)): {
+        return updatePayload.$$set;
       }
-    }
-    else if (isPrependCommand(updatePayload)) {
-      if (Array.isArray(data)) {
-        const skip = Math.max(0, updatePayload.skip ?? 0);
-        const nextData = [...data];
-        nextData.splice(skip, 0, ...updatePayload.$$prepend);
-        return nextData;
+      case (isUnsetCommand(updatePayload)): {
+        return updatePayload.$$unset ? undefined : data;
       }
-      else {
-        return data;
+      case (isDeleteCommand(updatePayload)): {
+        throw new Error('$$delete can not be used as root command in update methods');
       }
-    }
-    else if (isExcludeCommand(updatePayload)) {
-      if (Array.isArray(data)) {
-        const { $$exclude: exclude } = updatePayload;
-        const excludeElement = Symbol('excludeElement');
-
-        const nextArray = [...data];
-        exclude.forEach((key) => {
-          if (key < 0) {
-            key = data.length + key;
-          }
-          if (key in nextArray) {
-            nextArray[key] = excludeElement;
-          }
-        });
-
-        return nextArray.filter((element) => element !== excludeElement);
-      }
-      else {
-        return data;
-      }
-    }
-    else if (isExcludeRowCommand(updatePayload)) {
-      if (Array.isArray(data)) {
-        const { $$exclude: exclude, skip } = updatePayload;
-        const nextData = [...data];
-
-        const startEndIndex = getIndexes(data.length, exclude, skip, [], nextData);
-
-        if (Array.isArray(startEndIndex)) {
-          return startEndIndex;
-        }
-        else {
-          nextData.splice(startEndIndex.start, startEndIndex.end - startEndIndex.start + 1);
+      case (isAppendCommand(updatePayload)): {
+        if (Array.isArray(data)) {
+          const skip = Math.max(0, updatePayload.skip ?? 0);
+          const nextData = [...data];
+          nextData.splice(Math.max(0, data.length - skip), 0, ...updatePayload.$$append);
           return nextData;
         }
+        else {
+          const desc = { problemPath: null, data, update: updatePayload };
+          return notAnArray('$$append', data, desc);
+        }
       }
-      else {
-        return data;
-      }
-    }
-    else if (isExtractCommand(updatePayload)) {
-      if (Array.isArray(data)) {
-        const { $$extract: extract } = updatePayload;
-
-        return extract.reduce((nextArray, key) => {
-          if (key < 0) {
-            key = data.length + key;
-          }
-          if (key in data) {
-            nextArray.push(data[key]);
-          }
-          return nextArray;
-        }, [] as any[]);
-      }
-      else {
-        return data;
-      }
-    }
-    else if (isExtractRowCommand(updatePayload)) {
-      if (Array.isArray(data)) {
-        const { $$extract: extract, skip } = updatePayload;
-        const nextData = [...data];
-
-        const startEndIndex = getIndexes(data.length, extract, skip, nextData, []);
-
-        if (Array.isArray(startEndIndex)) {
-          return startEndIndex;
+      case (isPrependCommand(updatePayload)): {
+        if (Array.isArray(data)) {
+          const skip = Math.max(0, updatePayload.skip ?? 0);
+          const nextData = [...data];
+          nextData.splice(skip, 0, ...updatePayload.$$prepend);
+          return nextData;
         }
         else {
-          return nextData.slice(startEndIndex.start, startEndIndex.end + 1);
+          return data;
         }
       }
-      else {
-        return data;
-      }
-    }
-    else if (isMoveCommand(updatePayload)) {
-      if (Array.isArray(data)) {
-        const { $$move: move } = updatePayload;
-        return moveElement(move, data);
-      }
-      else {
-        return data;
-      }
-    }
-    else if (isSwapCommand(updatePayload)) {
-      if (Array.isArray(data)) {
-        const { $$swap: swap } = updatePayload;
-        return moveElement([swap[1], swap[0]], moveElement(swap, data), true);
-      }
-      else {
-        return data;
-      }
-    }
-    else if (isApplyCommand(updatePayload)) {
-      if (Array.isArray(data)) {
-        const { $$apply: apply, length, skip } = updatePayload;
-        const nextData = [...data];
+      case (isExcludeCommand(updatePayload)): {
+        if (Array.isArray(data)) {
+          const { $$exclude: exclude } = updatePayload;
+          const excludeElement = Symbol('excludeElement');
 
-        const removeElement = Symbol('removeElement');
+          const nextArray = [...data];
+          exclude.forEach((key) => {
+            if (key < 0) {
+              key = data.length + key;
+            }
+            if (key in nextArray) {
+              nextArray[key] = excludeElement;
+            }
+          });
 
-        const startEndIndex = getIndexes(data.length, length, skip, true, false);
+          return nextArray.filter((element) => element !== excludeElement);
+        }
+        else {
+          return data;
+        }
+      }
+      case (isExcludeRowCommand(updatePayload)): {
+        if (Array.isArray(data)) {
+          const { $$exclude: exclude, skip } = updatePayload;
+          const nextData = [...data];
 
-        if (typeof startEndIndex === 'boolean') {
-          if (startEndIndex) {
-            return nextData.map((element) => (
-              isDeleteCommand(apply)
-                ? apply.$$delete ? removeElement : element
-                : update(element, apply)
-            ))
-              .filter((element) => element !== removeElement);
+          const startEndIndex = getIndexes(data.length, exclude, skip, [], nextData);
+
+          if (Array.isArray(startEndIndex)) {
+            return startEndIndex;
           }
           else {
+            nextData.splice(startEndIndex.start, startEndIndex.end - startEndIndex.start + 1);
             return nextData;
           }
         }
         else {
-          const sliceData = nextData.slice(startEndIndex.start, startEndIndex.end + 1)
-            .map((element) => (
-              isDeleteCommand(apply)
-                ? apply.$$delete ? removeElement : element
-                : update(element, apply)
-            ))
-            .filter((element) => element !== removeElement);
-          nextData.splice(startEndIndex.start, startEndIndex.end - startEndIndex.start + 1, ...sliceData);
-          return nextData;
+          return data;
         }
       }
-      else {
-        return data;
+      case (isExtractCommand(updatePayload)): {
+        if (Array.isArray(data)) {
+          const { $$extract: extract } = updatePayload;
+
+          return extract.reduce((nextArray, key) => {
+            if (key < 0) {
+              key = data.length + key;
+            }
+            if (key in data) {
+              nextArray.push(data[key]);
+            }
+            return nextArray;
+          }, [] as any[]);
+        }
+        else {
+          return data;
+        }
       }
-    }
-    else {
-      if (Array.isArray(data)) {
-        const removeElement = Symbol('removeElement');
-        return Object.keys(updatePayload)
-          .filter((key) => !COMMAND_KEYS.includes(key))
-          .reduce((data, key) => {
-            isDeleteCommand(updatePayload[key])
-              ? updatePayload[key].$$delete && (data[key] = removeElement)
-              : (data[key] = update(data[key], updatePayload[key]));
-            return data;
-          }, [...data])
-          .filter((element) => element !== removeElement);
+      case (isExtractRowCommand(updatePayload)): {
+        if (Array.isArray(data)) {
+          const { $$extract: extract, skip } = updatePayload;
+          const nextData = [...data];
+
+          const startEndIndex = getIndexes(data.length, extract, skip, nextData, []);
+
+          if (Array.isArray(startEndIndex)) {
+            return startEndIndex;
+          }
+          else {
+            return nextData.slice(startEndIndex.start, startEndIndex.end + 1);
+          }
+        }
+        else {
+          return data;
+        }
       }
-      else {
-        return Object.keys(updatePayload)
-          .filter((key) => !COMMAND_KEYS.includes(key))
-          .reduce((data, key) => {
-            isDeleteCommand(updatePayload[key])
-              ? updatePayload[key].$$delete && (delete data[key])
-              : (data[key] = update(data[key], updatePayload[key]));
-            return data;
-          }, data && typeof data === 'object' ? { ...data } : {});
+      case (isMoveCommand(updatePayload)): {
+        if (Array.isArray(data)) {
+          const { $$move: move } = updatePayload;
+          return moveElement(move, data);
+        }
+        else {
+          return data;
+        }
+      }
+      case (isSwapCommand(updatePayload)): {
+        if (Array.isArray(data)) {
+          const { $$swap: swap } = updatePayload;
+          return moveElement([swap[1], swap[0]], moveElement(swap, data), true);
+        }
+        else {
+          return data;
+        }
+      }
+      case (isApplyCommand(updatePayload)): {
+        if (Array.isArray(data)) {
+          const { $$apply: apply, length, skip } = updatePayload;
+          const nextData = [...data];
+
+          const removeElement = Symbol('removeElement');
+
+          const startEndIndex = getIndexes(data.length, length, skip, true, false);
+
+          if (typeof startEndIndex === 'boolean') {
+            if (startEndIndex) {
+              return nextData.map((element) => (
+                isDeleteCommand(apply)
+                  ? apply.$$delete ? removeElement : element
+                  : update(element, apply)
+              ))
+                .filter((element) => element !== removeElement);
+            }
+            else {
+              return nextData;
+            }
+          }
+          else {
+            const sliceData = nextData.slice(startEndIndex.start, startEndIndex.end + 1)
+              .map((element) => (
+                isDeleteCommand(apply)
+                  ? apply.$$delete ? removeElement : element
+                  : update(element, apply)
+              ))
+              .filter((element) => element !== removeElement);
+            nextData.splice(startEndIndex.start, startEndIndex.end - startEndIndex.start + 1, ...sliceData);
+            return nextData;
+          }
+        }
+        else {
+          return data;
+        }
+      }
+      default: {
+        if (Array.isArray(data)) {
+          const removeElement = Symbol('removeElement');
+          return Object.keys(updatePayload)
+            .filter((key) => !COMMAND_KEYS.includes(key))
+            .reduce((result, key) => {
+              if (isDeleteCommand(updatePayload[key])) {
+                updatePayload[key].$$delete && (result[key] = removeElement);
+              }
+              else {
+                try {
+                  result[key] = update(result[key], updatePayload[key]);
+                }
+                catch (error) {
+                  if (error instanceof GetUpdateError) {
+                    error.desc.problemPath = error.desc.problemPath == null
+                      ? key
+                      : (key + '.' + error.desc.problemPath);
+                    error.desc.data = data;
+                    error.desc.update = updatePayload;
+                  }
+                  throw error;
+                }
+              }
+              return result;
+            }, [...data])
+            .filter((element) => element !== removeElement);
+        }
+        else {
+          return Object.keys(updatePayload)
+            .filter((key) => !COMMAND_KEYS.includes(key))
+            .reduce((result, key) => {
+              if (isDeleteCommand(updatePayload[key])) {
+                updatePayload[key].$$delete && (delete result[key]);
+              }
+              else {
+                try {
+                  result[key] = update(result[key], updatePayload[key]);
+                }
+                catch (error) {
+                  if (error instanceof GetUpdateError) {
+                    error.desc.problemPath = error.desc.problemPath == null
+                      ? key
+                      : (key + '.' + error.desc.problemPath);
+                    error.desc.data = data;
+                    error.desc.update = updatePayload;
+                  }
+                  throw error;
+                }
+              }
+              return result;
+            }, data && typeof data === 'object' ? { ...data } : {});
+        }
       }
     }
   }
@@ -318,4 +353,9 @@ function shouldMove(
   else {
     return aIndex !== dataLength + bIndex;
   }
+}
+
+function notAnArray(command: string, data: any, desc: GetUpdateErrorDesc) {
+  const message = `Can not use ${stringify(command)} with non-object value (${stringify(data)} was received)`;
+  throw new GetUpdateError(message, desc);
 }

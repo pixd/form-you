@@ -25,11 +25,9 @@ export function updateAtPath(
   path: number | string | AnyPath,
   updatePayload: any,
 ) {
-  const anyPath = typeof path === 'number'
-    ? [path]
-    : typeof path === 'string'
-      ? path.split('.')
-      : path;
+  const anyPath = (Array.isArray(path) ? path.map((path) => String(path)) : [path]).reduce((anyPath, path) => {
+    return anyPath.concat(String(path).split('.'));
+  }, [] as string[]);
 
   if (anyPath.length === 0) {
     return update(data, updatePayload);
@@ -53,7 +51,9 @@ export function updateAtPath(
       return nextData;
     }
     else {
-      throw new Error('Path `' + anyPath.join('.') + '` can not be reached in `' + String(data) + '`');
+      const path = anyPath.join('.');
+      const message = `Path \`${path}\` can not be reached in ${String(data)}`;
+      throw new Error(message);
     }
   }
 }

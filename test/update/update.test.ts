@@ -1,4 +1,15 @@
+import { GetUpdateError } from '../../src/error-messages';
 import { update } from '../../src/update/update';
+
+function getError(cb: () => any): GetUpdateError {
+  try {
+    cb();
+  }
+  catch (error) {
+    return error as GetUpdateError;
+  }
+  throw new Error('Error expected');
+}
 
 describe('update', () => {
   it('can update objects', () => {
@@ -701,12 +712,12 @@ describe('update', () => {
       const newUser = update(
         user,
         // @ts-expect-error
-        { bonus: { $$append: undefined, value: 20 } },
+        { bonus: { $$append: undefined, value: 15 } },
       );
 
       expect(newUser).toStrictEqual({
         nick: 'Antonio',
-        bonus: { value: 20 },
+        bonus: { value: 15 },
       });
     }
   });
@@ -818,12 +829,12 @@ describe('update', () => {
       const newUser = update(
         user,
         // @ts-expect-error
-        { bonus: { $$prepend: undefined, value: 20 } },
+        { bonus: { $$prepend: undefined, value: 15 } },
       );
 
       expect(newUser).toStrictEqual({
         nick: 'Antonio',
-        bonus: { value: 20 },
+        bonus: { value: 15 },
       });
     }
   });
@@ -2033,6 +2044,38 @@ describe('update', () => {
       expect(newUser).toStrictEqual({
         name: 'Antonio',
         bonus: { value: 10 },
+      });
+    }
+  });
+
+  it('throw an error with array commands and non-object values', () => {
+    {
+      const user = null;
+
+      const updatePayload = { $$append: 10 };
+      // @ts-expect-error
+      const error = getError(() => update(user, updatePayload));
+      expect(error.message).toMatch(/`\$\$append` .+ \(null was received\)/);
+      expect(error.desc).toStrictEqual({
+        problemPath: null,
+        data: user,
+        update: updatePayload,
+      });
+    }
+
+    {
+      const user = {
+        bonus: null,
+      };
+
+      const updatePayload = { bonus: { $$append: 10 } };
+      // @ts-expect-error
+      const error = getError(() => update(user, updatePayload));
+      expect(error.message).toMatch(/`\$\$append` .+ \(null was received\)/);
+      expect(error.desc).toStrictEqual({
+        problemPath: 'bonus',
+        data: user,
+        update: updatePayload,
       });
     }
   });
